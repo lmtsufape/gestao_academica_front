@@ -15,7 +15,7 @@ export default function ClientProviders({ children }: { children: React.ReactNod
     <ProviderQuery>
       <ProviderRedux>
           <Header />
-        {isPublicPage && children}
+        { children}
         {/**<!isPublicPage && (
           <PrivateRoute>
           {children}

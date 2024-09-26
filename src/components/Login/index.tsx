@@ -9,6 +9,7 @@ import style from "./login.module.scss";
 import Link from "next/link";
 import api from "@/api/http-common";
 import { setUserLogin } from "@/redux/userLogin/userLoginSlice";
+import HomePage from "../HomePage";
 
 
 const Login = () => {

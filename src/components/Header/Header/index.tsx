@@ -120,7 +120,7 @@ const LayoutAdmin: React.FC = () => {
   //  async () => getUsuarioEmail(userLogin),
     {
       onSuccess: (res:any) => {
-        setUsuario(res.data);
+       // setUsuario(res.data);
       },
       onError: (error) => {
         console.error(error);
@@ -245,7 +245,7 @@ const LayoutPublic = () => {
 
   useEffect(() => {
     if (windowWidth && windowWidth >= 768) {
-      setOpen(false);
+     // setOpen(false);
     }
     mutate();
   }, [windowWidth]);
@@ -267,7 +267,7 @@ const LayoutPublic = () => {
     },
     {
       onSuccess: (res:any) => {
-        setUsuario(res.data);
+       // setUsuario(res.data);
       },
       onError: (error) => {
         console.error(error);

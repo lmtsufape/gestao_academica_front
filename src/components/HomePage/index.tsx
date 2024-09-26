@@ -8,7 +8,7 @@ import { useSelector } from "react-redux";
 
 
 
-export default function Home() {
+export default function HomePage() {
 
   const [role, setRole] = useState(getStorageItem("userRole"));
 
@@ -28,18 +28,10 @@ export default function Home() {
     }
 
   }
-
   return (
     <div>
-      {
-        /**
-         * 
-        {!userLogin ? <div className={style.mapa}><img className={style.mapa__img} src="/assets/Group 12.png " alt="menu burguer" /></div> : false}
-         */
-      }
-      <div className={style.menu} style={!userLogin ? { paddingTop: '0px' } : {}}>
-        <div className={style.conjuntoCards}>
-          <h1>asuhaush</h1>
+      <div className={style.container} >
+        <div className={style.container__itens}>
           {whatIsTypeUser()}
         </div>
       </div>
@@ -52,7 +44,6 @@ const LayoutAdmin = () => {
 
   return (
     <>
-    <h1>aushufah</h1>
       <Card title="Agricultores" icon="/assets/iconAgricultor.svg" description="Agricultores" link="/agricultores" />
       <Card title="Coordenadores" icon="/assets/IconCordenadores.svg" description="Coordenadores" link="/coordenadores" />
       <Card title="Funcionários" icon="/assets/iconAssociates.svg" description="Funcionários" link="/funcionarios" />
