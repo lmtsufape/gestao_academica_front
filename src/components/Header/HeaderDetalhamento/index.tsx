@@ -16,10 +16,7 @@ const HeaderDetalhamento : React.FC<HeaderDetalhamentoProps> = ({diretorioAnteri
     <>
 
     <div className={style.header}>
-        <div className={style.header__title}>
-            <h1>{titulo}</h1>
-            <div className={style.header__title_line}></div>
-        </div>
+        
         <div className={style.header__navegacao}>
           <div className={style.header__navegacao_voltar} onClick={() => 
               typeof hrefAnterior === 'function' 
@@ -35,6 +32,10 @@ const HeaderDetalhamento : React.FC<HeaderDetalhamentoProps> = ({diretorioAnteri
           <div className={style.header__navegacao_guia}>
              <span>{diretorioAnterior} </span><h1>{diretorioAtual}</h1>
           </div>
+        </div>
+        <div className={style.header__title}>
+            <h1>{titulo}</h1>
+            <div className={style.header__title_line}></div>
         </div>
         
       </div>

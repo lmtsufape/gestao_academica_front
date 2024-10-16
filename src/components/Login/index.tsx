@@ -10,6 +10,8 @@ import Link from "next/link";
 import api from "@/api/http-common";
 import { setUserLogin } from "@/redux/userLogin/userLoginSlice";
 import HomePage from "../HomePage";
+import { postLogin } from "@/api/auth/postLogin";
+import { APP_ROUTES } from "@/constants/app-routes";
 
 
 const Login = () => {
@@ -22,15 +24,32 @@ const Login = () => {
 
   const { status, mutate } = useMutation(
     async () => {
-      //return postLogin(email, senha);
+      return postLogin(email, senha);
     }, {
-    onSuccess: (res: any) => {
-      api.defaults.headers.authorization = `${res.headers.authorization}`;
-      setStorageItem("token", res.headers.authorization)
-      dispatch(setUserLogin(email));
-      setStorageItem("userLogin", email);
-      //userDetailsMutation.mutate();
-    },
+      onSuccess: (res: any) => {
+        console.log(res);
+      
+        // Extrair os tokens e o tipo de token da resposta
+        const accessToken = res.data.access_token;
+        const refreshToken = res.data.refresh_token;
+        const tokenType = res.data.token_type; // Geralmente 'Bearer'
+      
+        // Configurar o header Authorization com o tipo de token
+        api.defaults.headers.authorization = `${tokenType} ${accessToken}`;
+      
+        // Armazenar os tokens no localStorage
+        setStorageItem("token", accessToken);
+        setStorageItem("refresh_token", refreshToken);
+      
+        // Armazenar informações do usuário
+        dispatch(setUserLogin(email));
+        setStorageItem("userLogin", email);
+      
+        // Redirecionar para a página inicial
+        push(APP_ROUTES.private.home.name);
+        // Se necessário, pode descomentar a linha abaixo
+        // userDetailsMutation.mutate();
+      },
     onError: (error) => {
       console.log("Erro ao fazer o login de usuario", error);
     },
@@ -77,7 +96,7 @@ const Login = () => {
 
             {status === "error" ? <p className={style.login__login_errorLogin}>E-mail ou senha incorretos</p> : null}
 
-            <button className={`${style.login__login_button} ${status === "loading" || status === "success" ? style.active : ""}`} onClick={() => {push("/home")}}>
+            <button className={`${style.login__login_button} ${status === "loading" || status === "success" ? style.active : ""}`} onClick={() => {mutate()}}>
               Entrar
             </button>
 

@@ -3,6 +3,18 @@ export const APP_ROUTES = {
 
         unauthorized: {
             name: "/unauthorized"
+        },
+        home: {
+            name: '/home',
+        },
+        solicitacoes: {
+            name: '/solicitacoes',
+        },
+        usuarios: {
+            name: '/usuarios',
+        },
+        cadastrarUsuario: {
+            name: '/usuarios/cadastrar-usuario',
         }
 
     },

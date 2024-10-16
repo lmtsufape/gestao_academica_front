@@ -6,11 +6,15 @@
   align-items: center;
   justify-content: space-around;
 
-
+  
   flex-wrap: wrap;
   gap: 1em;
 
   background-color: #1A2E4F;
+
+  margin-top: 0;
+  margin-bottom: 0;
+  
   &__logo_sementes{
     align-items: center;
   }
@@ -22,13 +26,13 @@
 
   @media screen and (max-width: 700px) {
     height: 10em;
-
-
+  
+  
     &__logo_sementes{
       padding-top: 1em;
       align-items: center;
     }
-
+  
     &__social{
       gap: 1em;
       display: flex;

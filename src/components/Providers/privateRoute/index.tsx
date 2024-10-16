@@ -34,20 +34,20 @@ const PrivateRoute = (props: PrivateRouteProps) =>{
     }, []);
 
     //validação do token
-    const { status , mutate} = useMutation(
-        async () =>{
-            return postLogin(token);
-           
-        },{
-            onSuccess: (res) =>{
-                setAuthorized(true);
-            },
-            onError: (error) =>{
+    //const { status , mutate} = useMutation(
+    //    async () =>{
+     //       return postLogin(token);
+    //       
+    //    },{
+    //        onSuccess: (res) =>{
+    //            setAuthorized(true);
+    //        },
+    //        onError: (error) =>{
 
-                console.log(error)
-            }
-        }
-    )
+//                console.log(error)
+  //          }
+    //    }
+   // )
 
 
     return(

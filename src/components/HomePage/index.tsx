@@ -44,12 +44,11 @@ const LayoutAdmin = () => {
 
   return (
     <>
-      <Card title="Agricultores" icon="/assets/iconAgricultor.svg" description="Agricultores" link="/agricultores" />
-      <Card title="Coordenadores" icon="/assets/IconCordenadores.svg" description="Coordenadores" link="/coordenadores" />
-      <Card title="Funcionários" icon="/assets/iconAssociates.svg" description="Funcionários" link="/funcionarios" />
-      <Card title="Bancos de Sementes" icon="/assets/iconBancoDeSementes.svg" description="Banco Sementes" link="/bancoSementes" />
-      <Card title="Gestão de Sementes" icon="/assets/iconSeedGreen.svg" description="Sementes" link="/sementes" />
-      <Card title="Mural" icon="/assets/iconMural.svg" description="Mural" link="/mural" />
+        <Card title="Solicitações" icon="/assets/icons/solicitacoes.svg" description="Usuarios" link="/solicitacoes" />
+
+        <Card title="Usuarios" icon="/assets/icons/usuarios.svg" description="Usuarios" link="/usuarios" />
+        <Card title="Unidades Administrativas" icon="/assets/icons/unidadeAdministrativa.svg" description="Usuarios" link="/unidade-administrativa" />
+
     </>
   )
 }

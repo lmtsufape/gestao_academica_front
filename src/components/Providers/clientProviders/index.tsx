@@ -1,5 +1,6 @@
+// ClientProviders.tsx
 "use client";
-
+import styles from './client.module.scss';
 import ProviderQuery from "@/components/Providers/ProviderQuery";
 import ProviderRedux from "@/components/Providers/provideRedux";
 import { checkIsPublicRoute } from "@/functions/checkIsPublicRoute";
@@ -14,14 +15,18 @@ export default function ClientProviders({ children }: { children: React.ReactNod
   return (
     <ProviderQuery>
       <ProviderRedux>
+        <div className={styles.appContainer}>
           <Header />
-        { children}
-        {/**<!isPublicPage && (
-          <PrivateRoute>
-          {children}
-          </PrivateRoute>
-          </ProviderQuery>)*/}
-          <Footer />
+          <div className={styles.content}>
+            {isPublicPage && children}
+            {!isPublicPage && (
+              <PrivateRoute>
+                {children}
+              </PrivateRoute>
+            )}
+          </div>
+          <Footer className={styles.footer} />
+        </div>
       </ProviderRedux>
     </ProviderQuery>
   );

@@ -276,9 +276,11 @@ const LayoutPublic = () => {
   );
 
   return (
+    <div className={style.container}>
+
     <div className={style.header}>
       <button className={style.header__button_link} onClick={() => push("/")}>
-        <Image className={style.header__logo} src="/assets/logoCoppabacs.svg" alt="Logo App" width={60} height={60} />
+        <Image className={style.header__logo} src="/assets/LogoAzul.svg" alt="Logo App" width={40} height={40} />
       </button>
       <div className={style.header__container}>
         <button className={style.header__button_link} onClick={() => push("/")}>
@@ -289,6 +291,7 @@ const LayoutPublic = () => {
         </button>
       </div>
 
+    </div>
     </div>
   );
 };
