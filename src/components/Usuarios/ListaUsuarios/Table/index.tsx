@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 
 import { IUsuario } from "@/interfaces/IUsuario";
 import { deleteUsuario } from "@/api/usuarios/deleteUsuario";
+import ConfirmationPromocaoModal from "../ExcluirUsuario";
+import ConfirmationUsuarioModal from "../ExcluirUsuario";
 
 interface TableProps {
   table1?: string;
@@ -95,7 +97,7 @@ const Table: React.FC<TableProps> = ({
   const renderHeader = (title?: string) => (
     <th>
       {title}
-      {title === "Ações" && <img src="/assets/icons/informacao.svg" alt="Informação" />}
+      {title === "Ações" && <span><img src="/assets/icons/informacao.svg" alt="Informação" /></span>}
     </th>
   );
 
@@ -166,6 +168,15 @@ const Table: React.FC<TableProps> = ({
           </button>
         </div>
       </div>
+      {selectedUsuarioId && (
+        <ConfirmationUsuarioModal
+          isOpen={isDeleteModalOpen}
+          onClose={closeDeleteModal}
+          onConfirm={handleConfirmDelete}
+          usuarioNome={selectedUsuario?.nome}
+          usuarioId={selectedUsuarioId}  // Para a exclusão
+        />
+      )}
     </>
   );
 };

@@ -37,14 +37,14 @@ const HeaderDetalhamento : React.FC<HeaderDetalhamentoProps> = ({diretorioAnteri
           <div className={style.header__container}>
          <div className={style.header__container_botoes}>
          <button onClick={() => (
-              push(APP_ROUTES.private.cadastrarUsuario.name)
+              push(routefirstbutton)
               )}>
               <h1>
                 {fistbutton}              
               </h1>
             </button>
             {lastbutton ? (<button onClick={() => (
-              push(APP_ROUTES.private.usuarios.name)
+              push(routelastbutton)
               )}>
               <h1>
                 {lastbutton}             

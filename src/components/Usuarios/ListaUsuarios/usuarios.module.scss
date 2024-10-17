@@ -78,6 +78,31 @@
   .dropdown{
     display: none
   }
+  .filterContainer {
+    display: flex;
+    gap: 1em;
+    margin-bottom: 2em;
+  }
+  
+  .searchBar {
+    width: 100%;
+    padding: 0.5em;
+    font-size: 1em;
+    border: 1px solid rgba(var(--light-gray));
+    border-radius: 0.6em;
+  }
+  
+  .perfilSelect {
+    width: 25%;
+    height: 3em;
+    background-color: rgba(var(--white));
+    color: rgba(var(--gray));
+
+    padding: 0.5em 0 0.5em 0.5em;
+    font-size: 1em;
+    border: 1px solid rgba(var(--light-gray));
+    border-radius: 0.6em;
+  }
   
   @media all and (max-width: 460px) {
   

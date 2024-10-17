@@ -12,24 +12,26 @@
 }
 
 .modalContent {
-  background: rgba(var(--shape)); 
+  background: rgba(var(--white)); 
   padding: 2em; 
   border-radius: 0.8em; 
   width: 500px; 
   text-align: center;
   box-shadow: 0 4px 6px rgba(var(--black), 0.1); 
+  align-items: first baseline;
+  h1 {
+    color: rgba(var(--black)); 
+    border-bottom: 0.1em solid rgba(var(--light-gray));
+    padding-bottom: 0.2em;
+    margin-bottom: 1em; 
+  }
 }
 
-.modalContent h1 {
-  color: rgba(var(--orange)); 
-  border-bottom: 0.1em solid rgba(var(--orange));
-  padding-bottom: 0.2em;
-  margin-bottom: 1em; 
-}
 
 .modalActions {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 2em;
   margin-top: 1.5em; 
 }
 
@@ -42,18 +44,19 @@
   font-size: 1em; 
 }
 
-.confirmButton {
-  background: rgba(var(--orange)); 
-  color: rgba(var(--white));
+.cancelButton{
+  border: 1px solid rgba(var(--medium-gray));
+  background: rgba(var(--white)); 
+  color: rgba(var(--medium-gray));
 }
 
-.cancelButton {
-  background: rgba(var(--orange)); 
+.confirmButton {
+  background: rgba(var(--red)); 
   color: rgba(var(--white));
 }
 
 .warningText {
   margin-top: 1em; 
-  color: rgba(var(--white)); 
+  color: rgba(var(--black)); 
   font-weight: bold;
 }
