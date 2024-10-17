@@ -5,7 +5,6 @@ const Page = () => {
     return(
         <div className={style.containerList}>
             <CadastrarUsuario />
-
         </div>
     )
 }

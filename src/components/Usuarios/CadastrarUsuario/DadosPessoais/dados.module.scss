@@ -76,6 +76,35 @@
   
          
         }
+        &_threeContainer {
+          width: 100%;
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          align-items: center;
+          column-gap: 2em;
+  
+          label {
+            margin: 0 0 0.5em 0;
+            font-size: 1em;
+            font-weight: 600;
+  
+            color: rgba(var(--black));
+          }
+  
+          &_input {
+             width: 100%;
+            padding: 0.5em;
+            margin: 0.1em 0 1em 0; // margin: 0.1em 0 1em 0;
+            border: 1px solid rgba(0, 0, 0, 0.50);
+            border-radius: 5px;
+            font-size: 1em;
+            font-weight: normal;
+            box-sizing: border-box;    
+  
+          }
+  
+         
+        }
 
       }
   

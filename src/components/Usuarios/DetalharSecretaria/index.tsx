@@ -8,8 +8,6 @@ import HeaderDetalhamento from "@/components/Header/HeaderDetalhamento";
 import { useRouter } from "next/navigation";
 import { useMutation } from "react-query";
 //import { Service } from '@/interfaces/barbeiroInterface';
-import DadosAdmissao from "./DadosAdmissao";
-import DadosEndereco from "./DadosEndereco";
 import DadosPessoais from "./DadosPessoais";
 import { IUsuario } from "@/interfaces/IUsuario";
 //import { Secretaria } from "@/interfaces/secretariaInterface";
@@ -216,16 +214,7 @@ const updateSecretaria = useMutation(
               </div>
 
               <DadosPessoais formik={formik} editar={editar} hrefAnterior={hrefAnterior} />
-              <div className={style.container__header_title}>
-                <h1>Endereço</h1>
-              </div>
-
-              <DadosEndereco formik={formik} editar={editar} hrefAnterior={hrefAnterior} />
-              <div className={style.container__header_title}>
-                <h1>Informações de admissão</h1>
-              </div>
-              <DadosAdmissao formik={formik} editar={editar} hrefAnterior={hrefAnterior} 
-              />
+            
             </Form>
           )}
         </Formik>

@@ -19,9 +19,8 @@ export const APP_ROUTES = {
 
     },
     public: {
-        login: '/',
-        novoUsuario: {
-            name: '/novo-usuario',
-        }
+        novoUsuario: '/novo-usuario',
+        login: '/'
+        
     }
 };

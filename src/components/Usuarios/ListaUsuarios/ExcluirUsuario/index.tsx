@@ -12,7 +12,6 @@ interface ConfirmationModalProps {
 
 const ConfirmationUsuarioModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, onConfirm, usuarioId, usuarioNome }) => {
   if (!isOpen) return null;
-{console.log(usuarioNome)}
   return (
     <div className={style.modalOverlay}>
       <div className={style.modalContent}>

@@ -13,46 +13,42 @@ import { postUsuario } from "@/api/usuarios/postUsuario";
 import { getStorageItem } from "@/utils/localStore";
 import { useSelector } from "react-redux";
 
-
 export default function CadastrarUsuario() {
-
-  const [role, setRole] = useState(getStorageItem("userRole"));
-
+  // Define `roles` como um array de strings
+  const [roles, setRoles] = useState<string[]>(getStorageItem("userRoles") || []);
   const userLogin = useSelector((state: any) => state.userLogin);
 
   function whatIsTypeUser() {
-    if (role) {
-      if (role == "ROLE_ADMIN" || role == "ROLE_COPPABACS") {
-        return <LayoutAdmin />
-      } else if (role == "ROLE_GERENTE") {
-        return <LayoutCoordenador />
-      }
-    } else {
-      return <LayoutPublic />
-    }
+    if (roles.includes("administrador")) {
+      return <LayoutAdmin roles={roles} />;
 
+    } else {
+      return <LayoutPublic />;
+
+    }
   }
+
   return (
     <div>
-      <div className={style.container} >
+      <div className={style.container}>
         <div className={style.container__itens}>
           {whatIsTypeUser()}
         </div>
       </div>
     </div>
-  )
-
+  );
 }
 
-const LayoutAdmin = () => {
+const LayoutAdmin = ({ roles }: { roles: string[] }) => {
   const { push } = useRouter();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
+  // Inicializa os valores do formulário
   const initialValues: IUsuario = {
     id: '',
     nome: '',
     cpf: '',
-    senha:'',
+    senha: '',
     confirmarSenha: '',
     email: '',
     celular: '',
@@ -64,63 +60,49 @@ const LayoutAdmin = () => {
   };
 
   const validateSchema = Yup.object().shape({
-    name: Yup.string().min(5, "O nome deve ter no mínimo 5 caracteres").required("Obrigatório"),
+    nome: Yup.string().min(5, "O nome deve ter no mínimo 5 caracteres").required("Obrigatório"),
     email: Yup.string().email("Email inválido").required("Obrigatório"),
-    cpf: Yup.string()
+    cpf: Yup.string().required("Obrigatório"),
+    senha: Yup.string().required("Obrigatório"),
+    confirmarSenha: Yup.string()
+      .oneOf([Yup.ref("senha")], "As senhas devem corresponder")
       .required("Obrigatório"),
-    contato: Yup.string()
-      .required("Obrigatório"),
-
-      address: Yup.object().shape({
-      street: Yup.string().required("Obrigatório"),
-      number: Yup.number().required("Obrigatório"),
-      neighborhood: Yup.string().required("Obrigatório"),
-      city: Yup.string().required("Obrigatório"),
-      state: Yup.string().required("Obrigatório"),
-    }),
-    salary: Yup.number().required("Obrigatório"),
-    start: Yup.string()
-      .required("Obrigatório")
-      .matches(/^\d{2}:\d{2}$/, "Horário inválido"),
-    end: Yup.string()
-      .required("Obrigatório")
-      .matches(/^\d{2}:\d{2}$/, "Horário inválido"),
-    admissionDate: Yup.date().required("Obrigatório"),
-    workload: Yup.number().required("Obrigatório"),
+    tipoUsuario: Yup.string().required("Selecione um tipo de usuário"),
   });
+
+  const userRoutes = {
+    Admin: "/usuario/registrar",
+    Coordenador: "/usuario/registrar",
+    Professor: "/usuario/registrar",
+    Servidor: "/usuario/registrar",
+    Aluno: "/usuario/registrar",
+  };
 
   const { mutate } = useMutation(
     async (values: IUsuario) => {
-      // Extraia a imagem do values
       const profilePhoto = values.profilePhoto as File;
-  
-      // Remova a imagem do objeto values
       const updatedValues = { ...values };
       delete updatedValues.profilePhoto;
-  
-      // Envie os valores e a imagem separadamente
-      //return postSecretaria(updatedValues, profilePhoto);
-      return postUsuario(values, profilePhoto);
+
+      const route = userRoutes[values.tipoUsuario as keyof typeof userRoutes];
+      return postUsuario(updatedValues, profilePhoto, route);
     },
     {
       onSuccess: () => {
-        push(APP_ROUTES.private.usuarios.name); // Ajuste a rota conforme necessário
+        push(APP_ROUTES.private.usuarios.name);
       },
       onError: (error) => {
-        console.log("Erro ao cadastrar um novo barbeiro", error);
+        console.log("Erro ao cadastrar usuário", error);
       },
     }
   );
-  
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>, setFieldValue: (field: string, value: any) => void) => {
     const file = event.currentTarget.files?.[0];
     if (file) {
       setFieldValue("profilePhoto", file);
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
+      reader.onloadend = () => setImagePreview(reader.result as string);
       reader.readAsDataURL(file);
     }
   };
@@ -128,20 +110,11 @@ const LayoutAdmin = () => {
   return (
     <>
       <div className={style.header}>
-      <div className={style.header__navegacao}>
-          <div className={style.header__navegacao_voltar} onClick={() => push(APP_ROUTES.private.usuarios.name)}>
-            <img src="/assets/icons/menor_que.svg" alt="Voltar" />
-            <h1>Voltar</h1>
-          </div>
-          <div className={style.header__navegacao_guia}>
-            <span>Home / Usuarios /</span><h1>Cadastrar Usuario</h1>
-          </div>
-        </div>
         <div className={style.header__title}>
-          <h1>Cadastrar</h1>
+          <h1>Cadastrar Usuario</h1>
           <div className={style.header__title_line}></div>
         </div>
-        
+
       </div>
       <div id="header" className={style.container}>
         <div className={style.container__ContainerForm}>
@@ -155,43 +128,43 @@ const LayoutAdmin = () => {
           >
             {(formik) => (
               <Form className={style.container__ContainerForm_form}>
-                
+
                 <div className={style.container__photo}>
-                <div className={style.profilePhotoWrapper}>
-                  <input
-                    type="file"
-                    id="profilePhoto"
-                    name="profilePhoto"
-                    accept="image/jpeg"
-                    onChange={(event) => handleImageChange(event, formik.setFieldValue)}
-                  />
-                  <label htmlFor="profilePhoto" className={style.profilePhotoLabel}>
-                    {imagePreview ? (
-                      <img src={imagePreview} alt="Profile Preview" className={style.profileImage} />
-                    ) : (
-                      <img src="/assets/icons/perfil.svg" alt="Upload Icon" />
-                    )}
-                  </label>
-                  <span
-                    className={style.editIcon}
-                    onClick={() => {
-                      const fileInput = document.getElementById('profilePhoto');
-                      if (fileInput) {
-                        fileInput.click();
-                      }
-                    }}
-                  >
-                    <img src="/assets/icons/editar.svg" alt="Edit Icon" />
-                  </span>
+                  <div className={style.profilePhotoWrapper}>
+                    <input
+                      type="file"
+                      id="profilePhoto"
+                      name="profilePhoto"
+                      accept="image/jpeg"
+                      onChange={(event) => handleImageChange(event, formik.setFieldValue)}
+                    />
+                    <label htmlFor="profilePhoto" className={style.profilePhotoLabel}>
+                      {imagePreview ? (
+                        <img src={imagePreview} alt="Profile Preview" className={style.profileImage} />
+                      ) : (
+                        <img src="/assets/icons/perfil.svg" alt="Upload Icon" />
+                      )}
+                    </label>
+                    <span
+                      className={style.editIcon}
+                      onClick={() => {
+                        const fileInput = document.getElementById('profilePhoto');
+                        if (fileInput) {
+                          fileInput.click();
+                        }
+                      }}
+                    >
+                      <img src="/assets/icons/editar.svg" alt="Edit Icon" />
+                    </span>
+                  </div>
+
+                  {/*formik.touched.profilePhoto && formik.errors.profilePhoto && (
+                <span className={style.form__error}>{formik.errors.profilePhoto}</span>
+              )*/}
+                  <h1>Informações do Usuario</h1>
                 </div>
 
-                {/*formik.touched.profilePhoto && formik.errors.profilePhoto && (
-                  <span className={style.form__error}>{formik.errors.profilePhoto}</span>
-                )*/}
-                <h1>Informações do Usuario</h1>
-                </div>
-
-                <DadosPessoais formik={formik} />
+                <DadosPessoais formik={formik} roles={roles} />
 
                 <div className={style.container__ContainerForm_buttons}>
                   <button
@@ -205,7 +178,7 @@ const LayoutAdmin = () => {
                     type="submit"
                     className={style.container__ContainerForm_buttons_linkWhite}
                   >
-                    <h1>Finalizar</h1>
+                    <h1>Criar</h1>
                   </button>
                 </div>
               </Form>
@@ -215,16 +188,8 @@ const LayoutAdmin = () => {
       </div>
     </>
   );
-}
+};
 
-const LayoutCoordenador = () => {
-
-  return (
-    <>
-     
-    </>
-  )
-}
 
 const LayoutPublic = () => {
 
@@ -235,7 +200,7 @@ const LayoutPublic = () => {
     id: '',
     nome: '',
     cpf: '',
-    senha:'',
+    senha: '',
     confirmarSenha: '',
     email: '',
     celular: '',
@@ -243,60 +208,40 @@ const LayoutPublic = () => {
     curso: '',
     nomeSocial: '',
     instituicao: '',
-    tipoUsuario: '',
+    tipoUsuario: 'default',
     profilePhoto: undefined,
   };
 
   const validateSchema = Yup.object().shape({
-    name: Yup.string().min(5, "O nome deve ter no mínimo 5 caracteres").required("Obrigatório"),
-    email: Yup.string().email("Email inválido").required("Obrigatório"),
-    cpf: Yup.string()
-      .required("Obrigatório"),
-    contato: Yup.string()
-      .required("Obrigatório"),
 
-      address: Yup.object().shape({
-      street: Yup.string().required("Obrigatório"),
-      number: Yup.number().required("Obrigatório"),
-      neighborhood: Yup.string().required("Obrigatório"),
-      city: Yup.string().required("Obrigatório"),
-      state: Yup.string().required("Obrigatório"),
-    }),
-    salary: Yup.number().required("Obrigatório"),
-    start: Yup.string()
-      .required("Obrigatório")
-      .matches(/^\d{2}:\d{2}$/, "Horário inválido"),
-    end: Yup.string()
-      .required("Obrigatório")
-      .matches(/^\d{2}:\d{2}$/, "Horário inválido"),
-    admissionDate: Yup.date().required("Obrigatório"),
-    workload: Yup.number().required("Obrigatório"),
   });
-
+  const userRoutes = {
+    default: "/usuario/registrar",
+    Coordenador: "/usuario/registrar",
+    Professor: "/usuario/registrar",
+    Servidor: "/usuario/registrar",
+    Aluno: "/usuario/registrar",
+  };
   const { mutate } = useMutation(
     async (values: IUsuario) => {
-      // Extraia a imagem do values
+
       const profilePhoto = values.profilePhoto as File;
-  
-      // Remova a imagem do objeto values
       const updatedValues = { ...values };
-      
       delete updatedValues.profilePhoto;
-  
-      // Envie os valores e a imagem separadamente
-      //return postSecretaria(updatedValues, profilePhoto);
-      return postUsuario(values, profilePhoto);
+
+      const route = userRoutes[values.tipoUsuario as keyof typeof userRoutes];
+      return postUsuario(values, profilePhoto, route);
     },
     {
       onSuccess: () => {
-        push(APP_ROUTES.private.usuarios.name); // Ajuste a rota conforme necessário
+        push(APP_ROUTES.private.usuarios.name);
       },
       onError: (error) => {
-        console.log("Erro ao cadastrar um novo barbeiro", error);
+        console.log("Erro ao criar nova conta.", error);
       },
     }
   );
-  
+
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>, setFieldValue: (field: string, value: any) => void) => {
     const file = event.currentTarget.files?.[0];
@@ -317,7 +262,7 @@ const LayoutPublic = () => {
           <h1>Criar Conta</h1>
           <div className={style.header__title_line}></div>
         </div>
-        
+
       </div>
       <div id="header" className={style.container}>
         <div className={style.container__ContainerForm}>
@@ -331,43 +276,43 @@ const LayoutPublic = () => {
           >
             {(formik) => (
               <Form className={style.container__ContainerForm_form}>
-                
-                <div className={style.container__photo}>
-                <div className={style.profilePhotoWrapper}>
-                  <input
-                    type="file"
-                    id="profilePhoto"
-                    name="profilePhoto"
-                    accept="image/jpeg"
-                    onChange={(event) => handleImageChange(event, formik.setFieldValue)}
-                  />
-                  <label htmlFor="profilePhoto" className={style.profilePhotoLabel}>
-                    {imagePreview ? (
-                      <img src={imagePreview} alt="Profile Preview" className={style.profileImage} />
-                    ) : (
-                      <img src="/assets/icons/perfil.svg" alt="Upload Icon" />
-                    )}
-                  </label>
-                  <span
-                    className={style.editIcon}
-                    onClick={() => {
-                      const fileInput = document.getElementById('profilePhoto');
-                      if (fileInput) {
-                        fileInput.click();
-                      }
-                    }}
-                  >
-                    <img src="/assets/icons/editar.svg" alt="Edit Icon" />
-                  </span>
-                </div>
 
-                {/*formik.touched.profilePhoto && formik.errors.profilePhoto && (
+                <div className={style.container__photo}>
+                  <div className={style.profilePhotoWrapper}>
+                    <input
+                      type="file"
+                      id="profilePhoto"
+                      name="profilePhoto"
+                      accept="image/jpeg"
+                      onChange={(event) => handleImageChange(event, formik.setFieldValue)}
+                    />
+                    <label htmlFor="profilePhoto" className={style.profilePhotoLabel}>
+                      {imagePreview ? (
+                        <img src={imagePreview} alt="Profile Preview" className={style.profileImage} />
+                      ) : (
+                        <img src="/assets/icons/perfil.svg" alt="Upload Icon" />
+                      )}
+                    </label>
+                    <span
+                      className={style.editIcon}
+                      onClick={() => {
+                        const fileInput = document.getElementById('profilePhoto');
+                        if (fileInput) {
+                          fileInput.click();
+                        }
+                      }}
+                    >
+                      <img src="/assets/icons/editar.svg" alt="Edit Icon" />
+                    </span>
+                  </div>
+
+                  {/*formik.touched.profilePhoto && formik.errors.profilePhoto && (
                   <span className={style.form__error}>{formik.errors.profilePhoto}</span>
                 )*/}
-                <h1>Informações do Usuario</h1>
+                  <h1>Informações do Usuario</h1>
                 </div>
 
-                <DadosPessoais formik={formik} />
+                <DadosPessoais formik={formik} roles={[]} />
 
                 <div className={style.container__ContainerForm_buttons}>
                   <button
