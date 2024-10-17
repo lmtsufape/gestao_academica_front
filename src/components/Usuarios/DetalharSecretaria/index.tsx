@@ -132,12 +132,15 @@ const updateSecretaria = useMutation(
 */
   return (
     <div id="header" className={style.container}>
-      <HeaderDetalhamento
+      {/**
+       * <HeaderDetalhamento
         titulo="Secretaria"
         hrefAnterior={backDetalhamento}
         diretorioAnterior="Home / Secretarias / "
         diretorioAtual="Informações da Secretaria"
+
       />
+       */}
       <div className={style.container__ContainerForm}>
         <Formik
           initialValues={formData}

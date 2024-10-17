@@ -142,12 +142,14 @@ const MeuPerfil: React.FC<DetalharSecretariaProps> = ({ hrefAnterior, secretaria
  */
   return (
     <div id="header" className={style.container}>
-      <HeaderDetalhamento
+      {/**
+       <HeaderDetalhamento
         titulo="Meu Perfil"
         hrefAnterior={APP_ROUTES.private.home.name}
         diretorioAnterior="Home / "
         diretorioAtual="Meu Perfil"
       />
+       */}
       <div className={style.container__ContainerForm}>
         <Formik
           initialValues={formData}
