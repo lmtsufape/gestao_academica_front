@@ -102,7 +102,7 @@ const Login = () => {
 
             <h2 className={style.login__login_subtitle1}>
               Não possui conta? &nbsp;
-              <Link href="/novoUsuario">
+              <Link href="/novo-usuario">
                 <span>Crie Agora.</span>
               </Link>
             </h2>

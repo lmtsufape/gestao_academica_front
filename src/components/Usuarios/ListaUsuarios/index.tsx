@@ -60,25 +60,12 @@ const ListaUsuarios = () => {
           hrefAnterior={APP_ROUTES.private.home.name}
           diretorioAnterior="Home /"
           diretorioAtual="Usuarios  "
+          fistbutton="Solicitações"
+          routefirstbutton={APP_ROUTES.private.solicitacoes.name}
+          lastbutton="Criar Usuario"
+          routelastbutton={APP_ROUTES.private.cadastrarUsuario.name}
         />
-        <div className={style.header__container}>
-         <div className={style.header__container_botoes}>
-         <button onClick={() => (
-              push(APP_ROUTES.private.cadastrarUsuario.name)
-              )}>
-              <h1>
-                Cadastrar Usuario              
-              </h1>
-            </button>
-            <button onClick={() => (
-              push(APP_ROUTES.private.usuarios.name)
-              )}>
-              <h1>
-                Solicitações              
-              </h1>
-            </button>
-          </div>
-        </div>
+        
       </div>
 
       <Table
@@ -86,8 +73,10 @@ const ListaUsuarios = () => {
         setUsuarios={setUsuarios}
         onSelectUsuario={handleSelectUsuario}
         table1="Nome"
-        table2="Tipo de Usuario"
-        table3="Ações"
+        table2="Nome Social"
+        table3="Telefone"
+        table4="CPF"
+        table5="Ações"
         currentPage={currentPage}
         totalPages={totalPages}
         setCurrentPage={setCurrentPage}

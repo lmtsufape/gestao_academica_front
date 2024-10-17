@@ -56,12 +56,15 @@
           cursor: pointer;
         }
         tr {
-          
+
           display: table-row;
-          border: 1px solid #1A2E4F;
-          
+          box-shadow: inset 1px 0 0 0 rgba(var(--light-gray)),   // Borda à esquerda
+          inset -1px 0 0 0 rgba(var(--light-gray)),  // Borda à direita
+          inset 0 -1px 0 0 rgba(var(--light-gray));  // Borda inferior
+          padding: 1px; 
+
           td {
-            width: 11em;
+            width: 1em;
             height: 4em;
             display: table-cell;
             vertical-align: middle;
@@ -70,7 +73,6 @@
             color: #1A2E4F;
             font-weight: 400;
             //text-align: center;
-            border: 1px solid rgba(var(--gray-hard));
             img{
               padding: 0.5em;
             }
@@ -96,6 +98,12 @@
             
   
           }
+          
+        }
+        // Estilização para as células dentro do último <tr>
+        tr:last-child  {
+          border-radius: 0 0 1em 1em;
+
         }
       }
       &__pagination{
@@ -127,6 +135,9 @@
     }
   }
   
+
+// Seletor para o último tr dentro do tbody (Abordagem 2)
+
   .no_border{
     border: none;
     background: none;

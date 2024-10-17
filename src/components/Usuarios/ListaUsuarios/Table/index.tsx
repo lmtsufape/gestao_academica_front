@@ -6,32 +6,36 @@ import { IUsuario } from "@/interfaces/IUsuario";
 import { deleteUsuario } from "@/api/usuarios/deleteUsuario";
 
 interface TableProps {
-  table1: string;
-  table2: string;
-  table3: string;
+  table1?: string;
+  table2?: string;
+  table3?: string;
+  table4?: string;
+  table5?: string;
   listUsuarios: IUsuario[];
-  setUsuarios: (usuario: IUsuario[]) => void; 
+  setUsuarios: (usuario: IUsuario[]) => void;
   onSelectUsuario: (usuario: IUsuario) => void;
   currentPage: number;
   totalPages: number;
   setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
 }
-const Table: React.FC<TableProps> = ({ 
-  listUsuarios: listUsuarios,  
-  onSelectUsuario: onSelectUsuario, 
-  table1, 
-  table2, 
-  table3, 
-  currentPage, 
-  totalPages, 
-  setCurrentPage 
+
+const Table: React.FC<TableProps> = ({
+  listUsuarios,
+  onSelectUsuario,
+  table1,
+  table2,
+  table3,
+  table4,
+  table5,
+  currentPage,
+  totalPages,
+  setCurrentPage,
+  setUsuarios
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedUsuario, setSelectedUsuario] = useState<IUsuario | null>(null);
   const [selectedUsuarioId, setSelectedUsuarioId] = useState<string | null>(null);
-  const [usuarios, setUsuarios] = useState<IUsuario[]>([]);
-
 
   const handleClose = () => {
     setIsModalOpen(false);
@@ -42,8 +46,6 @@ const Table: React.FC<TableProps> = ({
     setSelectedUsuario(usuario);
     setIsModalOpen(true);
   };
-
-
 
   const openDeleteModal = (id: string) => {
     setSelectedUsuarioId(id);
@@ -58,13 +60,72 @@ const Table: React.FC<TableProps> = ({
   const handleConfirmDelete = async () => {
     if (selectedUsuarioId) {
       try {
-        await deleteUsuario(selectedUsuarioId);  // Adicione a lógica de exclusão
-        // Atualize a lista de promoções usando setPromocoes
+        await deleteUsuario(selectedUsuarioId);
         setUsuarios(listUsuarios.filter(usuario => usuario.id !== selectedUsuarioId));
       } catch (error) {
-        console.error('Erro ao excluir a promoção:', error);
+        console.error('Erro ao excluir o usuário:', error);
       }
       closeDeleteModal();
+    }
+  };
+
+  const renderAcoes = (usuario: IUsuario) => (
+    <td>
+      <button
+        onClick={() => onSelectUsuario(usuario)}
+        className={style.content__table__body_click}
+      >
+        <img
+          src="/assets/icons/visualizar.svg"
+          alt="Visualizar"
+        />
+      </button>
+      <button
+        onClick={() => openDeleteModal(usuario.id)}
+        className={style.content__table__body_click}
+      >
+        <img
+          src="/assets/icons/excluir.svg"
+          alt="Excluir"
+        />
+      </button>
+    </td>
+  );
+
+  const renderHeader = (title?: string) => (
+    <th>
+      {title}
+      {title === "Ações" && <img src="/assets/icons/informacao.svg" alt="Informação" />}
+    </th>
+  );
+
+  const renderCell = (usuario: IUsuario, title?: string) => {
+    if (title === "Ações") {
+      return renderAcoes(usuario);
+    }
+  
+    // Obtenha o valor associado à chave no objeto usuario
+    const cellValue = usuario[title?.toLowerCase() as keyof IUsuario] as unknown;
+  
+    // Verifique o tipo do valor para garantir que é renderizável
+    if (typeof cellValue === "string" || typeof cellValue === "number") {
+      return (
+        <td>
+          <div className={style.content__table__cell}>{cellValue}</div>
+        </td>
+      );
+    } else if (cellValue instanceof File) {
+      return (
+        <td>
+          <div className={style.content__table__cell}>{cellValue.name}</div>
+        </td>
+      );
+    } else {
+      return (
+        <td>
+          <div className={style.content__table__cell}>{cellValue ? String(cellValue) : ""}</div>
+        </td>
+      );
     }
   };
   
@@ -75,41 +136,22 @@ const Table: React.FC<TableProps> = ({
         <table className={style.content__table}>
           <thead className={style.content__table__header}>
             <tr>
-              <th>{table1}</th>
-              <th>{table2}</th>
-              <th className={style.content__table__header_name3}>
-                <div>
-                  {table3}
-                  {/*<img src="/assets/icons/informacao.svg" alt="Visualizar" />*/}
-                </div>
-              </th>
+              {table1 && renderHeader(table1)}
+              {table2 && renderHeader(table2)}
+              {table3 && renderHeader(table3)}
+              {table4 && renderHeader(table4)}
+              {table5 && renderHeader(table5)}
             </tr>
           </thead>
           <tbody className={style.content__table__body}>
             {listUsuarios.map((usuario, index) => (
-              <tr key={index}>
-                <td>{usuario.nome}</td>
-                <td>{usuario.tipoUsuario}</td>
-                <td>
-                  <button 
-                    onClick={() => onSelectUsuario(usuario)} 
-                    className={style.content__table__body_click}
-                  >
-                    <img 
-                      src="/assets/icons/visualizar.svg" 
-                      alt="Visualizar" 
-                    />
-                  </button>
-                  <button 
-                    onClick={() => openDeleteModal(usuario.id)} 
-                    className={style.content__table__body_click}
-                  >
-                    <img 
-                      src="/assets/icons/excluir.svg" 
-                      alt="Excluir" 
-                    />
-                  </button>
-                </td>
+              <tr key={index}
+              >
+                {table1 && renderCell(usuario, table1)}
+                {table2 && renderCell(usuario, table2)}
+                {table3 && renderCell(usuario, table3)}
+                {table4 && renderCell(usuario, table4)}
+                {table5 && renderCell(usuario, table5)}
               </tr>
             ))}
           </tbody>
@@ -118,14 +160,12 @@ const Table: React.FC<TableProps> = ({
           <button onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 0))} disabled={currentPage === 0}>
             Anterior
           </button>
-          <span>Pagina {currentPage + 1} of {totalPages}</span>
+          <span>Página {currentPage + 1} de {totalPages}</span>
           <button onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages - 1))} disabled={currentPage === totalPages - 1}>
-            Proximo
+            Próximo
           </button>
         </div>
       </div>
-
-      
     </>
   );
 };

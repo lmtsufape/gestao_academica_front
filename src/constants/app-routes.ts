@@ -8,18 +8,20 @@ export const APP_ROUTES = {
             name: '/home',
         },
         solicitacoes: {
-            name: '/solicitacoes',
+            name: 'usuarios/solicitacoes',
         },
         usuarios: {
             name: '/usuarios',
         },
         cadastrarUsuario: {
-            name: '/usuarios/cadastrar-usuario',
+            name: '/usuarios/criar-usuario',
         }
 
     },
     public: {
         login: '/',
-
+        novoUsuario: {
+            name: '/novo-usuario',
+        }
     }
 };

@@ -314,7 +314,7 @@ const LayoutPublic = () => {
     <>
       <div className={style.header}>
         <div className={style.header__title}>
-          <h1>Cadastrar</h1>
+          <h1>Criar Conta</h1>
           <div className={style.header__title_line}></div>
         </div>
         
