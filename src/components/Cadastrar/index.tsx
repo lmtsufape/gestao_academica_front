@@ -13,7 +13,7 @@ import { postUsuario } from "@/api/usuarios/postUsuario";
 import { getStorageItem } from "@/utils/localStore";
 import { useSelector } from "react-redux";
 
-export default function CadastrarUsuario() {
+export default function Cadastrar() {
   // Define `roles` como um array de strings
   const [roles, setRoles] = useState<string[]>(getStorageItem("userRoles") || []);
   const userLogin = useSelector((state: any) => state.userLogin);
@@ -51,7 +51,7 @@ const LayoutAdmin = ({ roles }: { roles: string[] }) => {
     senha: '',
     confirmarSenha: '',
     email: '',
-    celular: '',
+    telefone: '',
     siape: '',
     curso: '',
     nomeSocial: '',
@@ -203,7 +203,7 @@ const LayoutPublic = () => {
     senha: '',
     confirmarSenha: '',
     email: '',
-    celular: '',
+    telefone: '',
     siape: '',
     curso: '',
     nomeSocial: '',

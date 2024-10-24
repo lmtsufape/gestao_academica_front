@@ -5,7 +5,7 @@ export interface IUsuario {
     senha: string; 
     confirmarSenha: string; 
     email: string; 
-    celular: string; 
+    telefone: string; 
     siape: string; // Número SIAPE servidores públicos
     curso: string; // Curso acadêmico professores e alunos
     nomeSocial: string; 

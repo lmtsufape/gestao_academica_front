@@ -4,8 +4,8 @@
   flex-direction: column;
   align-items: center;
 
-  margin: 2em 0em 1em 0em;
-    
+  margin: 6em 0em 1em 0em;
+
   &__container {
     display: flex;
     justify-content: right;
@@ -13,13 +13,12 @@
     width: 100%;
     font-size: 1em;
 
-
-    &_botoes{
+    &_botoes {
       display: flex;
       align-content: center;
       font-size: 1em;
       gap: 3em;
-      img{
+      img {
         width: 2em;
         height: 2em;
       }
@@ -32,46 +31,53 @@
         align-content: center;
         margin-left: -2em;
         border: none;
-        gap: 0.47em;    
-  
+        gap: 0.47em;
+
         color: rgba(var(--white));
         font-size: 1em;
-        background-color: #1A2E4F;
+        background-color: rgba(var(--blue));
         border-radius: 0.8em;
-        
-        &:hover{
-          transition: all .3s;
-  
-          box-shadow: 0.2em 0.2em 0.3em 0 rgba(26, 46, 79, 0.5); /* Sombra inferior e lateral direita */
-        
+
+        &:hover {
+          transition: all 0.3s;
+
+          box-shadow: 0.2em 0.2em 0.3em 0 rgba(var(--blue), 0.5); /* Sombra inferior e lateral direita */
         }
       }
-
     }
 
     &_link {
-      color: #68655C;
+      color: rgba(var(--gray));
 
       text-decoration: none;
       padding: 1.5em 3.5em 1.5em 1.3em;
       margin: -1.5em -3.5em -1.5em -1.3em;
-
     }
-
-
-
-
   }
-  &__title{
+  &__title {
     margin: 1em 1em 0.5em 1em;
     font-size: 2em;
 
     font-family: "Roboto Slab", serif;
     font-optical-sizing: auto;
     font-weight: 800;
-    font-style: normal;  
-    color: #1A2E4F; 
-    
+    font-style: normal;
+    color: #1a2e4f;
+  }
+  &__title_guia {
+    display: flex;
+    align-items: center;
+    gap: 0.3em;
+
+    h1 {
+      font-size: 1em;
+      font-weight: bold;
+      color: rgba(var(--gray));
+    }
+
+    span {
+      color: rgba(var(--blue));
+    }
   }
   &__navegacao {
     display: flex;
@@ -92,12 +98,12 @@
       align-items: center;
       font-size: 1em;
 
-      color: #1A2E4F;
+      color: rgba(var(--blue));
 
       cursor: pointer;
-      
-      h1{
-        border-bottom: 0.1em solid #1A2E4F;
+
+      h1 {
+        border-bottom: 0.1em solid rgba(var(--blue));
         padding-bottom: 0.2em;
       }
     }
@@ -110,14 +116,13 @@
       font-size: 1em;
       font-weight: bold;
       gap: 0.3em;
-  
+
       h1 {
-        
-        color: #1A2E4F;
-        border-bottom: 0.1em solid #1A2E4F;
-        padding-bottom: 0.2em;        
+        color: rgba(var(--blue));
+        border-bottom: 0.1em solid rgba(var(--blue));
+        padding-bottom: 0.2em;
       }
-  
+
       span {
         color: rgba(var(--gray));
       }

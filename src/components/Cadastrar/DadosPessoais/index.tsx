@@ -161,19 +161,19 @@ const DadosPessoais: React.FC<DadosSecretariaProps> = ({ formik, roles }) => {
         </div>
 
         <div>
-          <label htmlFor="contact">Telefone</label>
+          <label htmlFor="telefone">Telefone</label>
           <input
             className={style.container__ContainerForm_form_input}
-            id="contact"
-            name="contact"
+            id="telefone"
+            name="telefone"
             placeholder="Digite o telefone"
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            value={formik.values.contact}
+            value={formik.values.telefone}
             required
           />
-          {formik.touched.contact && formik.errors.contact && (
-            <span className={style.form__error}>{formik.errors.contact}</span>
+          {formik.touched.telefone && formik.errors.telefone && (
+            <span className={style.form__error}>{formik.errors.telefone}</span>
           )}
         </div>
       </div>

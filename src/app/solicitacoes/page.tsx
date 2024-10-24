@@ -1,23 +1,23 @@
-import { APP_ROUTES } from "@/constants/app-routes";
-import style from "./page.module.scss";
 import Lista from "@/components/Lista";
+import style from "./page.module.scss";
+import { APP_ROUTES } from "@/constants/app-routes";
 const Page = () => {
 
     return (
         <div className={style.containerList}>
             <Lista
-                titulo="Usuarios"
+                titulo="Solicitações"
                 hrefAnterior={APP_ROUTES.private.home.name}
                 diretorioAnterior="Home /"
-                diretorioAtual="Usuarios"
+                diretorioAtual="Solicitações"
                 firstbutton=""
                 routefirstbutton={""}
                 lastbutton=""
                 routelastbutton={""}
                 table1="Nome"
-                table2="Nome Social"
-                table3="Telefone"
-                table4="CPF"
+                table2="CPF"
+                table3="Tipo Perfil"
+                table4=""
                 table5="Ações"
             />
 

@@ -1,10 +1,10 @@
 import style from "./page.module.scss";
-import CadastrarUsuario from "@/components/Usuarios/CadastrarUsuario";
+import Cadastrar from "@/components/Cadastrar";
 const Page = () => {
 
     return(
         <div className={style.containerList}>
-            <CadastrarUsuario />
+            <Cadastrar />
         </div>
     )
 }

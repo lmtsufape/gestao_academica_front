@@ -4,10 +4,11 @@ import React, { useState } from 'react';
 
 import { IUsuario } from "@/interfaces/IUsuario";
 import { deleteUsuario } from "@/api/usuarios/deleteUsuario";
-import ConfirmationPromocaoModal from "../ExcluirUsuario";
-import ConfirmationUsuarioModal from "../ExcluirUsuario";
+import ConfirmationPromocaoModal from "../Excluir";
+import ConfirmationUsuarioModal from "../Excluir";
 
 interface TableProps {
+  titulo: string;
   table1?: string;
   table2?: string;
   table3?: string;
@@ -22,6 +23,7 @@ interface TableProps {
 }
 
 const Table: React.FC<TableProps> = ({
+  titulo,
   listUsuarios,
   onSelectUsuario,
   table1,
@@ -82,6 +84,7 @@ const Table: React.FC<TableProps> = ({
           alt="Visualizar"
         />
       </button>
+      {titulo ==="Solicitações "?(
       <button
         onClick={() => openDeleteModal(usuario.id)}
         className={style.content__table__body_click}
@@ -91,6 +94,7 @@ const Table: React.FC<TableProps> = ({
           alt="Excluir"
         />
       </button>
+      ):""}
     </td>
   );
 
