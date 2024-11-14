@@ -16,12 +16,12 @@ import { IUsuario } from "@/interfaces/IUsuario";
 //import { putSecretariaById } from "@/api/usuarios/putSecretariaById";
 //import { Secretaria } from "@/interfaces/secretariaInterface";
 
-interface DetalharSecretariaProps {
+interface PerfilProps {
   hrefAnterior: string;
-  secretaria: IUsuario | any;
+  usuario: IUsuario | any;
 }
 
-const MeuPerfil: React.FC<DetalharSecretariaProps> = ({ hrefAnterior, secretaria }) => {
+const MeuPerfil: React.FC<PerfilProps> = ({ hrefAnterior, usuario }) => {
   const { push } = useRouter();
 
   const [editar, setEditar] = useState(false);
@@ -32,54 +32,48 @@ const MeuPerfil: React.FC<DetalharSecretariaProps> = ({ hrefAnterior, secretaria
     id: '',
     nome: '',
     cpf: '',
-    senha:'',
+    senha: '',
     confirmarSenha: '',
+    matricula: '',
     email: '',
     telefone: '',
     siape: '',
     curso: '',
+    cursoIds: [],
     nomeSocial: '',
     instituicao: '',
-    tipoUsuario: '',
+    tipoUsuario: 'default',
+    profilePhoto: undefined,
+    documentos: [],
   });
 
   useEffect(() => {
-    if (secretaria) {
-      setFormData(/**{
-        idSecretary: secretaria.idSecretary || '',
-        name: secretaria.name || '',
-        email: secretaria.email || '',
-        password: secretaria.password || '',
-        contact: secretaria.contact || '',
-        cpf: secretaria.cpf || '',
-        start: secretaria.start || '',
-        end: secretaria.end || '',
-        address: secretaria.address || {},
-        salary: secretaria.salary || 0,
-        admissionDate: secretaria.admissionDate || '',
-        workload: secretaria.workload || 0,
+    if (usuario) {
+      setFormData({
+        id: usuario.id || '',
+        nome: usuario.nome || '',
+        cpf: usuario.cpf || '',
+        senha: usuario.senha || '',
+        confirmarSenha: usuario.confirmarSenha || '',
+        matricula: usuario.matricula ||'',
+        email: usuario.email || '',
+        telefone: usuario.telefone || '',
+        siape: usuario.siape || '',
+        curso: usuario.curso || '',
+        cursoIds: usuario.cursoIds || [],
+        nomeSocial: usuario.nomeSocial || '',
+        instituicao: usuario.instituicao || '',
+        tipoUsuario: usuario.tipoUsuario || 'default',
         profilePhoto: undefined,
-      }*/{
-        id: '',
-    nome: '',
-    cpf: '',
-    senha:'',
-    confirmarSenha: '',
-    email: '',
-    telefone: '',
-    siape: '',
-    curso: '',
-    nomeSocial: '',
-    instituicao: '',
-    tipoUsuario: '',
+        documentos: []
       });
 
-      if (secretaria.idSecretary) {
+      if (usuario.idSecretary) {
        // getSecretariaPhoto();
       }
 
     }
-  }, [secretaria]);
+  }, [usuario]);
 
 
 

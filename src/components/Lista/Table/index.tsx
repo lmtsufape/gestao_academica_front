@@ -41,6 +41,15 @@ const Table: React.FC<TableProps> = ({
   const [selectedUsuario, setSelectedUsuario] = useState<IUsuario | null>(null);
   const [selectedUsuarioId, setSelectedUsuarioId] = useState<string | null>(null);
 
+
+  // Mapeamento de títulos para as propriedades do objeto IUsuario
+const titleToKeyMap: { [key: string]: keyof IUsuario } = {
+  "Nome": "nome",
+  "Nome Social": "nomeSocial", // ajuste conforme o nome exato da propriedade em IUsuario
+  "Telefone": "telefone",
+  "CPF": "cpf",
+  };
+
   const handleClose = () => {
     setIsModalOpen(false);
     setIsDeleteModalOpen(false);
@@ -109,10 +118,11 @@ const Table: React.FC<TableProps> = ({
     if (title === "Ações") {
       return renderAcoes(usuario);
     }
-  
-    // Obtenha o valor associado à chave no objeto usuario
-    const cellValue = usuario[title?.toLowerCase() as keyof IUsuario] as unknown;
-  
+    
+    // Use o mapeamento para obter a chave correta do objeto `usuario`
+    const key = titleToKeyMap[title ?? ""] as keyof IUsuario;
+    const cellValue = usuario[key];
+    
     // Verifique o tipo do valor para garantir que é renderizável
     if (typeof cellValue === "string" || typeof cellValue === "number") {
       return (
@@ -134,6 +144,7 @@ const Table: React.FC<TableProps> = ({
       );
     }
   };
+  
   
 
   return (

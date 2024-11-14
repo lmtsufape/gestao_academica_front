@@ -1,31 +1,44 @@
 import { IUsuario } from "@/interfaces/IUsuario";
 import { getStorageItem } from "@/utils/localStore";
 
-export async function postUsuario(usuario: IUsuario, profilePhoto: File, route: string) {
+export async function postUsuario(usuario: IUsuario, profilePhoto: File | undefined, route: string) {
   // Obtém o token do armazenamento local
-  const token = getStorageItem("token"); 
+  const token = getStorageItem("token");
 
-  // Cria um objeto FormData para enviar o objeto JSON e a imagem
-  const formData = new FormData();
+  // Verifica se o token é válido (não está vazio, nulo ou indefinido)
+  const hasValidToken = token && token.trim().length > 0;
 
-  // Converte o objeto `usuario` para uma string JSON e adiciona ao FormData
-  const usuarioJson = JSON.stringify(usuario);
-  formData.append("usuario", usuarioJson);
+  let options: RequestInit;
 
-  // Adiciona a imagem ao FormData
-  formData.append("profilePhoto", profilePhoto, profilePhoto.name);
+  // Verifica se há uma foto de perfil para decidir entre FormData e JSON
+  if (profilePhoto) {
+    const formData = new FormData();
+    formData.append("usuario", JSON.stringify(usuario));
+    formData.append("profilePhoto", profilePhoto, profilePhoto.name);
 
-  try {
-    // Faz a requisição usando fetch para a rota específica
-    const response = await fetch(`https://lmtsteste24.ufape.edu.br/${route}`, {
+    options = {
       method: "POST",
       body: formData,
       headers: {
         "Accept": "*/*",
-        // Adiciona o token de autenticação, se disponível
-        "Authorization": `Bearer ${token}`,
+        ...(hasValidToken && { "Authorization": `Bearer ${token}` }), // Adiciona o token apenas se for válido
       },
-    });
+    };
+  } else {
+    options = {
+      method: "POST",
+      body: JSON.stringify(usuario),
+      headers: {
+        "Accept": "*/*",
+        "Content-Type": "application/json",
+        ...(hasValidToken && { "Authorization": `Bearer ${token}` }), // Adiciona o token apenas se for válido
+      },
+    };
+  }
+
+  try {
+    // Faz a requisição usando fetch para a rota específica
+    const response = await fetch(`https://lmtsteste24.ufape.edu.br/${route}`, options);
 
     if (!response.ok) {
       throw new Error(`Erro na requisição: ${response.statusText}`);

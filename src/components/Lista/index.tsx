@@ -127,10 +127,8 @@ const LayoutListarUsuarios: React.FC<ListaProps> = ({ titulo, hrefAnterior, dire
       <div className={style.filterContainer}>
         <select onChange={handlePerfilChange} value={selectedPerfil || ""} className={style.perfilSelect}>
           <option value="">Todos os Perfis</option>
-          <option value="admin">Admin</option>
-          <option value="gestor">Gestor</option>
           <option value="professor">Professor</option>
-          <option value="servidor">Servidor</option>
+          <option value="tecnico">Servidor</option>
           <option value="aluno">Aluno</option>
         </select>
         <input

@@ -25,7 +25,7 @@ interface DetalharUsuarioProps {
   routelastbutton: any;
 }
 
-export default function Listar({ backDetalhamento, usuario, diretorioAnterior, diretorioAtual, hrefAnterior, titulo, firstbutton, lastbutton, routefirstbutton, routelastbutton }: DetalharUsuarioProps) {
+export default function Detalhar({ backDetalhamento, usuario, diretorioAnterior, diretorioAtual, hrefAnterior, titulo, firstbutton, lastbutton, routefirstbutton, routelastbutton }: DetalharUsuarioProps) {
   // Define `roles` como um array de strings
 
   function whatIsPageIs() {
@@ -57,13 +57,17 @@ const LayoutDetalharUsuario: React.FC<DetalharUsuarioProps> = ({ backDetalhament
     cpf: '',
     senha: '',
     confirmarSenha: '',
+    matricula: '',
     email: '',
     telefone: '',
     siape: '',
     curso: '',
+    cursoIds: [],
     nomeSocial: '',
     instituicao: '',
-    tipoUsuario: '',
+    tipoUsuario: 'default',
+    profilePhoto: undefined,
+    documentos: [],
   });
 
   useEffect(() => {
@@ -74,14 +78,17 @@ const LayoutDetalharUsuario: React.FC<DetalharUsuarioProps> = ({ backDetalhament
         cpf: usuario.cpf || '',
         senha: usuario.senha || '',
         confirmarSenha: usuario.confirmarSenha || '',
+        matricula: usuario.matricula ||'',
         email: usuario.email || '',
         telefone: usuario.telefone || '',
         siape: usuario.siape || '',
         curso: usuario.curso || '',
+        cursoIds: usuario.cursoIds || [],
         nomeSocial: usuario.nomeSocial || '',
         instituicao: usuario.instituicao || '',
         tipoUsuario: usuario.tipoUsuario || 'default',
         profilePhoto: undefined,
+        documentos: []
       });
 
       if (usuario.id) {
