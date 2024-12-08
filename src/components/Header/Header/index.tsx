@@ -7,17 +7,21 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState, useRef } from "react";
 import { setStorageItem, getStorageItem } from "@/utils/localStore";
 import { setUserLogin } from "@/redux/userLogin/userLoginSlice";
-import { useMutation } from 'react-query';
-//import { getUsuarioEmail } from "@/api/usuarios/getUsuarioEmail";
+import { useMutation } from "react-query";
 import Link from "next/link";
 import { RootState } from "@/redux/store";
+import { getUsuarioLogado } from "@/api/usuarios/getUsuarioLogado";
+import { IUsuario } from "@/interfaces/IUsuario";
 
-// Interface para usuário
+// Interface para o usuário
 interface User {
   nome: string;
   email: string;
 }
 
+interface HeaderProps {
+  usuario: IUsuario  | null;
+}
 // Função para detectar cliques fora de um elemento
 const useOutsideClick = (ref: React.RefObject<HTMLDivElement>, callback: () => void) => {
   useEffect(() => {
@@ -36,49 +40,33 @@ const useOutsideClick = (ref: React.RefObject<HTMLDivElement>, callback: () => v
 };
 
 const Header: React.FC = () => {
-  const { push } = useRouter();
+  const [roles, setRoles] = useState<string[]>(JSON.parse(getStorageItem("userRoles") || "[]"));
+  const [usuario, setUsuario] = useState<IUsuario | null>(null);
 
-  const whatIsTypeUser = () => {
-    const role = getStorageItem("userRole");
+  const { mutate } = useMutation(getUsuarioLogado, {
+    onSuccess: (res: any) => setUsuario(res.data),
+    onError: () => setUsuario(null),
+  });
 
-    if (role) {
-      switch (role) {
-        case "ROLE_COPPABACS":
-          return <LayoutAdmin />;
-        case "ROLE_GERENTE":
-          //return <LayoutCoordenador />;
-        case "ROLE_AGRICULTOR":
-          //return <LayoutAgricultor />;
-        case "ROLE_USUARIO":
-          //push(APP_ROUTES.public.home);
-          break;
-        default:
-          //return <LayoutPublic />;
-      }
-    } else {
-      return <LayoutPublic />;
-    }
+  useEffect(() => {
+    mutate();
+  }, []);
+
+  const renderLayout = () => {
+    if (roles.includes("administrador")) return <LayoutAdmin  usuario={usuario}/>;
+    return <LayoutPublic />;
   };
 
-  return (
-    <div>
-      <div className={style.menu}>
-        {whatIsTypeUser()}
-      </div>
-    </div>
-  );
+  return <div>{renderLayout()}</div>;
 };
 
-const LayoutAdmin: React.FC = () => {
-  const { push, back } = useRouter();
+const LayoutAdmin: React.FC<HeaderProps> = ({usuario}) => {
+  const { push } = useRouter();
   const pathName = usePathname();
-  const userLogin = useSelector((state: RootState) => state.userLogin); 
+  const userLogin = useSelector((state: RootState) => state.userLogin);
   const [open, setOpen] = useState(false);
   const [dropdown, setDropdown] = useState(false);
-  const [usuario, setUsuario] = useState<User | null>(null);
   const dispatch = useDispatch();
-  const [role] = useState<string | null>(getStorageItem("userRole"));
-  const [windowWidth, setWindowWidth] = useState<number | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -87,197 +75,180 @@ const LayoutAdmin: React.FC = () => {
 
   useEffect(() => {
     const handleResize = () => {
-      setWindowWidth(window.innerWidth);
+      if (window.innerWidth >= 768) {
+        setOpen(false);
+      }
     };
-
-    if (typeof window !== "undefined") {
-      handleResize();
-      window.addEventListener("resize", handleResize);
-    }
-
+    window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
-  useEffect(() => {
-    if (windowWidth && windowWidth >= 768) {
-      setOpen(false);
-    }
-    mutate();
-  }, [windowWidth]);
 
   const exitUser = () => {
     setStorageItem("token", "");
     setStorageItem("userLogin", "");
     setStorageItem("userRole", "");
-    setUsuario(null);
     dispatch(setUserLogin(""));
-    push("/login");
-    setOpen(false);
+    push("/");
     setDropdown(false);
+    setOpen(false);
   };
 
-  const { mutate } = useMutation(
-  //  async () => getUsuarioEmail(userLogin),
-    {
-      onSuccess: (res:any) => {
-       // setUsuario(res.data);
-      },
-      onError: (error) => {
-        console.error(error);
-      },
-    }
-  );
-
   return (
-    <header className={style.header}>
-      {pathName !== "/" && pathName !== "/login" && (
-        <button className={style.header__voltar} onClick={() => back()}>
-          <Image src="/assets/IconMenorQue.svg" alt="Voltar" width={27} height={24} />
-        </button>
-      )}
+    <div className={style.header}>
       {userLogin && (
         <button className={style.header__button_burguer} onClick={() => setOpen(!open)}>
-          <Image src="/assets/burguer.png" alt="Burger" width={23.11} height={14.86} />
+          <Image src="assets/icons/burger.svg" alt="Menu" width={23} height={14} />
         </button>
       )}
       {open && (
         <div ref={menuRef} className={style.header__side_menu}>
           <div className={style.header__side_menu__content}>
             <div className={style.header__side_menu__content__header}>
-              <button className={style.header__side_menu__content__header__button_back} onClick={() => setOpen(false)}>
-                <Image src="/assets/BackWhite.svg" alt="Voltar" width={27} height={24} style={{ transform: "scaleX(-1)" }} />
+              <button
+                className={style.header__side_menu__content__header__button_back}
+                onClick={() => setOpen(false)}
+              >
+                <Image
+                  src="/assets/icons/BackWhite.svg"
+                  alt="Voltar"
+                  width={27}
+                  height={24}
+                  style={{ transform: "scaleX(-1)" }}
+                />
               </button>
               <div className={style.header__side_menu__content__header_iconLogin}>
-                <Image src="/assets/iconLogadoBranco.svg" alt="Home" width={50} height={50} />
+                <Image src="/assets/icons/perfil.svg" alt="Perfil" width={50} height={50} />
                 {userLogin ? (
-                  <h3 className={style.header__side_menu__content__header_iconLogin_nome}>{usuario?.nome}</h3>
+                  <h3 className={style.header__side_menu__content__header_iconLogin_nome}>
+                    {usuario?.nome || "Olá, visitante"}
+                  </h3>
                 ) : (
-                  <h3 className={style.header__side_menu__content__header_iconLogin_nome}>Olá, visitante</h3>
+                  <h3 className={style.header__side_menu__content__header_iconLogin_nome}>
+                    Olá, visitante
+                  </h3>
                 )}
-                {userLogin && <h3 className={style.header__side_menu__content__header_iconLogin_email}>{usuario?.email}</h3>}
+                {userLogin && (
+                  <h3 className={style.header__side_menu__content__header_iconLogin_email}>
+                    {usuario?.email}
+                  </h3>
+                )}
               </div>
             </div>
             <div className={style.header__side_menu__content__main}>
-              {/* Botões de navegação */}
+              <div className={style.header__side_menu__conj}>
+                <div className={style.header__side_menu__conjBotoes}>
+                  <div className={style.header__side_menu__conjBotoes__botoesNav}>
+                    <Image
+                      src="/assets/icons/solicitacoes.svg"
+                      alt="Solicitações"
+                      width={27}
+                      height={24}
+                    />
+                    <Link
+                      className={style.header__side_menu__conjBotoes__link}
+                      href="/solicitacoes"
+                      onClick={() => setOpen(false)}
+                    >
+                      <h1>Solicitações</h1>
+                    </Link>
+                  </div>
+                  <div className={style.header__side_menu__conjBotoes__botoesNav}>
+                    <Image src="/assets/icons/usuarios.svg" alt="Usuários" width={27} height={24} />
+                    <Link
+                      className={style.header__side_menu__conjBotoes__link}
+                      href="/usuarios"
+                      onClick={() => setOpen(false)}
+                    >
+                      <h1>Usuários</h1>
+                    </Link>
+                  </div>
+                  <div className={style.header__side_menu__conjBotoes__botoesNav}>
+                    <Image
+                      src="/assets/icons/unidadeAdministrativa.svg"
+                      alt="Unidades Administrativas"
+                      width={27}
+                      height={24}
+                    />
+                    <Link
+                      className={style.header__side_menu__conjBotoes__link}
+                      href="/unidade-administrativa"
+                      onClick={() => setOpen(false)}
+                    >
+                      <h1>Unidades Administrativas</h1>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+              <button
+                className={style.header__side_menu__content__main__perfil}
+                onClick={() => push("/perfil")}
+              >
+                <Image src="/assets/icons/iconLogadoGray.svg" alt="Meu Perfil" width={27} height={24} />
+                <p>Meu Perfil</p>
+              </button>
+              <button
+                className={style.header__side_menu__content__main__exit}
+                onClick={exitUser}
+              >
+                <Image src="/assets/icons/download.svg" alt="Sair" width={27} height={24} />
+                <p>Sair</p>
+              </button>
             </div>
           </div>
           <div className={style.header__side_menu__space} onClick={() => setOpen(false)}></div>
         </div>
       )}
       <button className={style.header__button_link} onClick={() => push("/")}>
-        <Image className={style.header__logo} src="/assets/logoCoppabacs.svg" alt="Logo App" width={60} height={60} />
+        <Image className={style.header__logo} src="/assets/LogoAzul.svg" alt="Logo App" width={40} height={40} />
       </button>
       <div className={style.header__usuarioLogado}>
-        {userLogin ? (
+        {userLogin && (
           <h3 className={style.header__usuarioLogado_h3}>Olá, {usuario?.nome}</h3>
-        ) : (
-          <h3 className={style.header__usuarioLogado_h3}>Olá, visitante</h3>
         )}
         {userLogin ? (
-          <button className={style.header__button_perfil} onClick={() => setDropdown(!dropdown)}>
-            <Image src="/assets/iconLogado.svg" alt="Perfil" width={50} height={50} />
+          <button
+            className={style.header__button_perfil}
+            onClick={() => setDropdown(!dropdown)}
+          >
+            <Image src="/assets/icons/profile.png" alt="Perfil" width={50} height={50} />
           </button>
         ) : (
-          <button className={style.header__button_home} onClick={() => push("/login")}>Login</button>
+          <div className={style.header__container}>
+            <button className={style.header__button_link} onClick={() => push("/")}>
+              Home
+            </button>
+            <button className={style.header__button_link} onClick={() => push("/")}>
+              Sistema
+            </button>
+          </div>
         )}
         {dropdown && userLogin && (
           <div ref={dropdownRef} className={style.header__dropdown}>
-            <button className={style.header__dropdown__perfil} onClick={() => { push("/perfil"); setDropdown(false); setOpen(false); }}>
-              <Image src="/assets/iconLogadoGray.svg" alt="Meu perfil" width={27} height={24} />
-              <p>Meu perfil</p>
+            <button
+              className={style.header__dropdown__perfil}
+              onClick={() => {
+                push("/perfil");
+                setDropdown(!dropdown);
+                setOpen(false);
+              }}
+            >
+              <Image src="/assets/icons/iconLogadoGray.svg" alt="Meu Perfil" width={27} height={24} />
+              <p>Meu Perfil</p>
             </button>
             <button className={style.header__dropdown__exit} onClick={exitUser}>
-              <Image src="/assets/download.svg" alt="Sair" width={27} height={24} />
+              <Image src="/assets/icons/download.svg" alt="Sair" width={27} height={24} />
               <p>Sair</p>
             </button>
           </div>
         )}
       </div>
-    </header>
+    </div>
   );
 };
 
-const LayoutPublic = () => {
-  const { push, back } = useRouter();
-  const pathName = usePathname();
-  const userLogin = useSelector((state: RootState) => state.userLogin); // Tipagem adequada
-  const [open, setOpen] = useState(false);
-  const [dropdow, setDropdow] = useState(false);
-  const [usuario, setUsuario] = useState<User | null>(null); // Tipagem correta para `usuario`
-  const dispatch = useDispatch();
-  const [role] = useState<string | null>(getStorageItem("userRole"));
-  const [windowWidth, setWindowWidth] = useState<number | null>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Função para tratar cliques fora do menu
-  const useOutsideClick = (ref: React.RefObject<HTMLDivElement>, callback: () => void) => {
-    useEffect(() => {
-      const handleClickOutside = (event: MouseEvent | TouchEvent) => {
-        if (ref.current && !ref.current.contains(event.target as Node)) {
-          callback();
-        }
-      };
-      document.addEventListener("mousedown", handleClickOutside);
-      document.addEventListener("touchstart", handleClickOutside);
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-        document.removeEventListener("touchstart", handleClickOutside);
-      };
-    }, [ref, callback]);
-  };
-
-  useOutsideClick(menuRef, () => setOpen(false));
-  useOutsideClick(dropdownRef, () => setDropdow(false));
-
-  useEffect(() => {
-    function handleResize() {
-      setWindowWidth(window.innerWidth);
-    }
-
-    if (typeof window !== "undefined") {
-      handleResize();
-      window.addEventListener("resize", handleResize);
-    }
-
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  useEffect(() => {
-    if (windowWidth && windowWidth >= 768) {
-     // setOpen(false);
-    }
-    mutate();
-  }, [windowWidth]);
-
-  function exitUser() {
-    setStorageItem("token", "");
-    setStorageItem("userLogin", "");
-    setStorageItem("userRole", "");
-    setUsuario(null);
-    dispatch(setUserLogin(""));
-    push("/login");
-    setOpen(false);
-    setDropdow(false);
-  }
-
-  const { status, mutate } = useMutation(
-    async () => {
-      //return getUsuarioCpf(userLogin); // Supondo que `getUsuarioCpf` retorne os dados do usuário
-    },
-    {
-      onSuccess: (res:any) => {
-       // setUsuario(res.data);
-      },
-      onError: (error) => {
-        console.error(error);
-      },
-    }
-  );
-
+const LayoutPublic: React.FC = () => {
+  const { push } = useRouter();
   return (
-    <div className={style.container}>
-
     <div className={style.header}>
       <button className={style.header__button_link} onClick={() => push("/")}>
         <Image className={style.header__logo} src="/assets/LogoAzul.svg" alt="Logo App" width={40} height={40} />
@@ -287,14 +258,11 @@ const LayoutPublic = () => {
           Home
         </button>
         <button className={style.header__button_link} onClick={() => push("/")}>
-        Sistema
+          Sistema
         </button>
       </div>
-
-    </div>
     </div>
   );
 };
-
 
 export default Header;

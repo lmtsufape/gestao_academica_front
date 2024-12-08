@@ -25,7 +25,6 @@ const Login = () => {
     },
     {
       onSuccess: (res: any) => {
-
         // Extrair os tokens e o tipo de token da resposta
         const accessToken = res.data.access_token;
         const refreshToken = res.data.refresh_token;

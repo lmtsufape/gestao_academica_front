@@ -7,28 +7,27 @@
 
     border-bottom: 1px solid rgba(0, 0, 0, 0.3);
 
-    &__container{
+    &__container {
         display: flex;
         flex-direction: row;
         gap: 2em;
     }
-    &__usuarioLogado{
+    &__usuarioLogado {
         display: flex;
         align-items: center;
         justify-content: center;
 
-        &_h3{
+        &_h3 {
             font-weight: bold;
             display: flex;
-            margin-right: 1em;           
+            margin-right: 1em;
         }
-
     }
 
-    &__voltar{
+    &__voltar {
         display: flex;
         background-color: white;
-        border: #68655C 1px solid;
+        border: #68655c 1px solid;
         border-radius: 0.8em;
         width: 3em;
         height: 3em;
@@ -39,10 +38,8 @@
 
         &:hover {
             box-shadow: -3.5px 3.5px 8px rgba(0, 0, 0, 0.2);
-          }
+        }
     }
-    
-
 
     &__logo {
         width: 120px;
@@ -50,7 +47,7 @@
 
     &__button_mural,
     &__button_home {
-        color: #245501;
+        color: rgba(var(--blue));
         font-weight: bold;
         font-size: 1em;
         border: none;
@@ -58,39 +55,37 @@
     }
 
     &__button_mural {
-        background-color: #FFFF;
+        background-color: #ffff;
         margin-right: 0.8em;
 
         &:hover {
-            background-color: #245501;
+            background-color: rgba(var(--blue));
             border-radius: 0.5em;
-            color: #FFFF;
-            transition: all .4s;
+            color: #ffff;
+            transition: all 0.4s;
         }
-
     }
 
     &__button_home {
-        background-color: #FFFF;
+        background-color: #ffff;
 
         &:hover {
-            background-color: #245501;
+            background-color: rgba(var(--blue));
             border-radius: 0.5em;
-            color: #FFFF;
-            transition: all .4s;
+            color: #ffff;
+            transition: all 0.4s;
         }
-
     }
 
     &__button_burguer {
-        display: block;
+        display: absolute;
         border: none;
         background-color: transparent;
         position: absolute;
         right: 15px;
     }
 
-    &__side_menu{
+    &__side_menu {
         position: fixed;
         top: 0;
         left: 131px;
@@ -101,15 +96,14 @@
         display: flex;
         box-shadow: -3.5px 3.5px 8px rgba(0, 0, 0, 0.2);
 
-
-        &__conj{
+        &__conj {
             padding: 0em 1.2em;
 
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
-        &__conjBotoes{
+        &__conjBotoes {
             flex-direction: column;
             display: flex;
             align-items: center;
@@ -117,7 +111,7 @@
             margin-top: 1em;
             margin-bottom: 190px;
 
-            &__botoesNav{
+            &__botoesNav {
                 display: flex;
                 justify-content: start;
                 align-items: center;
@@ -125,50 +119,44 @@
                 width: 20em;
                 height: 3.5em;
                 padding-left: 0.3em;
-
-                
-              }
-              &__link{
-                color: #68655C;
+            }
+            &__link {
+                color: #68655c;
                 text-decoration: none;
                 font-size: 0.9em;
                 font-weight: bold;
                 padding: 1.5em 14em 1.5em 2.8em;
                 margin: -1.5em -14em -1.5em -2.4em;
-              }
+            }
         }
 
-        
-
-        
-
-        &__content{
+        &__content {
             width: 281.95px;
             height: 100%;
 
-            &__header{
+            &__header {
                 height: 184.06px;
-                background-color: #245501;
+                background-color: rgb(var(--blue));
                 display: flex;
                 align-items: flex-start;
                 justify-content: space-between;
-                
-                div{
+
+                div {
                     padding-top: 20px;
                     padding-left: 20px;
                 }
 
-                h3{
+                h3 {
                     margin-top: 12px;
-                    color: #FFF;
+                    color: #fff;
                 }
 
-                &__button_back{
+                &__button_back {
                     padding-top: 15px;
                     background-color: transparent;
                     border: none;
                 }
-                &_iconLogin{
+                &_iconLogin {
                     top: 20px;
                     right: 20px;
                     position: fixed;
@@ -176,20 +164,20 @@
                     flex-direction: column;
                     align-items: end;
 
-                    &_nome{
-                        font-size:0.8em;
+                    &_nome {
+                        font-size: 0.8em;
                     }
-                    &_email{
+                    &_email {
                         font-size: 0.7em;
                     }
                 }
             }
 
-            &__main{
+            &__main {
                 height: 100%;
-                background-color: #FFF;
+                background-color: #fff;
 
-                &__perfil{
+                &__perfil {
                     display: flex;
                     align-items: center;
                     gap: 5px;
@@ -199,13 +187,13 @@
                     bottom: 80px;
                     left: 5px;
 
-                    p{
-                        color:#68655C;
+                    p {
+                        color: #68655c;
                         font-size: 17px;
                     }
                 }
 
-                &__exit{
+                &__exit {
                     display: flex;
                     align-items: center;
                     gap: 5px;
@@ -215,27 +203,26 @@
                     bottom: 25px;
                     left: 5px;
 
-                    p{
-                        color:#970B0B;
+                    p {
+                        color: #970b0b;
                         font-size: 17px;
                     }
                 }
             }
         }
 
-        &__space{
+        &__space {
             width: calc(100% - 281.95px);
             height: 100%;
             cursor: pointer;
         }
-        
     }
 
-    &__dropdown{
-        background-color: #FFF;
+    &__dropdown {
+        background-color: #fff;
         width: 150.65px;
         height: 90.01px;
-        position:absolute;
+        position: absolute;
         top: 79px;
         right: 50px;
         padding: 22.1px 22.2px 3.1px 22.2px;
@@ -246,7 +233,7 @@
         align-items: start;
         gap: 19px;
 
-        &__perfil{
+        &__perfil {
             border: none;
             background-color: transparent;
             display: flex;
@@ -254,43 +241,41 @@
             gap: 7px;
             width: 11em;
 
-            &:hover{
+            &:hover {
                 background-color: #f0f0f0d7;
                 width: 11em;
                 height: auto;
-              }
+            }
 
-            p{
-                color:#838383;
+            p {
+                color: #838383;
             }
         }
 
-        &__exit{
+        &__exit {
             display: flex;
             align-items: center;
             gap: 5px;
             border: none;
             background-color: transparent;
             width: 11em;
-            &:hover{
+            &:hover {
                 background-color: #f0f0f0d7;
                 width: 11em;
                 height: auto;
-              }
+            }
 
-            p{
-                color:#970B0B;
+            p {
+                color: #970b0b;
                 font-size: 14px;
             }
         }
-
     }
 
     &__button_link {
         border: none;
         background-color: transparent;
         margin-left: -2em;
-
     }
 
     padding: 1em; // Reduzido para melhor ajuste em dispositivos móveis
@@ -311,36 +296,35 @@
         display: none; // Esconde o botão no modo mobile
 
         &:hover {
-            background-color: #245501;
+            background-color: rgba(var(--blue));
             border-radius: 5em;
-            color: #FFFF;
-            transition: all .4s;
+            color: #ffff;
+            transition: all 0.4s;
         }
     }
 
     @media (max-width: 361px) {
-        &__button_link{
+        &__button_link {
             margin-left: -2em;
         }
     }
 
     // Media query para estilos de telas maiores (por exemplo, tablets e desktops)
-    
-    @media (min-width: 768px) {
 
+    @media (min-width: 468px) {
         padding: 1em 4em;
         flex-direction: row; // Restaura a direção da linha para telas maiores
         justify-content: space-between; // Alinha os elementos nas extremidades para telas maiores
         box-shadow: 0 0 0.8em rgba(0, 0, 0, 0.1);
-        
+
         &__button_burguer {
             display: none;
-        }        
+        }
 
         &__button_perfil {
             display: block;
             border: 0;
-            background-color: #FFFF;
+            background-color: #ffff;
         }
 
         &__voltar {
@@ -349,47 +333,41 @@
 
         &__button_sistem {
             display: block;
-            background-color: #FFFF;
+            background-color: #ffff;
 
             &:hover {
-                background-color: #245501;
+                background-color: rgba(var(--blue));
                 border-radius: 5em;
-                color: #FFFF;
-                transition: all .4s;
+                color: #ffff;
+                transition: all 0.4s;
             }
-
         }
     }
-
 }
-
 
 @media all and (max-width: 475px) {
     .header {
         display: flex;
-        justify-content:center;
+        justify-content: center;
 
-        &__button_home{
+        &__button_home {
             position: absolute;
             right: 1.3em;
         }
-        &__voltar{
+        &__voltar {
             position: absolute;
             left: 1.5em;
         }
 
-        &__usuarioLogado{
-    
-            &_h3{
-                display: none;  
+        &__usuarioLogado {
+            &_h3 {
+                display: none;
             }
-    
         }
 
         &__logo {
             width: 120px;
             margin-left: 0;
-    
         }
     }
 }
