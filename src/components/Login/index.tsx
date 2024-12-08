@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
-import { setStorageItem } from "@/utils/localStore";
+import { getStorageItem, setStorageItem } from "@/utils/localStore";
 import { useMutation } from "react-query";
 import style from "./login.module.scss";
 import Link from "next/link";
@@ -25,6 +25,11 @@ const Login = () => {
     {
       onSuccess: (res: any) => {
         setStorageItem("usuario", JSON.stringify(res.data)); // Armazenar usuário no localStorage
+         // Redirecionar para a página inicial
+         if(getStorageItem("usuario") !== null){
+          window.location.href = APP_ROUTES.private.home.name; // Redireciona para a página de login
+
+         }
       },
       onError: () => {
         console.error("Erro ao obter o usuário logado.");
@@ -57,8 +62,7 @@ const Login = () => {
         // Buscar informações do usuário logado
         fetchUsuario();
 
-        // Redirecionar para a página inicial
-        push(APP_ROUTES.private.home.name);
+       
       },
       onError: (error) => {
         console.error("Erro ao fazer login:", error);

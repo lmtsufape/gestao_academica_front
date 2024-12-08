@@ -45,7 +45,9 @@ export async function postLogout() {
 function handleLogout() {
     setStorageItem("token", "");
     setStorageItem("refresh_token", "");
+    setStorageItem("userRoles", "");
     setStorageItem("userLogin", "");
+    setStorageItem("usuario", "");
     store.dispatch(setUserLogin("")); // Limpa o estado do Redux
 
     // Redireciona para a página de login
