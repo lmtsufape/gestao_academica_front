@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { setStorageItem } from "@/utils/localStore";
@@ -11,60 +11,78 @@ import api from "@/api/http-common";
 import { setUserLogin } from "@/redux/userLogin/userLoginSlice";
 import { postLogin } from "@/api/auth/postLogin";
 import { APP_ROUTES } from "@/constants/app-routes";
+import { getUsuarioLogado } from "@/api/usuarios/getUsuarioLogado";
+import { IUsuario } from "@/interfaces/IUsuario";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const { push } = useRouter();
-
   const dispatch = useDispatch();
 
-  const { status, mutate } = useMutation(
-    async () => {
-      return postLogin(email, senha);
-    },
+  const { mutate: fetchUsuario, data: usuarioData, isError: isUsuarioError } = useMutation(
+    getUsuarioLogado,
     {
       onSuccess: (res: any) => {
-        // Extrair os tokens e o tipo de token da resposta
+        setStorageItem("usuario", JSON.stringify(res.data)); // Armazenar usuário no localStorage
+      },
+      onError: () => {
+        console.error("Erro ao obter o usuário logado.");
+      },
+    }
+  );
+
+  const { status, mutate: loginMutate } = useMutation(
+    async () => postLogin(email, senha),
+    {
+      onSuccess: (res: any) => {
+        // Extrair tokens e dados do login
         const accessToken = res.data.access_token;
         const refreshToken = res.data.refresh_token;
-        const tokenType = res.data.token_type; // Geralmente 'Bearer'
-        const roles = res.data.roles || []; // Supondo que as roles estejam em 'res.data.roles'
-        // Configurar o header Authorization com o tipo de token
+        const tokenType = res.data.token_type;
+        const roles = res.data.roles || [];
+
+        // Configurar o cabeçalho Authorization
         api.defaults.headers.authorization = `${tokenType} ${accessToken}`;
 
-        // Armazenar os tokens no localStorage
+        // Armazenar tokens e informações no localStorage
         setStorageItem("token", accessToken);
         setStorageItem("refresh_token", refreshToken);
+        setStorageItem("userRoles", JSON.stringify(roles));
 
-        // Armazenar informações do usuário
+        // Atualizar Redux com o e-mail do usuário
         dispatch(setUserLogin(email));
         setStorageItem("userLogin", email);
 
-        // Armazenar as roles do usuário no localStorage
-        setStorageItem("userRoles", JSON.stringify(roles));
+        // Buscar informações do usuário logado
+        fetchUsuario();
 
         // Redirecionar para a página inicial
         push(APP_ROUTES.private.home.name);
       },
       onError: (error) => {
-        console.log("Erro ao fazer o login de usuário", error);
+        console.error("Erro ao fazer login:", error);
       },
     }
   );
 
-  const getEnter = (e: any) => {
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    loginMutate();
+  };
+
+  const getEnter = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
-      mutate();
+      loginMutate();
     }
   };
 
   return (
     <div className={style.login}>
       <div className={style.login__login}>
-        <form onSubmit={(e) => { e.preventDefault(); mutate(); }}>
+        <form onSubmit={handleLogin}>
           <h1 className={style.login__login_title}>Entrar</h1>
-          
+
           <label htmlFor="email" className={style.login__login_label}>
             <p>E-mail</p>
             <input
@@ -73,6 +91,7 @@ const Login = () => {
               placeholder="Digite seu e-mail"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              onKeyPress={getEnter}
             />
           </label>
 
@@ -84,6 +103,7 @@ const Login = () => {
               placeholder="Digite sua senha"
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
+              onKeyPress={getEnter}
             />
           </label>
 
@@ -91,21 +111,21 @@ const Login = () => {
             <h2 className={style.login__login_subtitle}>Esqueceu a senha?</h2>
           </Link>
 
-          {status === "error" ? (
+          {status === "error" && (
             <p className={style.login__login_errorLogin}>E-mail ou senha incorretos</p>
-          ) : null}
+          )}
 
           <button
+            type="submit"
             className={`${style.login__login_button} ${
               status === "loading" || status === "success" ? style.active : ""
             }`}
-            onClick={() => mutate()}
           >
             Entrar
           </button>
 
           <h2 className={style.login__login_subtitle1}>
-            Não possui conta? &nbsp;
+            Não possui conta?{" "}
             <Link href="/novo-usuario">
               <span>Crie Agora.</span>
             </Link>

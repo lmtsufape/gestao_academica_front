@@ -12,6 +12,7 @@ import Link from "next/link";
 import { RootState } from "@/redux/store";
 import { getUsuarioLogado } from "@/api/usuarios/getUsuarioLogado";
 import { IUsuario } from "@/interfaces/IUsuario";
+import { postLogout } from "@/api/auth/postLogout";
 
 // Interface para o usuário
 interface User {
@@ -20,7 +21,7 @@ interface User {
 }
 
 interface HeaderProps {
-  usuario: IUsuario  | null;
+  usuario: { nome: string; email: string } | null;
 }
 // Função para detectar cliques fora de um elemento
 const useOutsideClick = (ref: React.RefObject<HTMLDivElement>, callback: () => void) => {
@@ -40,27 +41,31 @@ const useOutsideClick = (ref: React.RefObject<HTMLDivElement>, callback: () => v
 };
 
 const Header: React.FC = () => {
-  const [roles, setRoles] = useState<string[]>(JSON.parse(getStorageItem("userRoles") || "[]"));
-  const [usuario, setUsuario] = useState<IUsuario | null>(null);
-
-  const { mutate } = useMutation(getUsuarioLogado, {
-    onSuccess: (res: any) => setUsuario(res.data),
-    onError: () => setUsuario(null),
-  });
+  const [roles, setRoles] = useState<string[]>([]);
+  const [usuario, setUsuario] = useState<{ nome: string; email: string } | null>(null);
 
   useEffect(() => {
-    mutate();
-  }, []);
+    const storedRoles = JSON.parse(getStorageItem("userRoles") || "[]");
+    setRoles(storedRoles);
+
+    const storedUsuario = JSON.parse(getStorageItem("usuario") || "null");
+    if (storedUsuario) {
+      setUsuario(storedUsuario);
+    }
+  }, []); // Carrega informações do usuário e roles ao montar o componente
 
   const renderLayout = () => {
-    if (roles.includes("administrador")) return <LayoutAdmin  usuario={usuario}/>;
-    return <LayoutPublic />;
+    if (roles.includes("administrador")) {
+      return <LayoutAdmin usuario={usuario} />;
+    } else {
+      return <LayoutPublic />;
+    }
   };
 
   return <div>{renderLayout()}</div>;
 };
 
-const LayoutAdmin: React.FC<HeaderProps> = ({usuario}) => {
+const LayoutAdmin: React.FC<HeaderProps> = ({ usuario }) => {
   const { push } = useRouter();
   const pathName = usePathname();
   const userLogin = useSelector((state: RootState) => state.userLogin);
@@ -83,14 +88,17 @@ const LayoutAdmin: React.FC<HeaderProps> = ({usuario}) => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const { mutate } = useMutation(postLogout, {
+    onSuccess: (res: any) => {
+      console.log("Logout feito com sucesso");
+    },
+    onError: () => {
+      console.log("Erro ao fazer logout");
+    }
+  });
+
   const exitUser = () => {
-    setStorageItem("token", "");
-    setStorageItem("userLogin", "");
-    setStorageItem("userRole", "");
-    dispatch(setUserLogin(""));
-    push("/");
-    setDropdown(false);
-    setOpen(false);
+    mutate()
   };
 
   return (
