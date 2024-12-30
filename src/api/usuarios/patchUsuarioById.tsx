@@ -2,7 +2,7 @@ import axios from "axios";
 import { getStorageItem } from "@/utils/localStore";
 import { IUsuario } from "@/interfaces/IUsuario";
 
-export async function patchUsuarioById(id: string | number | undefined, usuario: IUsuario, profilePhoto: File) {
+export async function patchUsuarioById(id: string | number | undefined, usuario: IUsuario, profilePhoto: File | any) {
   const token = getStorageItem("token"); 
 
   const formData = new FormData();

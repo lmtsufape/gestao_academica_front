@@ -1,65 +1,113 @@
-// Importação do modal
+"use client";
+
+import React, { useState } from "react";
 import style from "./table.module.scss";
-import React, { useState } from 'react';
 
 import { IUsuario } from "@/interfaces/IUsuario";
+import { ISolicitacao } from "@/interfaces/ISolicitacao";
 import { deleteUsuario } from "@/api/usuarios/deleteUsuario";
-import ConfirmationPromocaoModal from "../Excluir";
 import ConfirmationUsuarioModal from "../Excluir";
+import { ICurso } from "@/interfaces/ICurso";
 
 interface TableProps {
+  // Identificação da tabela
   titulo: string;
-  table1?: string;
-  table2?: string;
-  table3?: string;
-  table4?: string;
-  table5?: string;
-  listUsuarios: IUsuario[];
-  setUsuarios: (usuario: IUsuario[]) => void;
-  onSelectUsuario: (usuario: IUsuario) => void;
+
+  // Labels das colunas (ex: "Nome", "CPF", etc.)
+  table1: string;
+  table2: string;
+  table3: string;
+  table4: string;
+  table5: string;
+
+  // Lista de usuários (caso seja a tabela de usuários)
+  listUsuarios?: IUsuario[];
+  setUsuarios?: React.Dispatch<React.SetStateAction<IUsuario[]>>;
+  onSelectUsuario?: (usuario: IUsuario) => void; // exibe detalhes
+
+  // Lista de solicitações (caso seja a tabela de solicitações)
+  listSolicitacoes?: ISolicitacao[];
+  setSolicitacaoes?: React.Dispatch<React.SetStateAction<ISolicitacao[]>>;
+  onSelectSolicitacao?: (sol: ISolicitacao) => void; // exibe detalhes
+  // Lista de cursos
+  listCursos?: ICurso[];
+  setCursos?: React.Dispatch<React.SetStateAction<ICurso[]>>;
+  onSelectCurso?: (curso: ICurso) => void; // exibe detalhes
+  // Paginação
   currentPage: number;
   totalPages: number;
   setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const Table: React.FC<TableProps> = ({
-  titulo,
-  listUsuarios,
-  onSelectUsuario,
-  table1,
-  table2,
-  table3,
-  table4,
-  table5,
-  currentPage,
-  totalPages,
-  setCurrentPage,
-  setUsuarios
-}) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+/**
+ * Exibe colunas dinâmicas baseado em table1..table5 e no tipo da lista (usuarios ou solicitacoes).
+ * Se for tabela de usuários, exibe listUsuarios; se for de solicitações, listSolicitacoes.
+ */
+const Table: React.FC<TableProps> = (props) => {
+  const {
+    titulo,
+    table1,
+    table2,
+    table3,
+    table4,
+    table5,
+    listUsuarios,
+    setUsuarios,
+    onSelectUsuario,
+    listSolicitacoes,
+    setSolicitacaoes,
+    onSelectSolicitacao,
+    listCursos,
+    setCursos,
+    onSelectCurso,
+    currentPage,
+    totalPages,
+    setCurrentPage,
+  } = props;
+
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedUsuario, setSelectedUsuario] = useState<IUsuario | null>(null);
   const [selectedUsuarioId, setSelectedUsuarioId] = useState<string | null>(null);
 
+  // --------------------------------------------------------------------------
+  // Funções auxiliares: convertendo 'header' -> valor do objeto
+  // --------------------------------------------------------------------------
 
-  // Mapeamento de títulos para as propriedades do objeto IUsuario
-const titleToKeyMap: { [key: string]: keyof IUsuario } = {
-  "Nome": "nome",
-  "Nome Social": "nomeSocial", // ajuste conforme o nome exato da propriedade em IUsuario
-  "Telefone": "telefone",
-  "CPF": "cpf",
+  // Exibe valor da coluna para "Usuários"
+  const getUsuarioValueByHeader = (usuario: IUsuario, header: string) => {
+    switch (header) {
+      case "Nome": return usuario?.nome || "";
+      case "Nome Social": return usuario?.nomeSocial || "";
+      case "CPF": return usuario?.cpf || "";
+      case "Telefone": return usuario?.telefone || "";
+      case "Tipo Perfil": return usuario?.tipoUsuario || "";
+      // Caso precise de outros campos, vá adicionando
+      default: return "";
+    }
   };
 
-  const handleClose = () => {
-    setIsModalOpen(false);
-    setIsDeleteModalOpen(false);
+  // Exibe valor da coluna para "Solicitações"
+  const getSolicitacaoValueByHeader = (sol: ISolicitacao, header: string) => {
+    switch (header) {
+      case "Solicitante": return sol?.solicitante?.nome || "";
+      case "CPF": return sol?.solicitante?.cpf || "";
+      case "Perfil": return sol?.perfil?.tipo || "";
+      case "Status": return sol?.status || "";
+      case "Parecer": return sol?.parecer || "";
+      // Ajuste conforme suas colunas reais
+      default: return "";
+    }
   };
-
-  const handleOpenModal = (usuario: IUsuario) => {
-    setSelectedUsuario(usuario);
-    setIsModalOpen(true);
+  // Exibe valor da coluna para "Cursos"
+  const getCursoValueByHeader = (curso: ICurso, header: string) => {
+    switch (header) {
+      case "Nome": return curso?.nome || "";
+      //case "Ativo": return curso?.ativo || "";
+      // Ajuste conforme suas colunas reais
+    }
   };
-
+  // --------------------------------------------------------------------------
+  // Excluir usuário (exemplo de exclusão, se for tabela de usuários)
+  // --------------------------------------------------------------------------
   const openDeleteModal = (id: string) => {
     setSelectedUsuarioId(id);
     setIsDeleteModalOpen(true);
@@ -67,86 +115,131 @@ const titleToKeyMap: { [key: string]: keyof IUsuario } = {
 
   const closeDeleteModal = () => {
     setSelectedUsuarioId(null);
-    handleClose();
+    setIsDeleteModalOpen(false);
   };
 
   const handleConfirmDelete = async () => {
-    if (selectedUsuarioId) {
+    if (selectedUsuarioId && setUsuarios && listUsuarios) {
       try {
         await deleteUsuario(selectedUsuarioId);
-        setUsuarios(listUsuarios.filter(usuario => usuario.id !== selectedUsuarioId));
+        // remove da lista local
+        const newArray = listUsuarios.filter((u) => u.id !== selectedUsuarioId);
+        setUsuarios(newArray);
       } catch (error) {
-        console.error('Erro ao excluir o usuário:', error);
+        console.error("Erro ao excluir o usuário:", error);
       }
       closeDeleteModal();
     }
   };
 
-  const renderAcoes = (usuario: IUsuario) => (
-    <td>
-      <button
-        onClick={() => onSelectUsuario(usuario)}
-        className={style.content__table__body_click}
-      >
-        <img
-          src="/assets/icons/visualizar.svg"
-          alt="Visualizar"
-        />
-      </button>
-      {titulo ==="Solicitações "?(
-      <button
-        onClick={() => openDeleteModal(usuario.id)}
-        className={style.content__table__body_click}
-      >
-        <img
-          src="/assets/icons/excluir.svg"
-          alt="Excluir"
-        />
-      </button>
-      ):""}
-    </td>
-  );
-
-  const renderHeader = (title?: string) => (
-    <th>
+  // --------------------------------------------------------------------------
+  // Renderiza cabeçalho
+  // --------------------------------------------------------------------------
+  const renderHeader = (title: string) => (
+    <th key={title}>
       {title}
-      {title === "Ações" && <span><img src="/assets/icons/informacao.svg" alt="Informação" /></span>}
+      {title === "Ações" && (
+        <span>
+          <img src="/assets/icons/informacao.svg" alt="Informação" />
+        </span>
+      )}
     </th>
   );
 
-  const renderCell = (usuario: IUsuario, title?: string) => {
-    if (title === "Ações") {
-      return renderAcoes(usuario);
-    }
-    
-    // Use o mapeamento para obter a chave correta do objeto `usuario`
-    const key = titleToKeyMap[title ?? ""] as keyof IUsuario;
-    const cellValue = usuario[key];
-    
-    // Verifique o tipo do valor para garantir que é renderizável
-    if (typeof cellValue === "string" || typeof cellValue === "number") {
-      return (
-        <td>
-          <div className={style.content__table__cell}>{cellValue}</div>
-        </td>
-      );
-    } else if (cellValue instanceof File) {
-      return (
-        <td>
-          <div className={style.content__table__cell}>{cellValue.name}</div>
-        </td>
-      );
-    } else {
-      return (
-        <td>
-          <div className={style.content__table__cell}>{cellValue ? String(cellValue) : ""}</div>
-        </td>
-      );
-    }
-  };
-  
-  
+  // --------------------------------------------------------------------------
+  // Renderiza tabela de usuários
+  // --------------------------------------------------------------------------
+  const renderUsuarioRows = () => {
+    if (!listUsuarios) return null;
 
+    return listUsuarios.map((usuario, index) => (
+      <tr key={usuario.id || index}>
+        <td>{getUsuarioValueByHeader(usuario, table1)}</td>
+        <td>{getUsuarioValueByHeader(usuario, table2)}</td>
+        <td>{getUsuarioValueByHeader(usuario, table3)}</td>
+        <td>{getUsuarioValueByHeader(usuario, table4)}</td>
+        <td>
+          <button
+            onClick={() => onSelectUsuario?.(usuario)}
+            className={style.content__table__body_click}
+          >
+            <img
+              src="/assets/icons/visualizar.svg"
+              alt="Visualizar"
+            />
+          </button>
+          {titulo === "Solicitações " ? (
+            <button
+              onClick={() => openDeleteModal(usuario.id)}
+              className={style.content__table__body_click}
+            >
+              <img
+                src="/assets/icons/excluir.svg"
+                alt="Excluir"
+              />
+            </button>
+          ) : ""}
+        </td>
+      </tr>
+    ));
+  };
+
+  // --------------------------------------------------------------------------
+  // Renderiza tabela de solicitações
+  // --------------------------------------------------------------------------
+  const renderSolicitacaoRows = () => {
+    if (!listSolicitacoes) return null;
+
+    return listSolicitacoes.map((sol, index) => (
+      <tr key={sol.id || index}>
+        <td>{getSolicitacaoValueByHeader(sol, table1)}</td>
+        <td>{getSolicitacaoValueByHeader(sol, table2)}</td>
+        <td>{getSolicitacaoValueByHeader(sol, table3)}</td>
+        <td>{getSolicitacaoValueByHeader(sol, table4)}</td>
+        <td>
+          {/* Botão de Visualizar Detalhes */}
+          <button
+            onClick={() => onSelectSolicitacao?.(sol)}
+            className={style.content__table__body_click}
+          >
+            <img src="/assets/icons/visualizar.svg" alt="Visualizar" />
+          </button>
+          {/* Se quiser permitir excluir Solicitação, crie o modal análogo */}
+        </td>
+      </tr>
+    ));
+  };
+
+  // --------------------------------------------------------------------------
+  // Renderiza tabela de cursos
+  // --------------------------------------------------------------------------
+
+  const renderCursosRows = () => {
+    if (!listCursos) return null;
+
+    return listCursos.map((curso, index) => (
+      <tr key={curso.id || index}>
+        <td>{getCursoValueByHeader(curso, table1)}</td>
+        {/*<td>{getCursoValueByHeader(curso, table2)}</td>
+      
+       Coluna de Ação (botão Excluir) */}
+        <td>
+          <button
+            onClick={() => openDeleteModal(curso.id)}
+            className={style.content__table__body_click}
+          >
+            <img
+              src="/assets/icons/excluir.svg"
+              alt="Excluir"
+            />
+          </button>
+        </td>
+      </tr>
+    ));
+  };
+  // --------------------------------------------------------------------------
+  // Retorno principal
+  // --------------------------------------------------------------------------
   return (
     <>
       <div className={style.content}>
@@ -160,36 +253,56 @@ const titleToKeyMap: { [key: string]: keyof IUsuario } = {
               {table5 && renderHeader(table5)}
             </tr>
           </thead>
+
           <tbody className={style.content__table__body}>
-            {listUsuarios.map((usuario, index) => (
-              <tr key={index}
-              >
-                {table1 && renderCell(usuario, table1)}
-                {table2 && renderCell(usuario, table2)}
-                {table3 && renderCell(usuario, table3)}
-                {table4 && renderCell(usuario, table4)}
-                {table5 && renderCell(usuario, table5)}
+            {listUsuarios && listUsuarios.length > 0 ? (
+              renderUsuarioRows()
+            ) : listSolicitacoes && listSolicitacoes.length > 0 ? (
+              renderSolicitacaoRows()
+            ) : listCursos && listCursos.length > 0 ? (
+              renderCursosRows()
+            ) : (
+              <tr>
+                <td colSpan={5} style={{ textAlign: "center" }}>
+                  Nenhum registro encontrado.
+                </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
+
+        {/* Paginação */}
         <div className={style.content__table__pagination}>
-          <button onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 0))} disabled={currentPage === 0}>
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 0))}
+            disabled={currentPage === 0}
+          >
             Anterior
           </button>
-          <span>Página {currentPage + 1} de {totalPages}</span>
-          <button onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages - 1))} disabled={currentPage === totalPages - 1}>
+          <span>
+            Página {currentPage + 1} de {totalPages}
+          </span>
+          <button
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages - 1))
+            }
+            disabled={currentPage === totalPages - 1 || totalPages === 0}
+          >
             Próximo
           </button>
         </div>
       </div>
+
+      {/* Modal de confirmação de exclusão (para usuários) */}
       {selectedUsuarioId && (
         <ConfirmationUsuarioModal
           isOpen={isDeleteModalOpen}
           onClose={closeDeleteModal}
           onConfirm={handleConfirmDelete}
-          usuarioNome={selectedUsuario?.nome}
-          usuarioId={selectedUsuarioId}  // Para a exclusão
+          usuarioNome={
+            listUsuarios?.find((u) => u.id === selectedUsuarioId)?.nome || ""
+          }
+          usuarioId={selectedUsuarioId}
         />
       )}
     </>

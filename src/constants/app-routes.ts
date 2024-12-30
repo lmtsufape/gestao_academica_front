@@ -15,6 +15,12 @@ export const APP_ROUTES = {
         },
         cadastrarUsuario: {
             name: '/usuarios/criar-usuario',
+        },
+        cursos:{
+            name: '/cursos',
+        },
+        cadastrarCurso:{
+            name: '/cursos/registrar',
         }
 
     },

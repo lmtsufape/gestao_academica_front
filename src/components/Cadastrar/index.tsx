@@ -13,11 +13,15 @@ import { postUsuario } from "@/api/usuarios/postUsuario";
 import { getStorageItem } from "@/utils/localStore";
 import { useSelector } from "react-redux";
 import { postSolicitacoes } from "@/api/solicitacoes/postSolicitacoes";
+import { ICurso } from "@/interfaces/ICurso";
+import DadosCurso from "./DadosCurso";
+import { postCurso } from "@/api/cursos/postCurso";
 
 interface CadastrarProps {
   hrefAnterior: string;
   backDetalhamento: () => void;
-  usuario: IUsuario | null;
+  usuario?: IUsuario | any;
+  curso?: ICurso | any;
   diretorioAnterior: string;
   diretorioAtual: string;
   titulo: string;
@@ -27,9 +31,10 @@ interface CadastrarProps {
   routelastbutton: any;
 }
 interface LayoutSolicitacoesProps {
-  usuario: IUsuario | null;
+  usuario: IUsuario | any;
   roles: string[];
 }
+
 
 const Cadastrar: React.FC<CadastrarProps> = ({
   usuario,
@@ -49,7 +54,9 @@ const Cadastrar: React.FC<CadastrarProps> = ({
   function whatIsTypeUser() {
     if (titulo === "Solicitar Perfil de Acesso" && roles.includes("visitante")) {
       return <LayoutSolicitacoes usuario={usuario} roles={roles} />;
-    }else if(roles.includes("administrador")) {
+    } else if(titulo === "Cadastrar Curso" && roles.includes("administrador")) {
+      return <LayoutCurso roles={roles} />;
+    }else if (roles.includes("administrador")) {
       return <LayoutAdmin roles={roles} />;
 
     } else {
@@ -101,10 +108,12 @@ const LayoutAdmin = ({ roles }: { roles: string[] }) => {
       .oneOf([Yup.ref("senha")], "As senhas precisam coincidir")
       .required("Confirmação de senha é obrigatória"),
     cpf: Yup.string()
-      .matches(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/, "Número do registro de contribuinte individual brasileiro (CPF) inválido")
+      .matches(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/, "Número (CPF) inválido")
       .required("CPF é obrigatório"),
     telefone: Yup.string()
-      .matches(/^\(\d{2}\) \d{5}-\d{4}$/, "Número de telefone inválido. O formato deve ser (XX) XXXXX-XXXX")
+      .matches(
+        /^\(\d{2}\) \d{5}-\d{4}$/,"Formato: (XX) XXXXX-XXXX"
+      )
       .required("Telefone é obrigatório"),
   });
 
@@ -202,7 +211,7 @@ const LayoutAdmin = ({ roles }: { roles: string[] }) => {
                   <h1>Informações do Usuario</h1>
                 </div>
 
-                <DadosPessoais formik={formik} roles={roles} editar={true}/>
+                <DadosPessoais formik={formik} roles={roles} editar={true} />
 
                 <div className={style.container__ContainerForm_buttons}>
                   <button
@@ -217,6 +226,111 @@ const LayoutAdmin = ({ roles }: { roles: string[] }) => {
                     className={style.container__ContainerForm_buttons_linkWhite}
                   >
                     <h1>Criar</h1>
+                  </button>
+                </div>
+              </Form>
+            )}
+          </Formik>
+        </div>
+      </div>
+    </>
+  );
+};
+
+const LayoutCurso = ({ roles }: { roles: string[] }) => {
+  const { push } = useRouter();
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  // Inicializa os valores do formulário
+  const initialValues: ICurso = {
+    id: '',
+    nome: '',
+    ativo: true,
+  };
+
+  const validateSchema = Yup.object().shape({
+    nome: Yup.string().required("Nome é obrigatório"),
+    email: Yup.string().email("Email inválido").required("Email é obrigatório"),
+    senha: Yup.string().required("Senha é obrigatória"),
+    confirmarSenha: Yup.string()
+      .oneOf([Yup.ref("senha")], "As senhas precisam coincidir")
+      .required("Confirmação de senha é obrigatória"),
+    cpf: Yup.string()
+      .matches(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/, "Número (CPF) inválido")
+      .required("CPF é obrigatório"),
+    telefone: Yup.string()
+      .matches(
+        /^\(\d{2}\) \d{5}-\d{4}$/,"Formato: (XX) XXXXX-XXXX"
+      )
+      .required("Telefone é obrigatório"),
+  });
+
+  const userRoutes = {
+    Admin: "/usuario/registrar",
+    Coordenador: "/usuario/registrar",
+    Professor: "/usuario/registrar",
+    Tecnico: "/usuario/registrar",
+    Aluno: "/usuario/registrar",
+  };
+
+ 
+  const cadastrarCurso = useMutation(
+    async (values: ICurso) => {
+      return postCurso(values.nome);
+    },{
+      onSuccess: () => {
+        push(APP_ROUTES.private.cursos.name);
+      },
+      onError: (error) => {
+        console.log("Erro ao aprovar a solicitação:", error);
+      },
+    }
+  ); 
+ 
+  return (
+    <>
+      <div className={style.header}>
+        <div className={style.header__title}>
+          <h1>Cadastrar Usuario</h1>
+          <div className={style.header__title_line}></div>
+        </div>
+
+      </div>
+      <div id="header" className={style.container}>
+        <div className={style.container__ContainerForm}>
+          <Formik
+            initialValues={initialValues}
+            validationSchema={validateSchema}
+            onSubmit={(values, { setSubmitting }) => {
+              cadastrarCurso.mutate(values);
+              setSubmitting(false);
+            }}
+          >
+            {(formik) => (
+              <Form className={style.container__ContainerForm_form}>
+
+                <div className={style.container__photo}>
+                  <h1>Informações do Curso</h1>
+                </div>
+
+                <DadosCurso formik={formik} editar={true} />
+
+                <div className={style.container__ContainerForm_buttons}>
+                  <button
+                    className={style.container__ContainerForm_buttons_link}
+                    type="button"
+                    onClick={() => push(APP_ROUTES.private.usuarios.name)}
+                  >
+                    <h1>Voltar</h1>
+                  </button>
+                  <button
+                    className={style.container__ContainerForm_buttons_linkWhite}
+                    type="button"
+                    onClick={() => {
+                      cadastrarCurso.mutate(formik.values as ICurso);
+                    }}
+                  >
+                    <h1>Cadastrar</h1>
                   </button>
                 </div>
               </Form>
@@ -262,15 +376,17 @@ const LayoutPublic = () => {
       .oneOf([Yup.ref("senha")], "As senhas precisam coincidir")
       .required("Confirmação de senha é obrigatória"),
     cpf: Yup.string()
-      .matches(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/, "Número do registro de contribuinte individual brasileiro (CPF) inválido")
+      .matches(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/, "Número do (CPF) inválido")
       .required("CPF é obrigatório"),
     telefone: Yup.string()
-      .matches(/^\(\d{2}\) \d{5}-\d{4}$/, "Número de telefone inválido. O formato deve ser (XX) XXXXX-XXXX")
+    .matches(
+      /^\(\d{2}\) \d{5}-\d{4}$/, "Formato: (XX) XXXXX-XXXX"
+    )
       .required("Telefone é obrigatório"),
   });
-  
-  
-  
+
+
+
   const userRoutes = {
     default: "usuario/registrar",
   };
@@ -365,7 +481,7 @@ const LayoutPublic = () => {
                   <h1>Informações do Usuario</h1>
                 </div>
 
-                <DadosPessoais formik={formik} roles={[]} editar={true}/>
+                <DadosPessoais formik={formik} roles={[]} editar={true} />
 
                 <div className={style.container__ContainerForm_buttons}>
                   <button
@@ -391,7 +507,7 @@ const LayoutPublic = () => {
   );
 }
 
-const LayoutSolicitacoes: React.FC<LayoutSolicitacoesProps> = ({ usuario, roles })=>{
+const LayoutSolicitacoes: React.FC<LayoutSolicitacoesProps> = ({ usuario, roles }) => {
   const { push } = useRouter();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [formData, setFormData] = useState<IUsuario>({
@@ -457,19 +573,20 @@ const LayoutSolicitacoes: React.FC<LayoutSolicitacoesProps> = ({ usuario, roles 
       .matches(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/, "Número de CPF inválido")
       .required("CPF é obrigatório"),
     telefone: Yup.string()
-      .matches(/^\(\d{2}\) \d{5}-\d{4}$/, "Número de telefone inválido. Formato: (XX) XXXXX-XXXX")
+      .matches(/^\(\d{2}\) \d{5}-\d{4}$/, "Formato: (XX) XXXXX-XXXX")
       .required("Telefone é obrigatório"),
   });
-  
+
 
   const userRoutes = {
-    Professor: "solicitacao/professor",
-    Tecnico: "solicitacao/tecnico",
-    Aluno: "solicitacao/aluno",
+    Professor: "professor",
+    Tecnico: "tecnico",
+    Aluno: "aluno",
   };
 
   const { mutate } = useMutation(
     async (values: IUsuario) => {
+      console.log(values);
       const route = userRoutes[values.tipoUsuario as keyof typeof userRoutes];
       return postSolicitacoes(route, values);
     },
