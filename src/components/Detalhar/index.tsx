@@ -2,20 +2,31 @@
 
 import { Form, Formik } from "formik";
 import { useEffect, useState } from "react";
-
-import style from "./detalhar.module.scss";
-import HeaderDetalhamento from "@/components/Header/HeaderDetalhamento";
 import { useRouter } from "next/navigation";
 import { useMutation } from "react-query";
-import DadosPessoais from "./DadosPessoais";
-import { IUsuario } from "@/interfaces/IUsuario";
-import { patchUsuarioById } from "@/api/usuarios/patchUsuarioById";
-import { title } from "process";
 
+import style from "./detalhar.module.scss";
+
+import HeaderDetalhamento from "@/components/Header/HeaderDetalhamento";
+import DadosPessoais from "./DadosPessoais";
+
+// API
+import { patchUsuarioById } from "@/api/usuarios/patchUsuarioById";
+
+// Interfaces
+import { IUsuario } from "@/interfaces/IUsuario";
+import { ISolicitacao } from "@/interfaces/ISolicitacao";
+import DadosSolicitacao from "./DadosSolicitacao";
+import { postAprovar } from "@/api/solicitacoes/postAprovar";
+import { postRejeitar } from "@/api/solicitacoes/postRejeitar";
+import { APP_ROUTES } from "@/constants/app-routes";
+
+/** PROPS */
 interface DetalharUsuarioProps {
   hrefAnterior: string;
   backDetalhamento: () => void;
-  usuario: IUsuario | any;
+  usuario?: IUsuario;               
+  solicitacao?: ISolicitacao;       
   diretorioAnterior: string;
   diretorioAtual: string;
   titulo: string;
@@ -25,100 +36,166 @@ interface DetalharUsuarioProps {
   routelastbutton: any;
 }
 
-export default function Detalhar({ backDetalhamento, usuario, diretorioAnterior, diretorioAtual, hrefAnterior, titulo, firstbutton, lastbutton, routefirstbutton, routelastbutton }: DetalharUsuarioProps) {
-  // Define `roles` como um array de strings
+/** 
+ * Função helper (type guard) para saber se o objeto
+ * em `formik.values` é um ISolicitacao.
+ */
+function isSolicitacao(values: IUsuario | ISolicitacao): values is ISolicitacao {
+  // Critério: se 'values' tiver 'perfil', 'solicitante' e 'responsavel'.
+  // Você pode ajustar conforme sua modelagem.
 
-  function whatIsPageIs() {
-    if (titulo == "Informações do Usuario") {
-      return <LayoutDetalharUsuario backDetalhamento={backDetalhamento} usuario={usuario} titulo={titulo} hrefAnterior={hrefAnterior} diretorioAnterior={diretorioAnterior} diretorioAtual={diretorioAtual} firstbutton={firstbutton} routefirstbutton=
-        {routefirstbutton} lastbutton={lastbutton} routelastbutton={routelastbutton} />;
-
-    } else if (titulo == "Informações da Solicitação") {
-      return <LayoutDetalharUsuario backDetalhamento={backDetalhamento} usuario={usuario} titulo={titulo} hrefAnterior={hrefAnterior} diretorioAnterior={diretorioAnterior} diretorioAtual={diretorioAtual} firstbutton={firstbutton} routefirstbutton=
-        {routefirstbutton} lastbutton={lastbutton} routelastbutton={routelastbutton} />;
-
-    }
-  }
-
-  return (
-    <>
-      {whatIsPageIs()}
-    </>
-  );
+  return (values as ISolicitacao).perfil.tipo !== undefined;
 }
-const LayoutDetalharUsuario: React.FC<DetalharUsuarioProps> = ({ backDetalhamento, usuario, diretorioAnterior, diretorioAtual, hrefAnterior, titulo, firstbutton, lastbutton, routefirstbutton, routelastbutton }) => {
+/**
+ * Componente principal
+ */
+export default function Detalhar(props: DetalharUsuarioProps) {
+  return <LayoutDetalharUsuario {...props} />;
+}
+
+/**
+ * LayoutDetalharUsuario
+ * Renderiza o Formik, decide se é Solicitação ou Usuário
+ * e lida com toda a lógica de edição/upload.
+ */
+const LayoutDetalharUsuario: React.FC<DetalharUsuarioProps> = ({
+  backDetalhamento,
+  usuario,
+  solicitacao,
+  diretorioAnterior,
+  diretorioAtual,
+  hrefAnterior,
+  titulo,
+  firstbutton,
+  lastbutton,
+  routefirstbutton,
+  routelastbutton,
+}) => {
   const { push } = useRouter();
   const [editar, setEditar] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  const [formData, setFormData] = useState<IUsuario>({
-    id: '',
-    nome: '',
-    cpf: '',
-    senha: '',
-    confirmarSenha: '',
-    matricula: '',
-    email: '',
-    telefone: '',
-    siape: '',
-    curso: '',
-    cursoIds: [],
-    nomeSocial: '',
-    instituicao: '',
-    tipoUsuario: 'default',
-    profilePhoto: undefined,
-    documentos: [],
-  });
+  /**
+   * 1) Definindo valores iniciais como IUsuario | ISolicitacao
+   *    baseado no 'titulo' ou nas props.
+   */
+  let initialValues: IUsuario | ISolicitacao;
 
+  // Se for solicitação:
+  if (titulo === "Informações da Solicitação" && solicitacao) {
+    initialValues = {
+      id: solicitacao.id || "",
+      dataSolicitacao: solicitacao.dataSolicitacao || "",
+      status: solicitacao.status || "",
+      dataAvaliacao: solicitacao.dataAvaliacao || "",
+      parecer: "",
+      perfil: {
+        id: solicitacao?.perfil?.id || "",
+        matricula: solicitacao?.perfil?.matricula || "",
+        curso: {
+          id: solicitacao?.perfil?.curso?.id || "",
+          nome: solicitacao?.perfil?.curso?.nome || "",
+          ativo: solicitacao?.perfil?.curso?.ativo || false,
+        },
+        tipo: solicitacao?.perfil?.tipo || "",
+      },
+      solicitante: solicitacao.solicitante,
+      responsavel: solicitacao.responsavel,
+    } as ISolicitacao;
+  }else{
+
+    // Caso contrário, assumimos que é um usuário:
+    initialValues = {
+      id: usuario?.id || "",
+      nome: usuario?.nome || "",
+      cpf: usuario?.cpf || "",
+      senha: usuario?.senha || "",
+      confirmarSenha: usuario?.confirmarSenha || "",
+      matricula: usuario?.matricula || "",
+      email: usuario?.email || "",
+      telefone: usuario?.telefone || "",
+      siape: usuario?.siape || "",
+      curso: usuario?.curso || "",
+      cursoIds: usuario?.cursoIds || [],
+      nomeSocial: usuario?.nomeSocial || "",
+      instituicao: usuario?.instituicao || "",
+      tipoUsuario: usuario?.tipoUsuario || "default",
+      profilePhoto: undefined,
+      documentos: [],
+    } as IUsuario;
+
+  }
+  
+
+  // Exemplo de efeito colateral quando 'usuario' muda
   useEffect(() => {
-    if (usuario) {
-      setFormData({
-        id: usuario.id || '',
-        nome: usuario.nome || '',
-        cpf: usuario.cpf || '',
-        senha: usuario.senha || '',
-        confirmarSenha: usuario.confirmarSenha || '',
-        matricula: usuario.matricula ||'',
-        email: usuario.email || '',
-        telefone: usuario.telefone || '',
-        siape: usuario.siape || '',
-        curso: usuario.curso || '',
-        cursoIds: usuario.cursoIds || [],
-        nomeSocial: usuario.nomeSocial || '',
-        instituicao: usuario.instituicao || '',
-        tipoUsuario: usuario.tipoUsuario || 'default',
-        profilePhoto: undefined,
-        documentos: []
-      });
-
-      if (usuario.id) {
-        //getSecretariaPhoto(usuario.id);
-      }
+    if (usuario?.id) {
+      // Exemplo: buscar foto em outro endpoint, etc.
     }
   }, [usuario]);
 
+  /**
+   * 2) Definindo a mutation (SÓ para usuário).
+   *    Se for Solicitação, você precisa de outra mutation 
+   *    ou outro endpoint (ou não chama nada).
+   */
   const updateUsuario = useMutation(
     async (values: IUsuario) => {
-      const profilePhoto = values.profilePhoto as File;
-      const { profilePhoto: _, ...updatedValues } = values;
-
-      return patchUsuarioById(usuario.id, updatedValues, profilePhoto);
+      const { profilePhoto, ...updatedValues } = values;
+      const file = profilePhoto as File | undefined;
+      return patchUsuarioById(values.id, updatedValues, file);
     },
     {
-      onSuccess: (res) => {
-        // Handle success logic
+      onSuccess: () => {
+        // Exemplo: toast de sucesso, refetch, etc.
       },
       onError: (error) => {
-        console.log("Erro ao atualizar o usuario", error);
-      }
+        console.log("Erro ao atualizar o usuário:", error);
+      },
     }
   );
 
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>, setFieldValue: (field: string, value: any) => void) => {
-    if (!editar) return;
+  const aprovarSolicitacao = useMutation(
+    async (values: ISolicitacao) => {
+      return postAprovar(values.id, values.parecer);
+    },
+    {
+      onSuccess: () => {
+        push(APP_ROUTES.private.solicitacoes.name);
 
+      },
+      onError: (error) => {
+        console.log("Erro ao aprovar a solicitação:", error);
+      },
+    }
+  ); 
+  const rejeitarSolicitacao = useMutation(
+    async (values: ISolicitacao) => {
+      return postRejeitar(values.id, values.parecer);
+    },
+    {
+      onSuccess: () => {
+        push(APP_ROUTES.private.solicitacoes.name);
+      },
+      onError: (error) => {
+        console.log("Erro ao rejeitar a solicitação:", error);
+      },
+    }
+  );
+
+  /**
+   * 3) Função para tratar mudança de imagem.
+   *    Só faz sentido se formik.values for IUsuario.
+   */
+  const handleImageChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    setFieldValue: (field: string, value: any) => void,
+    formValues: IUsuario | ISolicitacao
+  ) => {
+    if (!editar) return;
     const file = event.currentTarget.files?.[0];
-    if (file) {
+    // Se for IUsuario, atualizamos profilePhoto
+    if (file && !isSolicitacao(formValues)) {
       setFieldValue("profilePhoto", file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -127,6 +204,9 @@ const LayoutDetalharUsuario: React.FC<DetalharUsuarioProps> = ({ backDetalhament
       reader.readAsDataURL(file);
     }
   };
+
+  // Flag para saber se é solicitação (usado no JSX)
+  const isSolic = titulo === "Informações da Solicitação";
 
   return (
     <div className={style.container}>
@@ -145,61 +225,99 @@ const LayoutDetalharUsuario: React.FC<DetalharUsuarioProps> = ({ backDetalhament
 
       <div className={style.container__body}>
         <div className={style.container__body_ContainerForm}>
-          <Formik
-            initialValues={formData}
+          {/* 
+              4) O Formik agora é de tipo IUsuario | ISolicitacao 
+                 pois initialValues podem ser qualquer um dos dois.
+          */}
+          <Formik<IUsuario | ISolicitacao>
+            initialValues={initialValues}
             enableReinitialize
             onSubmit={(values, { setSubmitting }) => {
-              updateUsuario.mutate(values);
+              // Se for IUsuario, chamamos updateUsuario
+              if (!isSolicitacao(values)) {
+                updateUsuario.mutate(values);
+              } else {
+                // Caso seja solicitação:
+                console.log("Aprovar solicitação ou outra lógica...");
+                // Você criaria aqui a mutation/endpoint para solicitação, se existir.
+              }
               setSubmitting(false);
+              setEditar(false);
             }}
           >
             {(formik) => (
               <Form className={style.container__body_ContainerForm_form}>
                 <div className={style.container__body_ContainerForm_header}>
                   <div className={style.container__body_ContainerForm_header_title}>
+                    {/* UPLOAD de foto: só exibe se for Usuário */}
                     <div className={style.container__body_ContainerForm_profilePhotoWrapper}>
-                      <input
-                        type="file"
-                        id="profilePhoto"
-                        name="profilePhoto"
-                        accept="image/jpeg"
-                        onChange={(event) => handleImageChange(event, formik.setFieldValue)}
-                        disabled={!editar}
-                      />
-                      <label htmlFor="profilePhoto" className={style.container__body_ContainerForm_profilePhotoLabel}>
+                      {!isSolicitacao(formik.values) && (
+                        <input
+                          type="file"
+                          id="profilePhoto"
+                          name="profilePhoto"
+                          accept="image/jpeg"
+                          onChange={(event) =>
+                            handleImageChange(event, formik.setFieldValue, formik.values)
+                          }
+                          disabled={!editar}
+                        />
+                      )}
+                      <label
+                        htmlFor="profilePhoto"
+                        className={style.container__body_ContainerForm_profilePhotoLabel}
+                      >
                         {imagePreview ? (
-                          <img src={imagePreview} alt="Profile Preview" className={style.container__body_ContainerForm_profileImage} />
+                          <img
+                            src={imagePreview}
+                            alt="Profile Preview"
+                            className={style.container__body_ContainerForm_profileImage}
+                          />
                         ) : (
                           <img src="/assets/icons/perfil.svg" alt="Upload Icon" />
                         )}
                       </label>
-                      {editar && (
+
+                      {/* Ícone de editar foto somente se for usuário e estiver em modo edição */}
+                      {editar && !isSolicitacao(formik.values) && (
                         <span
                           className={style.container__body_ContainerForm_editIcon}
                           onClick={() => {
-                            const fileInput = document.getElementById('profilePhoto');
-                            if (fileInput) {
-                              fileInput.click();
-                            }
+                            const fileInput = document.getElementById("profilePhoto");
+                            fileInput?.click();
                           }}
                         >
                           <img src="/assets/icons/editar_white.svg" alt="Edit Icon" />
                         </span>
                       )}
                     </div>
+
+                    {/* Título: se for solicitação, exibe algo, senão exibe o nome do usuário */}
                     <div className={style.container__body_ContainerForm_header_form}>
-                    {titulo === "Informações da Solicitação" ? (
-                      <>
-                      <h1>Solicitação para o perfil <span>{formik.values.tipoUsuario}</span></h1>
-                      </>
-                    ):(
-                      <h1>{formik.values.nome}</h1>
-                    )}
+                      {isSolic ? (
+                        // Exemplo: 'Solicitação para o perfil X'
+                        <h1>
+                          Solicitação para o perfil{" "}
+                          <span>
+                            {isSolicitacao(formik.values)
+                              ? formik.values.perfil.tipo
+                              : ""}
+                          </span>
+                        </h1>
+                      ) : (
+                        // Se não for solicitação, então é um usuário:
+                        <h1>
+                          {!isSolicitacao(formik.values)
+                            ? formik.values.nome
+                            : ""}
+                        </h1>
+                      )}
                     </div>
                   </div>
-                  {titulo !== "Informações da Solicitação" ? (
-                    <>
 
+                  {/* Botões Editar/Salvar: só se não for solicitação */}
+                  {!isSolic && (
+                    <>
                       {!editar ? (
                         <button
                           type="button"
@@ -212,34 +330,54 @@ const LayoutDetalharUsuario: React.FC<DetalharUsuarioProps> = ({ backDetalhament
                         <button
                           type="submit"
                           className={style.container__body_ContainerForm_header_button}
-                          onClick={() => setEditar(false)}
                         >
                           <span>Salvar</span>
                         </button>
                       )}
                     </>
-                  ) : ""}
+                  )}
                 </div>
 
-                <DadosPessoais formik={formik} editar={editar} hrefAnterior={hrefAnterior} roles={[]} />
-              
-                {titulo === "Informações da Solicitação" ? (
-                    <div className={style.container__body_ContainerForm_form_submit}>
+                {/* CAMPOS DO FORM */}
+                {/* Se for Usuário, renderizamos o <DadosPessoais> */}
+                {!isSolicitacao(formik.values) && (
+                  <DadosPessoais
+                    formik={formik}
+                    editar={editar}
+                    hrefAnterior={hrefAnterior}
+                    roles={[]}
+                  />
+                )}
 
-                        <button
-                          type="button"
-                          onClick={() => setEditar(true)}
-                        >
-                          <span>Recusar</span>
-                        </button>
-                        <button
-                          type="submit"
-                          onClick={() => setEditar(false)}
-                        >
-                          <span>Aprovar</span>
-                        </button>
-                    </div>
-                  ) : ""}
+                {/* Se for Solicitação, mostramos botões Recusar/Aprovar */}
+                {isSolic && (
+                 <>
+                  <DadosSolicitacao
+                  formik={formik}
+                  editar={editar}
+                  hrefAnterior={hrefAnterior}
+                  roles={[]}
+                />
+                  <div className={style.container__body_ContainerForm_form_submit}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        rejeitarSolicitacao.mutate(formik.values as ISolicitacao);
+                      }}
+                    >
+                      <span>Recusar</span>
+                    </button>
+                    <button
+                    type="button"
+                    onClick={() => {
+                      aprovarSolicitacao.mutate(formik.values as ISolicitacao);
+                    }}
+                    >
+                      <span>Aprovar</span>
+                    </button>
+                  </div>
+                 </>
+                )}
               </Form>
             )}
           </Formik>
@@ -248,4 +386,3 @@ const LayoutDetalharUsuario: React.FC<DetalharUsuarioProps> = ({ backDetalhament
     </div>
   );
 };
-

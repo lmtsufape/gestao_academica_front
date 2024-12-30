@@ -1,0 +1,134 @@
+.container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  color: rgba(var(--black));
+  margin: 0 0 2em 0;
+
+  &__ContainerForm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 2em 0em 2em;
+    padding: 0 0 2em 0;
+    border-radius: 1em;
+
+    &_form {
+      width: 100%;
+
+      display: flex;
+      flex-direction: column;
+      color: rgba(var(--black));
+
+      margin: 2em 1em 1em 0em;
+
+      label {
+        margin: 0 0 1em 0;
+        font-size: 1em;
+        font-weight: 600;
+        color: rgba(var(--black));
+      }
+
+      &_input {
+        width: 100%;
+        padding: 0.5em;
+        margin: 0.5em 0 1em 0; 
+        border: 1px solid rgba(0, 0, 0, 0.50);
+        border-radius: 5px;
+        font-size: 1em;
+        font-weight: normal;
+        box-sizing: border-box;
+        background-color: rgba(var(--input-form));
+        color: rgba(var(--black));
+      }
+
+      &_halfContainer {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        align-items: center;
+        column-gap: 2em;
+
+        label {
+          margin: 0 0 0.5em 0;
+          font-size: 1em;
+          font-weight: 600;
+          color: rgba(var(--black));
+        }
+
+        &_input {
+          width: 100%;
+          padding: 0.5em;
+          margin: 0.1em 0 1em 0; 
+          border: 1px solid rgba(0, 0, 0, 0.50);
+          border-radius: 5px;
+          font-size: 1em;
+          font-weight: normal;
+          box-sizing: border-box;    
+        }
+      }
+
+      &_threeContainer {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        align-items: center;
+        column-gap: 2em;
+
+        label {
+          margin: 0 0 0.5em 0;
+          font-size: 1em;
+          font-weight: 600;
+          color: rgba(var(--black));
+        }
+
+        &_input {
+          width: 100%;
+          padding: 0.5em;
+          margin: 0.1em 0 1em 0; 
+          border: 1px solid rgba(0, 0, 0, 0.50);
+          border-radius: 5px;
+          font-size: 1em;
+          font-weight: normal;
+          box-sizing: border-box;    
+        }
+      }
+    }
+  }
+}
+
+/* Estilos adicionais para o tooltip de erro */
+.formGroup {
+position: relative;
+margin-bottom: 20px; // ajuste conforme necessário
+}
+
+.inputWrapper {
+position: relative;
+width: 100%;
+}
+
+.form__errorTooltip {
+position: absolute;
+top: 100%;
+left: 0;
+margin-top: 4px;
+background: #f8d7da;
+color: #721c24;
+padding: 4px 8px;
+border-radius: 4px;
+font-size: 0.85rem;
+white-space: nowrap;
+z-index: 999;
+
+&::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: 10px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent #f8d7da transparent;
+}
+}

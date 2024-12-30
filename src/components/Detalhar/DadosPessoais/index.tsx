@@ -2,7 +2,7 @@
 
 import style from "./dados-pessoais.module.scss";
 
-interface DadosSecretariaProps {
+interface DadosPessoaisProps {
   formik: any;
   editar: boolean;
   roles: string[]; // Array de roles para controle de perfil
@@ -10,7 +10,7 @@ interface DadosSecretariaProps {
 
 }
 
-const DadosPessoais: React.FC<DadosSecretariaProps> = ({ formik, editar, roles }) => {
+const DadosPessoais: React.FC<DadosPessoaisProps> = ({ formik, editar, roles }) => {
   return (
     <>
 

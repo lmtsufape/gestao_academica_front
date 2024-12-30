@@ -14,10 +14,10 @@ const Page = () => {
                 routefirstbutton={""}
                 lastbutton=""
                 routelastbutton={""}
-                table1="Nome"
+                table1="Solicitante"
                 table2="CPF"
-                table3="Tipo Perfil"
-                table4=""
+                table3="Perfil"
+                table4="Status"
                 table5="Ações"
             />
 
