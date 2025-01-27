@@ -1,6 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import style from "./dados-pessoais.module.scss";
+import { ICurso } from "@/interfaces/ICurso";
+import Select from 'react-select';
+import { Fredericka_the_Great } from "next/font/google";
 
 interface DadosPessoaisProps {
   formik: any;
@@ -9,8 +13,26 @@ interface DadosPessoaisProps {
   hrefAnterior: string;
 
 }
-
+interface OptionType {
+  value: string;
+  label: string;
+}
 const DadosPessoais: React.FC<DadosPessoaisProps> = ({ formik, editar, roles }) => {
+  const [cursos, setCursos] = useState<ICurso[]>([]);
+
+  // Prepare options for react-select
+  const cursoOptions = cursos.map((curso) => ({
+    value: curso.id,
+    label: curso.nome,
+  }));
+
+  const selectedOptions = cursoOptions.filter(option => formik.values.cursoIds.includes(option.value));
+
+  // Handle selection changes
+  const handleSelectChange = (selectedOptions: any) => {
+    const selectedIds = selectedOptions ? selectedOptions.map((option: { value: any; }) => option.value) : [];
+    formik.setFieldValue('cursoIds', selectedIds);
+  };
   return (
     <>
 
@@ -40,15 +62,11 @@ const DadosPessoais: React.FC<DadosPessoaisProps> = ({ formik, editar, roles }) 
             className={style.container__ContainerForm_form_input}
             id="email"
             name="email"
-            placeholder="Digite o email"
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             value={formik.values.email}
             disabled={!editar}
           />
-          {formik.touched.email && formik.errors.email && (
-            <span className={style.form__error}>{formik.errors.email}</span>
-          )}
         </div>
 
         <div>
@@ -57,15 +75,11 @@ const DadosPessoais: React.FC<DadosPessoaisProps> = ({ formik, editar, roles }) 
             className={style.container__ContainerForm_form_input}
             id="cpf"
             name="cpf"
-            placeholder="Digite o CPF"
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             value={formik.values.cpf}
             disabled={!editar}
           />
-          {formik.touched.cpf && formik.errors.cpf && (
-            <span className={style.form__error}>{formik.errors.cpf}</span>
-          )}
         </div>
 
         <div>
@@ -74,124 +88,215 @@ const DadosPessoais: React.FC<DadosPessoaisProps> = ({ formik, editar, roles }) 
             className={style.container__ContainerForm_form_input}
             id="telefone"
             name="telefone"
-            placeholder="Digite o telefone"
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             value={formik.values.telefone}
             disabled={!editar}
           />
-          {formik.touched.telefone && formik.errors.telefone && (
-            <span className={style.form__error}>{formik.errors.telefone}</span>
-          )}
         </div>
+
+        {roles.includes("professor") && !roles.includes("aluno") && (
+          <>
+            <div>
+              <label htmlFor="instituicao">Instituição</label>
+              <input
+                className={style.container__ContainerForm_form_input}
+                id="instituicao"
+                name="instituicao"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.instituicao}
+                disabled={!editar}
+              />
+            </div>
+            <div>
+              <label htmlFor="siape">SIAPE</label>
+              <input
+                className={style.container__ContainerForm_form_input}
+                id="siape"
+                name="siape"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.siape}
+                disabled={!editar}
+              />
+            </div>
+            <div>
+              <label htmlFor="cursoIds">Cursos</label>
+              <Select<OptionType, true>
+                id="cursoIds"
+                name="cursoIds"
+                isMulti
+                options={cursoOptions}
+                value={selectedOptions}
+                onChange={handleSelectChange}
+                onBlur={() => formik.setFieldTouched('cursoIds', true)}
+                isDisabled={!editar}
+                placeholder="Carregando cursos..."
+                classNamePrefix="select"
+
+              />
+            </div>
+          </>
+        )}
+
+        {roles.includes("tecnico") && !roles.includes("aluno") && !roles.includes("professor") && (
+          <>
+            <div>
+              <label htmlFor="siape">SIAPE</label>
+              <input
+                className={style.container__ContainerForm_form_input}
+                id="siape"
+                name="siape"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.siape}
+                disabled={!editar}
+              />
+            </div>
+            <div>
+              <label htmlFor="instituicao">Instituição</label>
+              <input
+                className={style.container__ContainerForm_form_input}
+                id="instituicao"
+                name="instituicao"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.instituicao}
+                disabled={!editar}
+              />
+            </div>
+          </>
+        )}
+
+        {roles.includes("aluno") && !roles.includes("tecnico") && !roles.includes("professor") && (
+          <>
+            <div>
+              <label htmlFor="curso">Curso</label>
+              <input
+                className={style.container__ContainerForm_form_input}
+                id="curso"
+                name="curso"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.curso.nome}
+                disabled={!editar}
+              />
+            </div>
+            <div>
+              <label htmlFor="instituicao">Instituição</label>
+              <input
+                className={style.container__ContainerForm_form_input}
+                id="instituicao"
+                name="instituicao"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.instituicao}
+                disabled={!editar}
+              />
+            </div>
+          </>
+        )}
+        {roles.includes("tecnico") && roles.includes("aluno") && !roles.includes("professor") && (
+          <>
+            <div>
+              <label htmlFor="siape">SIAPE</label>
+              <input
+                className={style.container__ContainerForm_form_input}
+                id="siape"
+                name="siape"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.siape}
+                disabled={!editar}
+              />
+            </div>
+            <div>
+              <label htmlFor="instituicao">Instituição</label>
+              <input
+                className={style.container__ContainerForm_form_input}
+                id="instituicao"
+                name="instituicao"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.instituicao}
+                disabled={!editar}
+              />
+            </div>
+            <div>
+              <label htmlFor="curso">Curso</label>
+              <input
+                className={style.container__ContainerForm_form_input}
+                id="curso"
+                name="curso"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.curso.nome}
+                disabled={!editar}
+              />
+            </div>
+
+          </>
+        )}
+        {roles.includes("professor") && roles.includes("aluno") && (
+          <>
+
+            <div>
+              <label htmlFor="siape">SIAPE</label>
+              <input
+                className={style.container__ContainerForm_form_input}
+                id="siape"
+                name="siape"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.siape}
+                disabled={!editar}
+              />
+            </div>
+            <div>
+              <label htmlFor="instituicao">Instituição</label>
+              <input
+                className={style.container__ContainerForm_form_input}
+                id="instituicao"
+                name="instituicao"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.instituicao}
+                disabled={!editar}
+              />
+            </div>
+            <div>
+              <label htmlFor="cursoIds">Cursos</label>
+              <Select<OptionType, true>
+                id="cursoIds"
+                name="cursoIds"
+                isMulti
+                options={cursoOptions}
+                value={selectedOptions}
+                onChange={handleSelectChange}
+                onBlur={() => formik.setFieldTouched('cursoIds', true)}
+                isDisabled={!editar}
+                placeholder="Carregando cursos..."
+                classNamePrefix="select"
+
+              />
+            </div>
+            <div>
+              <label htmlFor="curso">Curso</label>
+              <input
+                className={style.container__ContainerForm_form_input}
+                id="curso"
+                name="curso"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.curso.nome}
+                disabled={!editar}
+              />
+            </div>
+          </>
+        )}
+
       </div>
-
-      {/* Campos específicos para cada tipo de usuário */}
-      {formik.values.tipoUsuario === "Professor" && (
-        <div className={style.container__ContainerForm_form_threeContainer}>
-          <div>
-            <label htmlFor="siape">SIAPE</label>
-            <input
-              className={style.container__ContainerForm_form_input}
-              id="siape"
-              name="siape"
-              placeholder="Digite o SIAPE"
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              value={formik.values.siape}
-              disabled={!editar}
-            />
-          </div>
-          <div>
-            <label htmlFor="curso">Curso</label>
-            <input
-              className={style.container__ContainerForm_form_input}
-              id="curso"
-              name="curso"
-              placeholder="Digite o curso"
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              value={formik.values.curso}
-              disabled={!editar}
-            />
-          </div>
-          <div>
-            <label htmlFor="instituicao">Instituição</label>
-            <input
-              className={style.container__ContainerForm_form_input}
-              id="instituicao"
-              name="instituicao"
-              placeholder="Digite a instituição"
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              value={formik.values.instituicao}
-              disabled={!editar}
-            />
-          </div>
-        </div>
-      )}
-
-      {formik.values.tipoUsuario === "Tecnico" && (
-        <div className={style.container__ContainerForm_form_threeContainer}>
-          <div>
-            <label htmlFor="siape">SIAPE</label>
-            <input
-              className={style.container__ContainerForm_form_input}
-              id="siape"
-              name="siape"
-              placeholder="Digite o SIAPE"
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              value={formik.values.siape}
-              disabled={!editar}
-            />
-          </div>
-          <div>
-            <label htmlFor="instituicao">Instituição</label>
-            <input
-              className={style.container__ContainerForm_form_input}
-              id="instituicao"
-              name="instituicao"
-              placeholder="Digite a instituição"
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              value={formik.values.instituicao}
-              disabled={!editar}
-            />
-          </div>
-        </div>
-      )}
-
-      {formik.values.tipoUsuario === "Aluno" && (
-        <div className={style.container__ContainerForm_form_threeContainer}>
-          <div>
-            <label htmlFor="curso">Curso</label>
-            <input
-              className={style.container__ContainerForm_form_input}
-              id="curso"
-              name="curso"
-              placeholder="Digite o curso"
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              value={formik.values.curso}
-              disabled={!editar}
-            />
-          </div>
-          <div>
-            <label htmlFor="instituicao">Instituição</label>
-            <input
-              className={style.container__ContainerForm_form_input}
-              id="instituicao"
-              name="instituicao"
-              placeholder="Digite a instituição"
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              value={formik.values.instituicao}
-              disabled={!editar}
-            />
-          </div>
-        </div>
-      )}
     </>
   );
 };

@@ -21,6 +21,12 @@ export const APP_ROUTES = {
         },
         cadastrarCurso:{
             name: '/cursos/registrar',
+        },
+        unidades:{
+            name: '/unidades-administrativas',
+        },
+        cadastrarUnidade:{
+            name: '/unidades-administrativas/registrar',
         }
 
     },

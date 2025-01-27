@@ -1,4 +1,3 @@
-// ClientProviders.tsx
 "use client";
 import styles from './client.module.scss';
 import ProviderQuery from "@/components/Providers/ProviderQuery";
@@ -8,6 +7,8 @@ import { usePathname } from "next/navigation";
 import PrivateRoute from "../privateRoute";
 import Header from "@/components/Header/Header";
 import Footer from "@/components/Footer";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; // Importa os estilos do Toastify
 
 export default function ClientProviders({ children }: { children: React.ReactNode }) {
   const pathName = usePathname();
@@ -26,6 +27,7 @@ export default function ClientProviders({ children }: { children: React.ReactNod
             )}
           </div>
           <Footer className={styles.footer} />
+          
         </div>
       </ProviderRedux>
     </ProviderQuery>

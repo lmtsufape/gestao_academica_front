@@ -16,12 +16,17 @@ import { postSolicitacoes } from "@/api/solicitacoes/postSolicitacoes";
 import { ICurso } from "@/interfaces/ICurso";
 import DadosCurso from "./DadosCurso";
 import { postCurso } from "@/api/cursos/postCurso";
+import { IUnidade } from "@/interfaces/IUnidade";
+import { postUnidade } from "@/api/unidades/postUnidade";
+import DadosUnidade from "./DadosUnidade";
+import { toast } from "react-toastify";
 
 interface CadastrarProps {
   hrefAnterior: string;
   backDetalhamento: () => void;
   usuario?: IUsuario | any;
   curso?: ICurso | any;
+  unidade?: IUnidade | any;
   diretorioAnterior: string;
   diretorioAtual: string;
   titulo: string;
@@ -54,9 +59,11 @@ const Cadastrar: React.FC<CadastrarProps> = ({
   function whatIsTypeUser() {
     if (titulo === "Solicitar Perfil de Acesso" && roles.includes("visitante")) {
       return <LayoutSolicitacoes usuario={usuario} roles={roles} />;
-    } else if(titulo === "Cadastrar Curso" && roles.includes("administrador")) {
+    } else if (titulo === "Cadastrar Curso" && roles.includes("administrador")) {
       return <LayoutCurso roles={roles} />;
-    }else if (roles.includes("administrador")) {
+    } else if (titulo === "Cadastrar Unidade Administrativa" && roles.includes("administrador")) {
+      return <LayoutUnidade roles={roles} />;
+    } else if (roles.includes("administrador")) {
       return <LayoutAdmin roles={roles} />;
 
     } else {
@@ -112,7 +119,7 @@ const LayoutAdmin = ({ roles }: { roles: string[] }) => {
       .required("CPF é obrigatório"),
     telefone: Yup.string()
       .matches(
-        /^\(\d{2}\) \d{5}-\d{4}$/,"Formato: (XX) XXXXX-XXXX"
+        /^\(\d{2}\) \d{5}-\d{4}$/, "Formato: (XX) XXXXX-XXXX"
       )
       .required("Telefone é obrigatório"),
   });
@@ -136,9 +143,11 @@ const LayoutAdmin = ({ roles }: { roles: string[] }) => {
     },
     {
       onSuccess: () => {
+        toast.success("Usuário cadastrado com sucesso!");
         push(APP_ROUTES.private.usuarios.name);
       },
       onError: (error) => {
+        toast.error("Erro ao cadastrar usuário!");
         console.log("Erro ao cadastrar usuário", error);
       },
     }
@@ -260,7 +269,7 @@ const LayoutCurso = ({ roles }: { roles: string[] }) => {
       .required("CPF é obrigatório"),
     telefone: Yup.string()
       .matches(
-        /^\(\d{2}\) \d{5}-\d{4}$/,"Formato: (XX) XXXXX-XXXX"
+        /^\(\d{2}\) \d{5}-\d{4}$/, "Formato: (XX) XXXXX-XXXX"
       )
       .required("Telefone é obrigatório"),
   });
@@ -273,25 +282,27 @@ const LayoutCurso = ({ roles }: { roles: string[] }) => {
     Aluno: "/usuario/registrar",
   };
 
- 
+
   const cadastrarCurso = useMutation(
     async (values: ICurso) => {
       return postCurso(values.nome);
-    },{
-      onSuccess: () => {
-        push(APP_ROUTES.private.cursos.name);
-      },
-      onError: (error) => {
-        console.log("Erro ao aprovar a solicitação:", error);
-      },
-    }
-  ); 
- 
+    }, {
+    onSuccess: () => {
+      toast.success("Curso cadastrado com sucesso!");
+      push(APP_ROUTES.private.cursos.name);
+    },
+    onError: (error) => {
+      toast.error("Erro ao cadastrar curso!");
+      console.log("Erro ao aprovar a solicitação:", error);
+    },
+  }
+  );
+
   return (
     <>
       <div className={style.header}>
         <div className={style.header__title}>
-          <h1>Cadastrar Usuario</h1>
+          <h1>Cadastrar Curso</h1>
           <div className={style.header__title_line}></div>
         </div>
 
@@ -328,6 +339,105 @@ const LayoutCurso = ({ roles }: { roles: string[] }) => {
                     type="button"
                     onClick={() => {
                       cadastrarCurso.mutate(formik.values as ICurso);
+                    }}
+                  >
+                    <h1>Cadastrar</h1>
+                  </button>
+                </div>
+              </Form>
+            )}
+          </Formik>
+        </div>
+      </div>
+    </>
+  );
+};
+const LayoutUnidade = ({ roles }: { roles: string[] }) => {
+  const { push } = useRouter();
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  // Inicializa os valores do formulário
+  const initialValues: IUnidade = {
+    id: '',
+    nome: '',
+    codigo: '',
+  };
+
+  const validateSchema = Yup.object().shape({
+    nome: Yup.string().required("Nome é obrigatório"),
+    email: Yup.string().email("Email inválido").required("Email é obrigatório"),
+    senha: Yup.string().required("Senha é obrigatória"),
+    confirmarSenha: Yup.string()
+      .oneOf([Yup.ref("senha")], "As senhas precisam coincidir")
+      .required("Confirmação de senha é obrigatória"),
+    cpf: Yup.string()
+      .matches(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/, "Número (CPF) inválido")
+      .required("CPF é obrigatório"),
+    telefone: Yup.string()
+      .matches(
+        /^\(\d{2}\) \d{5}-\d{4}$/, "Formato: (XX) XXXXX-XXXX"
+      )
+      .required("Telefone é obrigatório"),
+  });
+
+
+
+  const cadastrarUnidade = useMutation(
+    async (values: IUnidade) => {
+      return postUnidade(values);
+    }, {
+    onSuccess: () => {
+      toast.success("Unidade cadastrada com sucesso!");
+      push(APP_ROUTES.private.unidades.name);
+    },
+    onError: (error) => {
+      toast.error("Erro ao cadastrar unidade. Verifique os dados!");
+      console.log("Erro ao aprovar a solicitação:", error);
+    },
+  }
+  );
+
+  return (
+    <>
+      <div className={style.header}>
+        <div className={style.header__title}>
+          <h1>Cadastrar Unidade Administrativa</h1>
+          <div className={style.header__title_line}></div>
+        </div>
+
+      </div>
+      <div id="header" className={style.container}>
+        <div className={style.container__ContainerForm}>
+          <Formik
+            initialValues={initialValues}
+            validationSchema={validateSchema}
+            onSubmit={(values, { setSubmitting }) => {
+              cadastrarUnidade.mutate(values);
+              setSubmitting(false);
+            }}
+          >
+            {(formik) => (
+              <Form className={style.container__ContainerForm_form}>
+
+                <div className={style.container__photo}>
+                  <h1>Informações da Unidade</h1>
+                </div>
+
+                <DadosUnidade formik={formik} editar={true} />
+
+                <div className={style.container__ContainerForm_buttons}>
+                  <button
+                    className={style.container__ContainerForm_buttons_link}
+                    type="button"
+                    onClick={() => push(APP_ROUTES.private.unidades.name)}
+                  >
+                    <h1>Voltar</h1>
+                  </button>
+                  <button
+                    className={style.container__ContainerForm_buttons_linkWhite}
+                    type="button"
+                    onClick={() => {
+                      cadastrarUnidade.mutate(formik.values as IUnidade);
                     }}
                   >
                     <h1>Cadastrar</h1>
@@ -379,9 +489,9 @@ const LayoutPublic = () => {
       .matches(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/, "Número do (CPF) inválido")
       .required("CPF é obrigatório"),
     telefone: Yup.string()
-    .matches(
-      /^\(\d{2}\) \d{5}-\d{4}$/, "Formato: (XX) XXXXX-XXXX"
-    )
+      .matches(
+        /^\(\d{2}\) \d{5}-\d{4}$/, "Formato: (XX) XXXXX-XXXX"
+      )
       .required("Telefone é obrigatório"),
   });
 
@@ -398,14 +508,15 @@ const LayoutPublic = () => {
       delete updatedValues.profilePhoto;
 
       const route = userRoutes[values.tipoUsuario as keyof typeof userRoutes];
-      console.log(values, profilePhoto, route);
       return postUsuario(values, profilePhoto, route);
     },
     {
       onSuccess: () => {
+        toast.success("Conta criada com sucesso!");
         push(APP_ROUTES.public.login);
       },
       onError: (error) => {
+        toast.error("Erro ao criar nova conta. Verifique os dados!");
         console.log("Erro ao criar nova conta.", error);
       },
     }
@@ -586,15 +697,16 @@ const LayoutSolicitacoes: React.FC<LayoutSolicitacoesProps> = ({ usuario, roles 
 
   const { mutate } = useMutation(
     async (values: IUsuario) => {
-      console.log(values);
       const route = userRoutes[values.tipoUsuario as keyof typeof userRoutes];
       return postSolicitacoes(route, values);
     },
     {
       onSuccess: () => {
-        push(APP_ROUTES.public.login);
+        toast.success("Solicitação enviada com sucesso!");
+        push(APP_ROUTES.private.home.name);
       },
       onError: (error) => {
+        toast.error("Erro ao solicitar perfil. verificar os dados!");
         console.log("Erro ao solicitar perfil.", error);
       },
     }

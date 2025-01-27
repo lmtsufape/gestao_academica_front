@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Cadastrar from "@/components/Cadastrar";
 import { getUsuarioLogado } from "@/api/usuarios/getUsuarioLogado";
+import { toast } from "react-toastify";
 
 const Page = () => {
 
@@ -23,6 +24,8 @@ const Page = () => {
             setUsuarioLogado(res.data);
         },
         onError: (error) => {
+            toast.error("Erro ao carregar usuario logado!");
+
             console.log("Erro ao carregar usuario logado.", error);
         },
     }
@@ -34,7 +37,7 @@ const Page = () => {
     }, []);
     return (
         <div className={style.containerNovoUsuario}>
-            <Cadastrar 
+            <Cadastrar
                 usuario={usuarioLogado}
                 backDetalhamento={() => { push(APP_ROUTES.private.home.name) }}
                 titulo={"Solicitar Perfil de Acesso"}
@@ -44,7 +47,7 @@ const Page = () => {
                 firstbutton={""}
                 routefirstbutton={""}
                 lastbutton={""}
-                routelastbutton={""}/>
+                routelastbutton={""} />
         </div>
     )
 }

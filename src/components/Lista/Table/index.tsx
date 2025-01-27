@@ -8,6 +8,7 @@ import { ISolicitacao } from "@/interfaces/ISolicitacao";
 import { deleteUsuario } from "@/api/usuarios/deleteUsuario";
 import ConfirmationUsuarioModal from "../Excluir";
 import { ICurso } from "@/interfaces/ICurso";
+import { IUnidade } from "@/interfaces/IUnidade";
 
 interface TableProps {
   // Identificação da tabela
@@ -33,6 +34,10 @@ interface TableProps {
   listCursos?: ICurso[];
   setCursos?: React.Dispatch<React.SetStateAction<ICurso[]>>;
   onSelectCurso?: (curso: ICurso) => void; // exibe detalhes
+  // Lista de cursos
+  listUnidades?: IUnidade[];
+  setUnidades?: React.Dispatch<React.SetStateAction<IUnidade[]>>;
+  onSelectUnidade?: (unidade: IUnidade) => void; // exibe detalhes
   // Paginação
   currentPage: number;
   totalPages: number;
@@ -60,6 +65,9 @@ const Table: React.FC<TableProps> = (props) => {
     listCursos,
     setCursos,
     onSelectCurso,
+    listUnidades,
+    setUnidades,
+    onSelectUnidade,
     currentPage,
     totalPages,
     setCurrentPage,
@@ -105,6 +113,14 @@ const Table: React.FC<TableProps> = (props) => {
       // Ajuste conforme suas colunas reais
     }
   };
+    // Exibe valor da coluna para "Unidades"
+    const getUnidadesValueByHeader = (unidade: IUnidade, header: string) => {
+      switch (header) {
+        case "Nome": return unidade?.nome || "";
+        case "Codigo": return unidade?.codigo || "";
+        // Ajuste conforme suas colunas reais
+      }
+    };
   // --------------------------------------------------------------------------
   // Excluir usuário (exemplo de exclusão, se for tabela de usuários)
   // --------------------------------------------------------------------------
@@ -237,6 +253,29 @@ const Table: React.FC<TableProps> = (props) => {
       </tr>
     ));
   };
+  const renderUnidadesRows = () => {
+    if (!listUnidades) return null;
+
+    return listUnidades.map((unidade, index) => (
+      <tr key={unidade.id || index}>
+        <td>{getUnidadesValueByHeader(unidade, table1)}</td>
+        <td>{getUnidadesValueByHeader(unidade, table2)}</td>
+      
+       {/*Coluna de Ação (botão Excluir) */}
+        <td>
+          <button
+            onClick={() => openDeleteModal(unidade.id)}
+            className={style.content__table__body_click}
+          >
+            <img
+              src="/assets/icons/excluir.svg"
+              alt="Excluir"
+            />
+          </button>
+        </td>
+      </tr>
+    ));
+  };
   // --------------------------------------------------------------------------
   // Retorno principal
   // --------------------------------------------------------------------------
@@ -261,6 +300,8 @@ const Table: React.FC<TableProps> = (props) => {
               renderSolicitacaoRows()
             ) : listCursos && listCursos.length > 0 ? (
               renderCursosRows()
+            ): listUnidades && listUnidades.length > 0 ? (
+              renderUnidadesRows()
             ) : (
               <tr>
                 <td colSpan={5} style={{ textAlign: "center" }}>

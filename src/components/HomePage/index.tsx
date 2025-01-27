@@ -22,7 +22,7 @@ export default function HomePage() {
       } if (roles.includes("professor")) {
         return <LayoutProfessor />
       } if (roles.includes("aluno")) {
-        return <LayoutCoordenador />
+        return <LayoutAluno />
       } else {
         return <LayoutVisitante />
       }
@@ -76,7 +76,7 @@ const LayoutProfessor = () => {
     </>
   )
 }
-const LayoutCoordenador = () => {
+const LayoutAluno = () => {
 
   return (
     <>
@@ -92,6 +92,8 @@ const LayoutVisitante = () => {
   return (
     <>
       <Card title="Solicitar Perfil" icon="/assets/icons/solicitar_perfil.svg" description="Usuarios" link="/solicitar-perfil" />
+      <Card title="Solicitações" icon="/assets/icons/solicitacoes.svg" description="Usuarios" link="/solicitacoes" />
+
     </>
   )
 }

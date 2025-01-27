@@ -3,6 +3,7 @@ import { getStorageItem, setStorageItem } from "@/utils/localStore";
 import { APP_ROUTES } from "@/constants/app-routes";
 import store from "@/redux/store";
 import { setUserLogin } from "@/redux/userLogin/userLoginSlice";
+import { toast } from "react-toastify";
 
 export async function postLogout() {
     try {
@@ -11,7 +12,6 @@ export async function postLogout() {
         const accessToken = getStorageItem("token");
 
         if (!refreshToken || !accessToken) {
-            console.error("Tokens não encontrados no localStorage. Redirecionando para o login.");
             handleLogout();
             return;
         }
@@ -29,14 +29,10 @@ export async function postLogout() {
                 },
             }
         );
-
-        console.log("Logout realizado com sucesso:", response.data);
-
         // Limpa os dados do localStorage e redireciona para o login
         handleLogout();
     } catch (error) {
-        console.error("Erro ao realizar logout:", error);
-        // Em caso de erro, ainda assim limpa os dados do usuário
+        toast.error("Erro ao realizar logout:!");
         handleLogout();
     }
 }

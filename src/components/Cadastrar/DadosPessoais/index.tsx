@@ -1,5 +1,10 @@
 "use client";
+import { ICurso } from "@/interfaces/ICurso";
 import style from "./dados.module.scss";
+import { useEffect, useState } from "react";
+import { getAllCursos } from "@/api/cursos/getAllCursos";
+import { useMutation } from "react-query";
+import Select from 'react-select';
 
 interface DadosSecretariaProps {
   formik: any;
@@ -7,8 +12,48 @@ interface DadosSecretariaProps {
   editar: boolean; // Controle de edição dos campos
   isSolicitacaoPerfil?: boolean;
 }
+interface OptionType {
+  value: string;
+  label: string;
+}
 
 const DadosPessoais: React.FC<DadosSecretariaProps> = ({ formik, roles, editar, isSolicitacaoPerfil }) => {
+
+  const [cursos, setCursos] = useState<ICurso[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    mutate();
+  }, []);
+
+  const { mutate } = useMutation(() => getAllCursos(), {
+    onSuccess: (res) => {
+      // Ajuste conforme a estrutura da sua resposta
+      setCursos(res.data);
+      // setTotalPages(res.data.totalPages);
+    },
+    onError: (error) => {
+      console.error("Erro ao recuperar os usuários:", error);
+    },
+  });
+
+
+
+  // Prepare options for react-select
+  const cursoOptions = cursos.map((curso) => ({
+    value: curso.id,
+    label: curso.nome,
+  }));
+
+  const selectedOptions = cursoOptions.filter(option => formik.values.cursoIds.includes(option.value));
+
+  // Handle selection changes
+  const handleSelectChange = (selectedOptions: any) => {
+    const selectedIds = selectedOptions ? selectedOptions.map((option: { value: any; }) => option.value) : [];
+    formik.setFieldValue('cursoIds', selectedIds);
+  };
+
+
   return (
     <>
       {/* Dropdown para selecionar o tipo de usuário, visível apenas para visitantes */}
@@ -250,21 +295,7 @@ const DadosPessoais: React.FC<DadosSecretariaProps> = ({ formik, roles, editar, 
               />
             </div>
           </div>
-          <div className={style.formGroup}>
-            <label htmlFor="curso">Curso</label>
-            <div className={style.inputWrapper}>
-              <input
-                className={style.container__ContainerForm_form_input}
-                id="curso"
-                name="curso"
-                placeholder="Digite o curso"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.curso}
-                disabled={!editar}
-              />
-            </div>
-          </div>
+
           <div className={style.formGroup}>
             <label htmlFor="instituicao">Instituição</label>
             <div className={style.inputWrapper}>
@@ -280,6 +311,29 @@ const DadosPessoais: React.FC<DadosSecretariaProps> = ({ formik, roles, editar, 
               />
             </div>
           </div>
+          <div className={style.formGroup}>
+            <label htmlFor="cursoIds">Cursos</label>
+            <div className={style.inputWrapper}>
+              <Select<OptionType, true>
+                id="cursoIds"
+                name="cursoIds"
+                isMulti
+                options={cursoOptions}
+                value={selectedOptions}
+                onChange={handleSelectChange}
+                onBlur={() => formik.setFieldTouched('cursoIds', true)}
+                isDisabled={!editar}
+                placeholder="Selecione os cursos..."
+                className={style.reactSelect}
+                classNamePrefix="select"
+              />
+              {formik.touched.cursoIds && formik.errors.cursoIds ? (
+                <div className={style.error}>{formik.errors.cursoIds}</div>
+              ) : null}
+            </div>
+          </div>
+
+
         </div>
       )}
 
@@ -364,6 +418,21 @@ const DadosPessoais: React.FC<DadosSecretariaProps> = ({ formik, roles, editar, 
             </div>
           ) : null}
           <div className={style.formGroup}>
+            <label htmlFor="instituicao">Instituição</label>
+            <div className={style.inputWrapper}>
+              <input
+                className={style.container__ContainerForm_form_input}
+                id="instituicao"
+                name="instituicao"
+                placeholder="Digite a instituição"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.instituicao}
+                disabled={!editar}
+              />
+            </div>
+          </div>
+          <div className={style.formGroup}>
             <label htmlFor="curso">Curso</label>
             <div className={style.inputWrapper}>
               <input
@@ -395,21 +464,7 @@ const DadosPessoais: React.FC<DadosSecretariaProps> = ({ formik, roles, editar, 
               />
             </div>
           </div>
-          <div className={style.formGroup}>
-            <label htmlFor="instituicao">Instituição</label>
-            <div className={style.inputWrapper}>
-              <input
-                className={style.container__ContainerForm_form_input}
-                id="instituicao"
-                name="instituicao"
-                placeholder="Digite a instituição"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.instituicao}
-                disabled={!editar}
-              />
-            </div>
-          </div>
+
         </div>
       )}
 
