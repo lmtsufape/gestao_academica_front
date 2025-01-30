@@ -8,12 +8,10 @@ export interface ISolicitacao {
   parecer: string;
   perfil: {
     id: string;
+    siape: string;
     matricula: string;
-    curso: {
-      id: string;
-      nome: string;
-      ativo: boolean;
-    };
+    curso: {};
+    cursos: {[key: string]: string};
     tipo: string;
   };
   solicitante: IUsuario;

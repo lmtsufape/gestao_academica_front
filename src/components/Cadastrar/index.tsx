@@ -98,7 +98,7 @@ const LayoutAdmin = ({ roles }: { roles: string[] }) => {
     email: '',
     telefone: '',
     siape: '',
-    curso: '',
+    cursoId: '',
     cursoIds: [],
     nomeSocial: '',
     instituicao: '',
@@ -468,7 +468,7 @@ const LayoutPublic = () => {
     email: '',
     telefone: '',
     siape: '',
-    curso: '',
+    cursoId: '',
     cursoIds: [],
     nomeSocial: '',
     instituicao: '',
@@ -506,7 +506,6 @@ const LayoutPublic = () => {
       const profilePhoto = values.profilePhoto as File;
       const updatedValues = { ...values };
       delete updatedValues.profilePhoto;
-
       const route = userRoutes[values.tipoUsuario as keyof typeof userRoutes];
       return postUsuario(values, profilePhoto, route);
     },
@@ -603,7 +602,8 @@ const LayoutPublic = () => {
                     <h1>Voltar</h1>
                   </button>
                   <button
-                    type="submit"
+                    type="button"
+                    onClick={() => mutate(formik.values)}
                     className={style.container__ContainerForm_buttons_linkWhite}
                   >
                     <h1>Criar</h1>
@@ -631,7 +631,7 @@ const LayoutSolicitacoes: React.FC<LayoutSolicitacoesProps> = ({ usuario, roles 
     email: "",
     telefone: "",
     siape: "",
-    curso: "",
+    cursoId: "",
     cursoIds: [], // Inicializa como array vazio
     nomeSocial: "",
     instituicao: "",
@@ -652,7 +652,7 @@ const LayoutSolicitacoes: React.FC<LayoutSolicitacoesProps> = ({ usuario, roles 
         email: usuario.email || "",
         telefone: usuario.telefone || "",
         siape: usuario.siape || "",
-        curso: usuario.curso || "",
+        cursoId: usuario.cursoId || "",
         cursoIds: usuario.cursoIds || [], // Garantir array vazio se não houver `cursoIds`
         nomeSocial: usuario.nomeSocial || "",
         instituicao: usuario.instituicao || "",

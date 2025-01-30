@@ -42,6 +42,13 @@
         background-color: rgba(var(--input-form));
         color: rgba(var(--black));
       }
+      &_select {
+        width: 100%;
+        margin: 0.5em 0 1em 0; 
+        box-sizing: border-box;
+        background-color: rgba(var(--input-form));
+        color: rgba(var(--black));
+      }
 
       &_halfContainer {
         width: 100%;

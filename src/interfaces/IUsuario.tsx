@@ -8,7 +8,7 @@ export interface IUsuario {
   matricula: string;
   telefone: string;
   siape: string; // Número SIAPE servidores públicos
-  curso: string; // Curso acadêmico professores e alunos
+  cursoId: string; // Curso acadêmico professores e alunos
   cursoIds: number[]; // ID do curso acadêmico professores e alunos
   nomeSocial: string;
   instituicao: string; // Instituição de ensino ou trabalho para professores, alunos e externos

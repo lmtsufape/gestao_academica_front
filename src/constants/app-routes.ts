@@ -8,7 +8,7 @@ export const APP_ROUTES = {
             name: '/home',
         },
         solicitacoes: {
-            name: 'usuarios/solicitacoes',
+            name: '/solicitacoes',
         },
         usuarios: {
             name: '/usuarios',

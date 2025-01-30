@@ -15,7 +15,7 @@ import { ICurso } from "@/interfaces/ICurso";
 import { getAllCursos } from "@/api/cursos/getAllCursos";
 import { IUnidade } from "@/interfaces/IUnidade";
 import { getAllUnidades } from "@/api/unidades/getAllUnidades";
-import { getSolicitacoesUsuario } from "@/api/cursos/getSolicitacoesUsuario";
+import { getSolicitacoesUsuario } from "@/api/solicitacoes/getSolicitacoesUsuario";
 import { getStorageItem } from "@/utils/localStore";
 
 // ...
@@ -226,7 +226,6 @@ const LayoutListarSolicitacoes: React.FC<ListaProps> = (props) => {
   });
   useEffect(() => {
     if (roles.includes("administrador")) {
-
       mutate();
     } else {
       mutateUsuarioSolicitacoes.mutate();
@@ -247,7 +246,6 @@ const LayoutListarSolicitacoes: React.FC<ListaProps> = (props) => {
   const handleBackToList = () => {
     setSelectedSolicitacao(null);
   };
-
   if (selectedSolicitacao) {
     return (
       <Detalhar

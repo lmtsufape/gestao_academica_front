@@ -4,7 +4,7 @@ import style from "./dados.module.scss";
 import { useEffect, useState } from "react";
 import { getAllCursos } from "@/api/cursos/getAllCursos";
 import { useMutation } from "react-query";
-import Select from 'react-select';
+import Select, { SingleValue } from 'react-select';
 
 interface DadosSecretariaProps {
   formik: any;
@@ -47,6 +47,9 @@ const DadosPessoais: React.FC<DadosSecretariaProps> = ({ formik, roles, editar, 
 
   const selectedOptions = cursoOptions.filter(option => formik.values.cursoIds.includes(option.value));
 
+  const handleOneSelect = (selectedOption: SingleValue<OptionType>) => {
+    formik.setFieldValue('cursoId', selectedOption ? selectedOption.value : null);
+  };
   // Handle selection changes
   const handleSelectChange = (selectedOptions: any) => {
     const selectedIds = selectedOptions ? selectedOptions.map((option: { value: any; }) => option.value) : [];
@@ -326,6 +329,44 @@ const DadosPessoais: React.FC<DadosSecretariaProps> = ({ formik, roles, editar, 
                 placeholder="Selecione os cursos..."
                 className={style.reactSelect}
                 classNamePrefix="select"
+                styles={{
+                  control: (base, state) => ({
+                    ...base,
+                    margin: '0.5em 0 1em 0',
+                    border: state.isFocused ? '1px solid rgba(0, 0, 0, 0.70)' : '1px solid rgba(0, 0, 0, 0.50)',
+                    boxShadow: state.isFocused ? '0 0 5px rgba(0, 0, 0, 0.3)' : 'none',
+                    '&:hover': {
+                      border: '1px solid rgba(0, 0, 0, 0.70)',
+                    },
+                  }),
+                  indicatorSeparator: () => ({ 
+                    display: 'none',
+                  }),
+                  dropdownIndicator: (base) => ({ 
+                    ...base,
+                    color: 'black',
+                    '&:hover': {
+                      color: 'black', 
+                    },
+                  }),
+                  option: (base, state) => ({
+                    ...base,
+                    backgroundColor: state.isFocused ? 'rgba(109,109 ,109, 0.2)' : 'transparent',
+                    color: 'rgba(var(--black))',
+                    cursor: 'pointer',
+                    '&:active': {
+                      backgroundColor: 'rgba(var(--input-form), 0.8)',
+                    },
+                  }),
+                  singleValue: (base) => ({
+                    ...base,
+                    color: 'rgba(var(--black))',
+                  }),
+                  placeholder: (base) => ({
+                    ...base,
+                    color: 'rgba(var(--grey), 0.5)',
+                  }),
+                }}
               />
               {formik.touched.cursoIds && formik.errors.cursoIds ? (
                 <div className={style.error}>{formik.errors.cursoIds}</div>
@@ -433,19 +474,62 @@ const DadosPessoais: React.FC<DadosSecretariaProps> = ({ formik, roles, editar, 
             </div>
           </div>
           <div className={style.formGroup}>
-            <label htmlFor="curso">Curso</label>
+            <label htmlFor="cursoId">Curso</label>
+
             <div className={style.inputWrapper}>
-              <input
-                className={style.container__ContainerForm_form_input}
-                id="curso"
-                name="curso"
-                placeholder="Digite o curso"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.curso}
-                required
-                disabled={!editar}
+              <Select<OptionType, false> 
+                id="cursoId"
+                name="cursoId"
+                options={cursoOptions}
+                value={cursoOptions.find(option => option.value === formik.values.cursoId)}
+                onChange={handleOneSelect}
+                onBlur={() => formik.setFieldTouched('cursoId', true)}
+                isDisabled={!editar}
+                placeholder="Selecione um curso..."
+                classNamePrefix="input"
+                styles={{
+                  control: (base, state) => ({
+                    ...base,
+                    margin: '0.5em 0 1em 0',
+                    border: state.isFocused ? '1px solid rgba(0, 0, 0, 0.70)' : '1px solid rgba(0, 0, 0, 0.50)',
+                    boxShadow: state.isFocused ? '0 0 5px rgba(0, 0, 0, 0.3)' : 'none',
+                    '&:hover': {
+                      border: '1px solid rgba(0, 0, 0, 0.70)',
+                    },
+                  }),
+                  
+                  indicatorSeparator: () => ({ 
+                    display: 'none',
+                  }),
+                  dropdownIndicator: (base) => ({ 
+                    ...base,
+                    color: 'black',
+                    '&:hover': {
+                      color: 'black', 
+                    },
+                  }),
+                  option: (base, state) => ({
+                    ...base,
+                    backgroundColor: state.isFocused ? 'rgba(109,109 ,109, 0.2)' : 'transparent',
+                    color: 'rgba(var(--black))',
+                    cursor: 'pointer',
+                    '&:active': {
+                      backgroundColor: 'rgba(var(--input-form), 0.8)',
+                    },
+                  }),
+                  singleValue: (base) => ({
+                    ...base,
+                    color: 'rgba(var(--black))',
+                  }),
+                  placeholder: (base) => ({
+                    ...base,
+                    color: 'rgba(var(--grey), 0.5)',
+                  }),
+                }}
               />
+              {formik.touched.cursoId && formik.errors.cursoId ? (
+                <div className={style.error}>{formik.errors.cursoId}</div>
+              ) : null}
             </div>
           </div>
           <div className={style.formGroup}>

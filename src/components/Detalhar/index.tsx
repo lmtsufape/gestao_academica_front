@@ -89,7 +89,6 @@ const LayoutDetalharUsuario: React.FC<DetalharUsuarioProps> = ({
    *    baseado no 'titulo' ou nas props.
    */
   let initialValues: IUsuario | ISolicitacao;
-
   // Se for solicitação:
   if (titulo === "Informações da Solicitação" && solicitacao) {
     initialValues = {
@@ -97,15 +96,13 @@ const LayoutDetalharUsuario: React.FC<DetalharUsuarioProps> = ({
       dataSolicitacao: solicitacao.dataSolicitacao || "",
       status: solicitacao.status || "",
       dataAvaliacao: solicitacao.dataAvaliacao || "",
-      parecer: "",
+      parecer: solicitacao.parecer || "",
       perfil: {
         id: solicitacao?.perfil?.id || "",
+        siape: solicitacao?.perfil?.siape || "",
         matricula: solicitacao?.perfil?.matricula || "",
-        curso: {
-          id: solicitacao?.perfil?.curso?.id || "",
-          nome: solicitacao?.perfil?.curso?.nome || "",
-          ativo: solicitacao?.perfil?.curso?.ativo || false,
-        },
+        curso: solicitacao?.perfil?.curso || "",
+        cursos: solicitacao?.perfil?.cursos || [],
         tipo: solicitacao?.perfil?.tipo || "",
       },
       solicitante: solicitacao.solicitante,
@@ -124,7 +121,7 @@ const LayoutDetalharUsuario: React.FC<DetalharUsuarioProps> = ({
       email: usuario?.email || "",
       telefone: usuario?.telefone || "",
       siape: usuario?.siape || "",
-      curso: usuario?.curso || "",
+      cursoId: usuario?.curso || "",
       cursoIds: usuario?.cursoIds || [],
       nomeSocial: usuario?.nomeSocial || "",
       instituicao: usuario?.instituicao || "",
@@ -184,7 +181,7 @@ const LayoutDetalharUsuario: React.FC<DetalharUsuarioProps> = ({
     {
       onSuccess: () => {
         toast.success("Solicitação rejeitada com sucesso!");
-        push(APP_ROUTES.private.solicitacoes.name);
+        window.location.reload();
       },
       onError: (error) => {
         toast.error("Erro ao rejeitar a solicitação!");

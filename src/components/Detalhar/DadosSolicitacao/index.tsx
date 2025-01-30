@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import style from "./dados-solicitacao.module.scss";
 import { ICurso } from "@/interfaces/ICurso";
 import Select from 'react-select';
@@ -18,20 +18,15 @@ interface OptionType {
 }
 const DadosSolicitacao: React.FC<DadosSolicitacaoProps> = ({ formik, editar, roles }) => {
   const [cursos, setCursos] = useState<ICurso[]>([]);
-
+  useEffect(() => {
+    setCursos(formik.values.perfil.cursos);
+  }, []);
   // Prepare options for react-select
   const cursoOptions = cursos.map((curso) => ({
     value: curso.id,
     label: curso.nome,
   }));
 
-  const selectedOptions = cursoOptions.filter(option => formik.values.cursoIds.includes(option.value));
-
-  // Handle selection changes
-  const handleSelectChange = (selectedOptions: any) => {
-    const selectedIds = selectedOptions ? selectedOptions.map((option: { value: any; }) => option.value) : [];
-    formik.setFieldValue('cursoIds', selectedIds);
-  };
 
   return (
     <>
@@ -98,18 +93,6 @@ const DadosSolicitacao: React.FC<DadosSolicitacaoProps> = ({ formik, editar, rol
         {formik.values.perfil.tipo === "PROFESSOR" && (
           <>
             <div>
-              <label htmlFor="instituicao">Instituição</label>
-              <input
-                className={style.container__ContainerForm_form_input}
-                id="instituicao"
-                name="instituicao"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.solicitante.instituicao}
-                disabled={!editar}
-              />
-            </div>
-            <div>
               <label htmlFor="siape">SIAPE</label>
               <input
                 className={style.container__ContainerForm_form_input}
@@ -117,7 +100,7 @@ const DadosSolicitacao: React.FC<DadosSolicitacaoProps> = ({ formik, editar, rol
                 name="siape"
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                value={formik.values.solicitante.siape}
+                value={formik.values.perfil?.siape}
                 disabled={!editar}
               />
             </div>
@@ -128,13 +111,9 @@ const DadosSolicitacao: React.FC<DadosSolicitacaoProps> = ({ formik, editar, rol
                 name="cursoIds"
                 isMulti
                 options={cursoOptions}
-                value={selectedOptions}
-                onChange={handleSelectChange}
-                onBlur={() => formik.setFieldTouched('solicitante.cursoIds', true)}
+                value={cursoOptions}
                 isDisabled={!editar}
-                placeholder="Carregando cursos..."
                 classNamePrefix="select"
-
               />
             </div>
           </>
@@ -150,22 +129,11 @@ const DadosSolicitacao: React.FC<DadosSolicitacaoProps> = ({ formik, editar, rol
                 name="siape"
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                value={formik.values.solicitante.siape}
+                value={formik.values.perfil.siape}
                 disabled={!editar}
               />
             </div>
-            <div>
-              <label htmlFor="instituicao">Instituição</label>
-              <input
-                className={style.container__ContainerForm_form_input}
-                id="instituicao"
-                name="instituicao"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.solicitante.instituicao}
-                disabled={!editar}
-              />
-            </div>
+            
           </>
         )}
 
@@ -183,18 +151,7 @@ const DadosSolicitacao: React.FC<DadosSolicitacaoProps> = ({ formik, editar, rol
                 disabled={!editar}
               />
             </div>
-            <div>
-              <label htmlFor="instituicao">Instituição</label>
-              <input
-                className={style.container__ContainerForm_form_input}
-                id="instituicao"
-                name="instituicao"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.solicitante.instituicao}
-                disabled={!editar}
-              />
-            </div>
+            
           </>
         )}
 
