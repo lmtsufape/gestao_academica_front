@@ -9,7 +9,6 @@ const Page = () => {
     return(
         <div className={style.containerList}>
             <Cadastrar 
-            
                 curso={curso}
                 backDetalhamento={() => {}}
                 titulo={"Cadastrar Curso"}

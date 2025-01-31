@@ -16,8 +16,8 @@ export async function postSolicitacoes(perfil: string, usuario: IUsuario) {
       console.error("Matrícula não está definida!");
     }
   
-    if (usuario.curso !== undefined && usuario.curso !== null) {
-      formData.append("cursoId", usuario.curso.toString());
+    if (usuario.cursoId !== undefined && usuario.cursoId !== null) {
+      formData.append("cursoId", usuario.cursoId.toString());
     } else {
       console.error("Curso não está definido ou é nulo!");
     }

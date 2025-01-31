@@ -179,7 +179,6 @@ const LayoutListarUsuarios: React.FC<ListaProps> = (props) => {
     </div>
   );
 };
-
 // ---------- LayoutListarSolicitacoes ------------
 const LayoutListarSolicitacoes: React.FC<ListaProps> = (props) => {
   const {
@@ -325,7 +324,6 @@ const LayoutListarCursos: React.FC<ListaProps> = (props) => {
   const [cursos, setCursos] = useState<ICurso[]>([]);
   const [selectedCurso, setSelectedCurso] = useState<ICurso | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedPerfil, setSelectedPerfil] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
@@ -351,10 +349,6 @@ const LayoutListarCursos: React.FC<ListaProps> = (props) => {
 
   const handleSelectCurso = (curso: ICurso) => {
     setSelectedCurso(curso);
-  };
-
-  const handleBackToList = () => {
-    setSelectedCurso(null);
   };
 
   return (

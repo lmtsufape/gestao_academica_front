@@ -590,7 +590,6 @@ const LayoutPublic = () => {
                 )*/}
                   <h1>Informações do Usuario</h1>
                 </div>
-
                 <DadosPessoais formik={formik} roles={[]} editar={true} />
 
                 <div className={style.container__ContainerForm_buttons}>
