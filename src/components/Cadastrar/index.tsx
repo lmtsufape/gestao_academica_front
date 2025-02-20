@@ -109,7 +109,7 @@ const LayoutAdmin = ({ roles }: { roles: string[] }) => {
 
   const validateSchema = Yup.object().shape({
     nome: Yup.string().required("Nome é obrigatório"),
-    email: Yup.string().email("Email inválido").required("Email é obrigatório"),
+    email: Yup.string().email("E-mail inválido").required("E-mail é obrigatório"),
     senha: Yup.string().required("Senha é obrigatória"),
     confirmarSenha: Yup.string()
       .oneOf([Yup.ref("senha")], "As senhas precisam coincidir")
@@ -259,7 +259,7 @@ const LayoutCurso = ({ roles }: { roles: string[] }) => {
 
   const validateSchema = Yup.object().shape({
     nome: Yup.string().required("Nome é obrigatório"),
-    email: Yup.string().email("Email inválido").required("Email é obrigatório"),
+    email: Yup.string().email("E-mail inválido").required("E-mail é obrigatório"),
     senha: Yup.string().required("Senha é obrigatória"),
     confirmarSenha: Yup.string()
       .oneOf([Yup.ref("senha")], "As senhas precisam coincidir")
@@ -365,7 +365,7 @@ const LayoutUnidade = ({ roles }: { roles: string[] }) => {
 
   const validateSchema = Yup.object().shape({
     nome: Yup.string().required("Nome é obrigatório"),
-    email: Yup.string().email("Email inválido").required("Email é obrigatório"),
+    email: Yup.string().email("E-mail inválido").required("E-mail é obrigatório"),
     senha: Yup.string().required("Senha é obrigatória"),
     confirmarSenha: Yup.string()
       .oneOf([Yup.ref("senha")], "As senhas precisam coincidir")
@@ -480,7 +480,7 @@ const LayoutPublic = () => {
 
   const validateSchema = Yup.object().shape({
     nome: Yup.string().required("Nome é obrigatório"),
-    email: Yup.string().email("Email inválido").required("Email é obrigatório"),
+    email: Yup.string().email("E-mail inválido").required("E-mail é obrigatório"),
     senha: Yup.string().required("Senha é obrigatória"),
     confirmarSenha: Yup.string()
       .oneOf([Yup.ref("senha")], "As senhas precisam coincidir")
@@ -665,7 +665,7 @@ const LayoutSolicitacoes: React.FC<LayoutSolicitacoesProps> = ({ usuario, roles 
 
   const validateSchema = Yup.object().shape({
     nome: Yup.string().required("Nome é obrigatório"),
-    email: Yup.string().email("Email inválido").required("Email é obrigatório"),
+    email: Yup.string().email("E-mail inválido").required("E-mail é obrigatório"),
     senha: Yup.string()
       .when("isSolicitacaoPerfil", {
         is: false, // Define a condição
@@ -773,7 +773,7 @@ const LayoutSolicitacoes: React.FC<LayoutSolicitacoesProps> = ({ usuario, roles 
                       <img src="/assets/icons/editar.svg" alt="Edit Icon" />
                     </span>
                   </div>
-                  <h1>Informações do Usuario</h1>
+                  <h1>Informações do Usuário</h1>
                 </div>
 
                 <DadosPessoais formik={formik} roles={roles} editar={true} isSolicitacaoPerfil={true} />
