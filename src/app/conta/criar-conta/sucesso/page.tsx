@@ -11,8 +11,7 @@ export default function PageRegister() {
                     Conta criada com sucesso!
                 </h1>
                 <div className="container text-base">
-                    <p>Parabéns! Sua conta foi criada com sucesso!</p>
-                    <p>Agora você pode realizar o login no Sistema de Gestão Universitária clicando no botão logo abaixo ou indo para a tela de login.</p>
+                    <p><strong>Quase lá!</strong> Para acessar o Sistema de Gestão Universitária, confirme seu e-mail na sua caixa de entrada. Clique no botão logo abaixo para ser redirecionado para a tela de login.</p>
                 </div>
                 <div className="flex justify-center">
                     <button className="py-3 px-4 text-sm tracking-wide rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none">

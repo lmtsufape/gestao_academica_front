@@ -1,7 +1,7 @@
 "use client"
 import withAuthorization from '@/components/AuthProvider/withAuthorization';
 import Cabecalho from '@/components/Layout/Interno/Cabecalho';
-import Tabela from '@/components/Tabela/Estrutura';
+import Tabela from '@/app/prae/agendamentos/cronograma/tabela/tabela';
 import { generica } from '@/utils/api';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -31,9 +31,10 @@ const estrutura: any = {
       { nome: 'Adicionar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
     ],
     colunas: [ //colunas da tabela
-      { nome: "Tipo de Atendimento", chave: "tipoAtendimento", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
+      { nome: "Tipo de Atendimento", chave: "tipoAtendimento.nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
       { nome: "Dia de Atendimento", chave: "data", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-      { nome: "Quantidade de Vagas", chave: "horaInicio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
+      { nome: "Quantidade de Vagas", chave: "vagas", tipo: "quantidade", selectOptions: null, sort: false, pesquisar: false },
+       { nome: "Horários", chave: "vagas", tipo: "array", selectOptions: null, sort: false, pesquisar: false },
       { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
     ],
     acoes_dropdown: [ //botão de acoes de cada registro
@@ -100,58 +101,58 @@ const PageLista = () => {
   const editarRegistro = (item: any) => {
     router.push('/prae/agendamentos/cronograma/' + item.id);
   };
-  // Função que deleta um registro
-  const deletarRegistro = async (item: any) => {
-    const confirmacao = await Swal.fire({
-      title: `Você deseja deletar o cronograma do dia ${item.dia}?`,
-      text: "Essa ação não poderá ser desfeita",
-      icon: "warning",
-      showCancelButton: true,
 
-      // Ajuste as cores conforme seu tema
-      confirmButtonColor: "#1A759F",
-      cancelButtonColor: "#9F2A1A",
+const formatarDataBR = (data: string) => {
+  if (!data) return '';
+  const [ano, mes, dia] = data.split('-');
+  return `${dia}/${mes}/${ano}`;
+};
 
-      confirmButtonText: "Sim, quero deletar!",
-      cancelButtonText: "Cancelar",
+const deletarRegistro = async (item: any) => {
+  const confirmacao = await Swal.fire({
+    title: `Você deseja deletar o cronograma do dia ${formatarDataBR(item.data)}?`,
+    text: "Essa ação não poderá ser desfeita",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#1A759F",
+    cancelButtonColor: "#9F2A1A",
+    confirmButtonText: "Sim, quero deletar!",
+    cancelButtonText: "Cancelar",
+    customClass: {
+      popup: "my-swal-popup",
+      title: "my-swal-title",
+      htmlContainer: "my-swal-html",
+    },
+  });
 
-      // Classes personalizadas
-      customClass: {
-        popup: "my-swal-popup",
-        title: "my-swal-title",
-        htmlContainer: "my-swal-html",
-      },
-    });
+  if (confirmacao.isConfirmed) {
+    try {
+      const body = {
+        metodo: 'delete',
+        uri: '/prae/' + estrutura.uri + '/' + item.id,
+        params: {},
+        data: {}
+      };
 
+      const response = await generica(body);
 
-    if (confirmacao.isConfirmed) {
-      try {
-        const body = {
-          metodo: 'delete',
-          uri: '/prae/' + estrutura.uri + '/' + item.id,
-          params: {},
-          data: {}
-        };
-
-        const response = await generica(body);
-
-        if (response && response.data && response.data.errors) {
-          toast.error("Erro. Tente novamente!", { position: "top-left" });
-        } else if (response && response.data && response.data.error) {
-          toast.error(response.data.error.message, { position: "top-left" });
-        } else {
-          pesquisarRegistro();
-          Swal.fire({
-            title: "Cronograma deletado com sucesso!",
-            icon: "success"
-          });
-        }
-      } catch (error) {
-        console.error('Erro ao deletar registro:', error);
-        toast.error("Erro ao deletar registro. Tente novamente!", { position: "top-left" });
+      if (response && response.data && response.data.errors) {
+        toast.error("Erro. Tente novamente!", { position: "top-left" });
+      } else if (response && response.data && response.data.error) {
+        toast.error(response.data.error.message, { position: "top-left" });
+      } else {
+        pesquisarRegistro();
+        Swal.fire({
+          title: "Cronograma deletado com sucesso!",
+          icon: "success"
+        });
       }
+    } catch (error) {
+      console.error('Erro ao deletar registro:', error);
+      toast.error("Erro ao deletar registro. Tente novamente!", { position: "top-left" });
     }
-  };
+  }
+};
 
   useEffect(() => {
     chamarFuncao('pesquisar', null);

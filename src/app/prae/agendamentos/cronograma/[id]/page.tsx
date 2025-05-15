@@ -57,7 +57,7 @@ const cadastro = () => {
     }
   };
 
-    useEffect(() => {
+  useEffect(() => {
     fetchTiposAtendimento();
     if (id && id !== "criar") {
       chamarFuncao("editar", id);
@@ -89,7 +89,7 @@ const cadastro = () => {
           tipo: "select",
           mensagem: "Selecione o tipo de atendimento",
           obrigatorio: true,
-          selectOptions: tiposAtendimento, 
+          selectOptions: tiposAtendimento,
         },
         {
           line: 1,
@@ -137,61 +137,62 @@ const cadastro = () => {
    * fiquem agrupados em um objeto 'endereco'.
    */
   const salvarRegistro = async (item: any) => {
-  // Ajusta os dados para o formato esperado pelo backend
-  const dadosFormatados = {
-    data: new Date(item.data).toLocaleDateString("pt-BR"), // Converte a data para DD/MM/YYYY
-    tipoAtendimentoId: Number(item.tipoAtendimentoId), // Converte para número
+    const [ano, mes, dia] = item.data.split('-');
+    const dataFormatada = `${dia}/${mes}/${ano}`;
+    const dadosFormatados = {
+      data: dataFormatada,
+      tipoAtendimentoId: Number(item.tipoAtendimentoId),
     };
 
-  console.log("DEBUG: Dados enviados formatados:", dadosFormatados);
+    console.log("DEBUG: Dados enviados formatados:", dadosFormatados);
 
-  try {
-    const body = {
-      metodo: `${isEditMode ? "patch" : "post"}`,
-      uri: "/prae/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri}`,
-      params: {},
-      data: dadosFormatados,
-    };
+    try {
+      const body = {
+        metodo: `${isEditMode ? "patch" : "post"}`,
+        uri: "/prae/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri}`,
+        params: {},
+        data: dadosFormatados,
+      };
 
-    const response = await generica(body);
+      const response = await generica(body);
 
-    if (!response || response.status < 200 || response.status >= 300) {
-      if (response) {
-        console.error(
-          "DEBUG: Status de erro:",
-          response.status,
-          "statusText" in response ? response.statusText : "Sem texto de status"
-        );
-      }
-      toast.error(`Erro na requisição (HTTP ${response?.status || "desconhecido"})`, {
-        position: "top-left",
-      });
-      return;
-    }
-
-    if (response.data?.errors) {
-      Object.keys(response.data.errors).forEach((campoErro) => {
-        toast.error(`Erro em ${campoErro}: ${response.data.errors[campoErro]}`, {
+      if (!response || response.status < 200 || response.status >= 300) {
+        if (response) {
+          console.error(
+            "DEBUG: Status de erro:",
+            response.status,
+            "statusText" in response ? response.statusText : "Sem texto de status"
+          );
+        }
+        toast.error(`Erro na requisição (HTTP ${response?.status || "desconhecido"})`, {
           position: "top-left",
         });
-      });
-    } else if (response.data?.error) {
-      toast.error(response.data.error.message, { position: "top-left" });
-    } else {
-      Swal.fire({
-        title: "Cronograma salvo com sucesso!",
-        icon: "success",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          chamarFuncao("voltar");
-        }
-      });
+        return;
+      }
+
+      if (response.data?.errors) {
+        Object.keys(response.data.errors).forEach((campoErro) => {
+          toast.error(`Erro em ${campoErro}: ${response.data.errors[campoErro]}`, {
+            position: "top-left",
+          });
+        });
+      } else if (response.data?.error) {
+        toast.error(response.data.error.message, { position: "top-left" });
+      } else {
+        Swal.fire({
+          title: "Cronograma salvo com sucesso!",
+          icon: "success",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            chamarFuncao("voltar");
+          }
+        });
+      }
+    } catch (error) {
+      console.error("DEBUG: Erro ao salvar registro:", error);
+      toast.error("Erro ao salvar registro. Tente novamente!", { position: "top-left" });
     }
-  } catch (error) {
-    console.error("DEBUG: Erro ao salvar registro:", error);
-    toast.error("Erro ao salvar registro. Tente novamente!", { position: "top-left" });
-  }
-};
+  };
 
   /**
    * Localiza o registro para edição e preenche os dados
@@ -214,8 +215,13 @@ const cadastro = () => {
         });
       } else if (response.data?.error) {
         toast.error(response.data.error.message, { position: "top-left" });
-      } else {       
-        setDadosPreenchidos(response.data);
+      }
+      else {
+        const dados = response.data;
+        if (dados.tipoAtendimento && dados.tipoAtendimento.id) {
+          dados.tipoAtendimentoId = dados.tipoAtendimento.id;
+        }
+        setDadosPreenchidos(dados);
       }
     } catch (error) {
       console.error("DEBUG: Erro ao localizar registro:", error);
