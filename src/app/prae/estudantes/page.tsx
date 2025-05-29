@@ -13,7 +13,7 @@ const estrutura: any = {
   uri: "estudantes", //caminho base
 
   cabecalho: { //cabecalho da pagina
-    titulo: "estudantes",
+    titulo: "Estudantes",
     migalha: [
       { nome: 'Home', link: '/home' },
       { nome: 'Prae', link: '/prae' },

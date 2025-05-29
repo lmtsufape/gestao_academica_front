@@ -2,6 +2,7 @@
 import withAuthorization from "@/components/AuthProvider/withAuthorization";
 import Cadastro from "@/components/Cadastro/Estrutura";
 import Cabecalho from "@/components/Layout/Interno/Cabecalho";
+import Tabela from "@/components/Tabela/Estrutura";
 import { generica } from "@/utils/api";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -11,8 +12,12 @@ import Swal from "sweetalert2";
 const cadastro = () => {
   const router = useRouter();
   const { id } = useParams();
+
+  
   // Inicializamos com um objeto contendo 'endereco' para evitar problemas
   const [dadosPreenchidos, setDadosPreenchidos] = useState<any>();
+  const [dadosTabela, setDadosTabela] = useState<any>({});
+
   const [UnidadesPai, setUnidadesPai] = useState<any[]>([]);
   const [tipoUnidade, setTipoUnidade] = useState<any[]>([]);
 
@@ -39,12 +44,34 @@ const cadastro = () => {
       titulo: isEditMode ? "Editar Unidade Administrativa" : "Cadastrar Unidade Administrativa",
       migalha: [
         { nome: 'Inicio', link: '/home' },
-        { nome: 'Gestão Acesso', link: '/gestao-acesso' },
+        { nome: 'Gestão de Acesso', link: '/gestao-acesso' },
         { nome: "Unidades Administrativas", link: "/gestao-acesso/unidades-administrativas" },
         {
           nome: isEditMode ? "Editar" : "Criar",
           link: `/gestao-acesso/unidades-administrativas/${isEditMode ? id : "criar"}`,
         },
+      ],
+    },
+    tabela: {
+      configuracoes: {
+        pesquisar: true,
+        cabecalho: true,
+        rodape: true,
+      },
+      botoes: [ //links
+      { nome: 'Adicionar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
+    ],
+      //Ajustar coluna com as colunas de gestores
+      colunas: [
+        { nome: "CPF", chave: "cpf", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+        { nome: "Nome", chave: "nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+        { nome: "Email", chave: "email", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+        { nome: "Siape", chave: "siape", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+        { nome: "Telefone", chave: "telefone", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      ],
+      acoes_dropdown: [
+        { nome: 'Editar', chave: 'editar' },
+        { nome: 'Deletar', chave: 'deletar' },
       ],
     },
     cadastro: {
@@ -116,11 +143,18 @@ const cadastro = () => {
       case "editar":
         editarRegistro(valor);
         break;
+      case 'adicionar':
+        adicionarGestor();
+        break;
       default:
         break;
     }
   };
 
+    const adicionarGestor = () => {
+      //Precisa ajustar essa rota para levar para o adicionar gestor
+    router.push('/gestao-acesso/unidades-administrativas/gestor/criar');
+  };
   const voltarRegistro = () => {
     router.push("/gestao-acesso/unidades-administrativas");
   };
@@ -184,7 +218,7 @@ const cadastro = () => {
             popup: "my-swal-popup",
             title: "my-swal-title",
             htmlContainer: "my-swal-html",
-        },
+          },
         }).then((result) => {
           if (result.isConfirmed) {
             chamarFuncao("voltar");
@@ -197,6 +231,34 @@ const cadastro = () => {
     }
   };
 
+
+  //Corrigir a consulta para gestores
+  const pesquisarGestores = async (params = null) => {
+    try {
+      let body = {
+        metodo: 'get',
+        uri: '/auth/' + "gestor",
+        //+ '/page',
+        params: params != null ? params : { size: 25, page: 0 },
+        data: {}
+      }
+      const response = await generica(body);
+      //tratamento dos erros
+      if (response && response.data.errors != undefined) {
+        toast.error("Erro. Tente novamente!", { position: "top-left" });
+      } else if (response && response.data && response.data.error != undefined) {
+        if (response && response.data && response.data.error) {
+          toast(response.data.error.message, { position: "top-left" });
+        }
+      } else {
+        if (response && response.data) {
+          setDadosTabela(response.data);
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao carregar registros:', error);
+    }
+  };
 
   /**
    * Localiza o registro para edição e preenche os dados
@@ -285,6 +347,7 @@ const cadastro = () => {
   useEffect(() => {
     pesquisarTipoUnidades();
     pesquisarUnidadesPai();
+    pesquisarGestores();
     if (id && id !== "criar") {
       chamarFuncao("editar", id);
     }
@@ -298,6 +361,16 @@ const cadastro = () => {
           estrutura={estrutura}
           dadosPreenchidos={dadosPreenchidos}
           setDadosPreenchidos={setDadosPreenchidos}
+          chamarFuncao={chamarFuncao}
+        />
+      </div>
+      <div>
+        <span className="block text-center text-2xl font-semibold mb-4">
+          Consultar Gestores
+        </span>
+        <Tabela
+          dados={dadosTabela}
+          estrutura={estrutura}
           chamarFuncao={chamarFuncao}
         />
       </div>

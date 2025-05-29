@@ -36,15 +36,11 @@ const estrutura: any = {
       { nome: "Tipo Bolsa", chave: "tipoBolsa.descricao", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "valor Bolsa", chave: "valorBolsa", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       {
-        nome: "Status",
-        chave: "status",
-        tipo: "booleano",
+        nome: "Status", chave: "status", tipo: "texto",
         selectOptions: [
-          { chave: "APROVADA", valor: "Ativo" },
-          { chave: "REJEITADA", valor: "Não-Ativo" },
-        ],
-        sort: false,
-        pesquisar: true,
+          { chave: true, valor: "Ativo" },
+          { chave: false, valor: "Inativo" },
+        ], sort: false, pesquisar: true
       },
       { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
     ],

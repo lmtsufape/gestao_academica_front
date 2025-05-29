@@ -91,12 +91,6 @@ export default function EfrotasLayout({ children }: { children: React.ReactNode 
           roles: ["administrador"],
         },
         {
-          label: "Alocar Gestor",
-          route: "/gestao-acesso/alocar-gestor",
-          icon: <Summarize fontSize="small" className="text-white" />,
-          roles: ["administrador"],
-        },
-        {
           label: "Alocar Colaborador",
           route: "/gestao-acesso/alocar-colaborador",
           icon: <Summarize fontSize="small" className="text-white" />,

@@ -16,23 +16,24 @@ const cadastro = () => {
   const [dadosPreenchidos, setDadosPreenchidos] = useState<any>([]);
   const [lastMunicipioQuery, setLastMunicipioQuery] = useState("");
   const [tipoBolsa, setTipoBolsa] = useState<any[]>([]);
+  const [nomeEstudante, setNomeEstudante] = useState<any[]>([]);
+  const [tipoAuxilio, setTipoAuxilio] = useState<any[]>([]);
   const isEditMode = id && id !== "criar";
 
   const getOptions = (lista: any[], selecionado: any) => {
-        if (!Array.isArray(lista) || lista.length === 0) return [];
-        const options = lista.map((item) => ({
-            chave: item.id,
-            valor: item.descricao // Texto exibido no <option>
-        }));
-        if (isEditMode && selecionado) {
-            const selectedId = Number(selecionado);
-            const selectedOption = options.find((opt) => opt.chave === selectedId);
-            if (selectedOption) {
-                return [selectedOption, ...options.filter((opt) => opt.chave !== selectedId)];
-            }
-        }
-        return options;
-    };
+    if (!Array.isArray(lista)) return [];
+
+    // Mapeia para { chave: id, valor: nome } → Select mostrará "valor" (nome)
+    const options = lista.map((item) => ({
+      chave: item.id,       // ID (valor salvo no formulário)
+      valor: item.nome  || item.descricao || item.tipo    // Nome (exibido no select)
+    }));
+
+    // Debug: Verifique as opções geradas
+    console.log("Opções do select (nome exibido):", options);
+    return options;
+  };
+
 
   const estrutura: any = {
     uri: "auxilio",
@@ -54,9 +55,20 @@ const cadastro = () => {
         {
           line: 1,
           colSpan: "md:col-span-1",
-          nome: "Tipo do Auxilio ID",
+          nome: "Aluno",
+          chave: "estudanteId",
+          tipo: "select",
+          selectOptions: getOptions(nomeEstudante, dadosPreenchidos[0]?.aluno.nome),
+          mensagem: "Digite",
+          obrigatorio: true,
+        },
+        {
+          line: 1,
+          colSpan: "md:col-span-1",
+          nome: "Tipo do Auxilio",
           chave: "tipoAuxilioId",
-          tipo: "text",
+          tipo: "select",
+          selectOptions: getOptions(tipoAuxilio, dadosPreenchidos?.tipo),
           mensagem: "Digite",
           obrigatorio: true,
         },
@@ -80,17 +92,16 @@ const cadastro = () => {
           obrigatorio: true,
         },
         {
-          line: 1,
+          line: 2,
           colSpan: "md:col-span-1",
           nome: "Horas da Bolsa",
           chave: "horasBolsa",
           tipo: "text",
           mensagem: "Digite",
           obrigatorio: true,
-          mascara: "horas",
         },
         {
-          line: 1,
+          line: 2,
           colSpan: "md:col-span-1",
           nome: "Inicio da Bolsa",
           chave: "inicioBolsa",
@@ -99,21 +110,11 @@ const cadastro = () => {
           obrigatorio: true,
         },
         {
-          line: 1,
+          line: 2,
           colSpan: "md:col-span-1",
           nome: "Fim da Bolsa",
           chave: "fimBolsa",
           tipo: "date",
-          mensagem: "Digite",
-          obrigatorio: true,
-        },
-        
-        {
-          line: 2,
-          colSpan: "md:col-span-1",
-          nome: "Status",
-          chave: "statys",
-          tipo: "bolean",
           mensagem: "Digite",
           obrigatorio: true,
         },
@@ -172,6 +173,56 @@ const cadastro = () => {
     router.push("/prae/auxilio/auxilios");
   };
 
+  const pesquisarEstudante = async (params = null) => {
+    try {
+      let body = {
+        metodo: 'get',
+        uri: '/prae/' + 'estudantes',
+        //+ '/page',
+        params: params != null ? params : { size: 25, page: 0 },
+        data: {}
+      }
+      const response = await generica(body);
+      //tratamento dos erros
+      if (response && response.data.errors != undefined) {
+        toast("Erro. Tente novamente!", { position: "bottom-left" });
+      } else if (response && response.data.error != undefined) {
+        toast(response.data.error.message, { position: "bottom-left" });
+      } else {
+          setNomeEstudante(response?.data);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar registros:', error);
+    }
+  };
+
+  
+  const pesquisarTipoAuxilio = async (params = null) => {
+    try {
+      let body = {
+        metodo: 'get',
+        uri: '/prae/' + 'tipo-auxilio',
+        //+ '/page',
+        params: params != null ? params : { size: 25, page: 0 },
+        data: {}
+      }
+      const response = await generica(body);
+      console.log('Full response:', dadosPreenchidos); 
+      //tratamento dos erros
+      if (response && response.data.errors != undefined) {
+        toast("Erro. Tente novamente!", { position: "bottom-left" });
+      } else if (response && response.data.error != undefined) {
+        toast(response.data.error.message, { position: "bottom-left" });
+      } else {
+        if (response && response.data) {
+          setTipoAuxilio(response.data);
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao carregar registros:', error);
+    }
+  };
+  
   const pesquisarTipoBolsa = async (params = null) => {
     try {
       let body = {
@@ -276,6 +327,8 @@ const cadastro = () => {
   // Efeito exclusivo para o modo de edição
   useEffect(() => {
     pesquisarTipoBolsa();
+    pesquisarTipoAuxilio();
+    pesquisarEstudante();
     if (id && id !== "criar") {
       chamarFuncao("editar", id);
     }

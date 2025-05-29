@@ -117,7 +117,7 @@ const PagePerfil = () => {
           nome: "Matrícula",
           chave: "perfil.matricula",
           tipo: "text",
-          bloqueado: !editando
+          bloqueado: true
         },
         {
           line: 4,

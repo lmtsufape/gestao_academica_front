@@ -14,6 +14,7 @@ const cadastro = () => {
   const { id } = useParams();
   // Inicializamos com um objeto contendo 'endereco' para evitar problemas
   const [dadosPreenchidos, setDadosPreenchidos] = useState<any>({ endereco: {} });
+  const [dadosForm, setDadosForm] = useState<any>({ endereco: {} });
   const [cursos, setCursos] = useState<any[]>([]);
   const [lastMunicipioQuery, setLastMunicipioQuery] = useState("");
   const [isDeficiencia, setIsDeficiencia] = useState();
@@ -31,7 +32,6 @@ const cadastro = () => {
     }));
 
     // Debug: Verifique as opções geradas
-    console.log("Opções do select (nome exibido):", options);
     return options;
   };
 
@@ -389,6 +389,28 @@ const cadastro = () => {
       rendaPercapta: Number(rendaPercapta)
     };
   };
+
+  const endereco = useEnderecoByCep(dadosForm?.cep || "");
+
+  useEffect(() => {
+  if (endereco) {
+    setDadosPreenchidos((prev: any) => ({
+      ...prev,
+      endereco: {
+        ...prev.endereco,
+        cep: endereco.cep || prev.endereco?.cep || '',
+        rua:  prev.endereco?.rua || '',
+        bairro: endereco.bairro || prev.endereco?.bairro || '',
+        cidade:  prev.endereco?.cidade || '',
+        estado: endereco.estado || prev.endereco?.estado || '',
+        complemento: prev.endereco?.complemento || '',
+        numero: prev.endereco?.numero || '',
+      }
+    }));
+    console.log("Dados retornados pelo hook useEnderecoByCep:", endereco);
+  }
+}, [endereco]);
+
 
   /**
    * Salva o registro via POST, transformando os dados para que os itens de endereço

@@ -17,7 +17,7 @@ const estrutura: any = {
     titulo: "Unidades Administrativas",
     migalha: [
       { nome: 'Inicio', link: '/home' },
-      { nome: 'Gestão Acesso', link: '/gestao-acesso' },
+      { nome: 'Gestão de Acesso', link: '/gestao-acesso' },
       { nome: 'Unidade Administrativa', link: '/gestao-acesso/unidades-administrativas' },
     ]
   },
