@@ -21,12 +21,7 @@ export class AuthService {
 
             // Trata erros HTTP com mensagens customizadas
             if (!response.ok) {
-                let errorMessage = "Erro na autenticação.";
-                if (response.status === 401) errorMessage = "E-mail ou senha incorretos.";
-                if (response.status === 403) errorMessage = "Acesso negado.";
-                if (response.status === 500) errorMessage = "Erro interno do servidor.";
-                console.error('Erro HTTP:', response.status, errorMessage);
-                throw new Error(errorMessage);
+                await this.handleLoginError(response);
             }
 
             // Lê a resposta em JSON
@@ -71,6 +66,43 @@ export class AuthService {
             console.error('Erro na autenticação:', error);
             return error.message || "Erro ao autenticar.";
         }
+    }
+
+    /**
+     * 
+     * @param error Erro retornado pelo servidor ou pela requisição
+     * @returns 
+     */
+    async handleLoginError(response: Response) {
+        const defaultError = {
+          message: (()=>{
+            switch (response.status) {
+                case 400:
+                    return "Requisição inválida. Verifique os dados informados.";
+                case 401:
+                    return "E-mail ou senha incorretos.";
+                case 403:
+                    return "Acesso negado.";
+                case 404:
+                    return "Recurso não encontrado.";
+                case 500:
+                    return "Erro interno do servidor. Tente novamente mais tarde.";
+                default:
+                    return "Erro desconhecido.";
+            }            
+          })(),
+          status: response.status,
+        };
+        try {
+            const error = await response.json();
+            if (error.hasOwnProperty('mensagem')) {
+                defaultError.message = error.mensagem;
+            }
+        } catch (error) {
+            console.error('Erro ao obter JSON', error);
+        }
+        console.error("Erro HTTP:", response.status, defaultError.message);
+        throw new Error(defaultError.message);
     }
 }
 

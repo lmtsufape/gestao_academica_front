@@ -77,7 +77,16 @@ export default function Login() {
     try {
       const authData = await authService.authenticate({ email: userEmail, password: userPassword });
       if (!authData || !authData.token) {
-        throw new Error(authData?.message || "E-mail e/ou senha incorretos. Tente novamente ou redefina a sua senha.");
+        let errorMessage = (()=>{
+          if (typeof authData === "string") {
+            return authData;
+          }
+          if (authData?.hasOwnProperty("message")) {
+            return authData.message;
+          }
+          return "E-mail e/ou senha incorretos. Tente novamente ou redefina a sua senha.";
+        })()
+        throw new Error(authData?.message || errorMessage);
       }
       if (remember) {
         const updatedEmails = savedEmails.filter(email => email !== userEmail);
