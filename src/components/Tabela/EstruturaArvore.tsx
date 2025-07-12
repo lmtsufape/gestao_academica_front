@@ -333,8 +333,8 @@ const TabelaArvore = ({ dados = null, estrutura = null, chamarFuncao = null }: a
         className="bg-white rounded-md mb-4 shadow"
         style={{
           // Linha-guia + indentação para filhos
-          borderLeft: level >= 1 ? '2px dashed #666' : 'none',
-          paddingLeft: level >= 1 ? `${level * 15}px` : '0',
+          borderLeft: level >= 1 ? "0.05rem dashed #666" : "none",
+          paddingLeft: level >= 1 ? `${level * 0.0015}rem` : "0",
         }}
       >
         {/* Cabeçalho do item (exibindo a primeira coluna) */}
@@ -349,7 +349,7 @@ const TabelaArvore = ({ dados = null, estrutura = null, chamarFuncao = null }: a
               onClick={() => toggleNode(node.id)}
               className="px-2 py-1 text-sm border rounded focus:outline-none"
             >
-              {expandedNodes[node.id] ? 'Fechar' : 'Abrir'}
+              {expandedNodes[node.id] ? "Fechar" : "Abrir"}
             </button>
           )}
         </div>
@@ -357,37 +357,47 @@ const TabelaArvore = ({ dados = null, estrutura = null, chamarFuncao = null }: a
         {/* Demais colunas no "corpo" do card */}
         <div className="px-3 py-2">
           {estrutura.tabela.colunas.slice(1).map((col: any) => {
-            if (col.chave === 'acoes') {
+            if (col.chave === "acoes") {
               return (
                 <div key={col.chave} className="mt-2 flex justify-end gap-2">
                   {estrutura.tabela.acoes_dropdown &&
-                    estrutura.tabela.acoes_dropdown.map((acao: any, idx: number) => (
-                      <button
-                        key={idx}
-                        className="px-4 py-1 text-sm text-white bg-primary-500 hover:bg-primary-700 rounded"
-                        onClick={() => chamarFuncao(acao.chave, node.id)}
-                      >
-                        {acao.nome}
-                      </button>
-                    ))}
+                    estrutura.tabela.acoes_dropdown.map(
+                      (acao: any, idx: number) => (
+                        <button
+                          key={idx}
+                          className="px-4 py-1 text-sm text-white bg-primary-500 hover:bg-primary-700 rounded"
+                          onClick={() => chamarFuncao(acao.chave, node.id)}
+                        >
+                          {acao.nome}
+                        </button>
+                      )
+                    )}
                 </div>
               );
             } else {
               return (
                 <div key={col.chave} className="mt-2">
-                  <span className="block text-xs font-bold text-gray-700">{col.nome}:</span>
-                  <span className="block text-sm text-gray-800">{renderCellContent(node, col)}</span>
+                  <span className="block text-xs font-bold text-gray-700">
+                    {col.nome}:
+                  </span>
+                  <span className="block text-sm text-gray-800">
+                    {renderCellContent(node, col)}
+                  </span>
                 </div>
               );
             }
           })}
 
           {/* Se tiver filhos e estiver expandido, renderiza recursivamente */}
-          {node.children && node.children.length > 0 && expandedNodes[node.id] && (
-            <div className="mt-3">
-              {node.children.map((child: any) => renderMobileRow(child, level + 1))}
-            </div>
-          )}
+          {node.children &&
+            node.children.length > 0 &&
+            expandedNodes[node.id] && (
+              <div className="mt-3">
+                {node.children.map((child: any) =>
+                  renderMobileRow(child, level + 1)
+                )}
+              </div>
+            )}
         </div>
       </div>
     );
