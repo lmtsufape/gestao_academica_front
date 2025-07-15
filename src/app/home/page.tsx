@@ -77,6 +77,13 @@ export default function HomePage() {
       description: "Acesse o módulo Prae",
       image: "/assets/brasaoUfapeCol.png",
     },
+    {
+      id: "gestao-editais",
+      name: "Editais",
+      route: "/gestao-editais",
+      description: "Acesse o módulo de Editais",
+      image: "/assets/brasaoUfapeCol.png",
+    }
     // Adicione mais módulos...
   ];
 
