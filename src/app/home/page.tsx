@@ -27,22 +27,29 @@ export default function HomePage() {
     }
   }, [isAluno]);
 
+  /**
+   * TODO: Verificar se o estudante está cadastrado no PRAE.
+   * Se não estiver, exibir modal de notificação.
+   * Se estiver, não fazer nada.
+   * @summary Desativado temporariamente para evitar chamadas desnecessárias.
+   */
   const buscarEstudanteAtual = async () => {
-    try {
-      const body = {
-        metodo: "get",
-        uri: "/prae/estudantes/current",
-        params: {},
-      };
-      const response = await generica(body);
-      if (!response) throw new Error("Resposta inválida do servidor.");
-      if (response.status === 404) {
-        handleNoitify();
-        return;
-      }
-    } catch (error) {
-      console.error("DEBUG: Erro ao localizar registro:", error);
-    }
+    return; // Desativado temporariamente
+    // try {
+    //   const body = {
+    //     metodo: "get",
+    //     uri: "/prae/estudantes/current",
+    //     params: {},
+    //   };
+    //   const response = await generica(body);
+    //   if (!response) throw new Error("Resposta inválida do servidor.");
+    //   if (response.status === 404) {
+    //     handleNoitify();
+    //     return;
+    //   }
+    // } catch (error) {
+    //   console.error("DEBUG: Erro ao localizar registro:", error);
+    // }
   };
 
   // Inicializa o estado lendo do localStorage (se disponível)
@@ -83,7 +90,7 @@ export default function HomePage() {
       route: "/gestao-editais",
       description: "Acesse o módulo de Editais",
       image: "/assets/brasaoUfapeCol.png",
-    }
+    },
     // Adicione mais módulos...
   ];
 
