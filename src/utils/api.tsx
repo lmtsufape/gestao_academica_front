@@ -1,242 +1,194 @@
-
-import { AuthTokenService } from '@/app/authentication/auth.token';
 import axios from 'axios';
-import https from 'https';
-import router from 'next/router';
+import type { AxiosRequestConfig } from 'axios';
 import { toast } from 'react-toastify';
+import * as TokenService from '@/app/authentication/auth.token';
+import { AuthService } from '@/app/authentication/auth.service';
 
-const BASE_URL = `${process.env.NEXT_PUBLIC_BASE_URL}` || "http://localhost:8080/api/v1";
-const BASE_URL_API_AUTENTICACAO = process.env.NEXT_PUBLIC_BASE_URL
-    ? `${process.env.NEXT_PUBLIC_BASE_URL}/auth`: "http://localhost:8080/api/v1/";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:8080';
+const PUBLIC_ROUTES = [
+  '/login',
+  '/conta/criar-conta',
+  '/conta/recuperar-senha',
+  '/conta/redefinir-senha',
+];
 
+axios.defaults.withCredentials = true;
 
-
-
-
-export const genericaApiAuth = async ({ metodo = '', uri = '', params = {}, data = {} }: any) => {
-    try {
-        const url = `${BASE_URL_API_AUTENTICACAO}${uri}`;
-
-        const response = await axios({
-            method: metodo,
-            url: url,
-            params: params,
-            data: data,
-            headers: {
-                "Content-Type": "application/json"
-            }
-        });
-
-        return response;
-    } catch (error: any) {
-        // ✅ Garante que a API realmente retornou um erro e captura a mensagem
-        if (error.response) {
-            const errorMessage = error.response.data?.message || "Erro desconhecido.";
-
-            // ✅ Retorna a resposta já estruturada para exibição no frontend
-            return {
-                status: error.response.status,
-                data: { message: errorMessage }
-            };
-        }
-        else if (error.request) {
-            return {
-                status: 500,
-                data: { message: "Nenhuma resposta recebida do servidor." }
-            };
-        }
-        else {
-            return {
-                status: 500,
-                data: { message: "Erro ao configurar a requisição." }
-            };
-        }
-    }
+const isPublicRoute = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  return PUBLIC_ROUTES.some(route => window.location.pathname.startsWith(route));
 };
 
-
-export const generica = async ({ metodo = '', uri = '', params = {}, data = {}}: any, contentType = "application/json") => {
-    try {
-        const url = `${BASE_URL}${uri}`;
-        const accessToken = AuthTokenService.getAccessToken();
-        if (accessToken === null) {
-            toast.error("Sessão expirada. Redirecionando...", { position: "top-left" });
-            router.push("/conta/sair");
-            return null;
-        }
-        const response = await axios({
-            method: metodo,
-            url: url,
-            params: params,
-            data: data,
-            headers: {
-                "Content-Type": contentType,
-                "Authorization": `Bearer ${accessToken}`,
-            }
-        });
-        return response;
-
-    } catch (error: any) {
-        let errorMessage = "Ocorreu um erro ao processar sua requisição.";
-
-        if (error.response) {
-            if (error.response.status === 401) {
-                errorMessage = "Sessão expirada. Faça login novamente.";
-                router.push("/conta/sair");
-            } else if (error.response.status === 404) {
-                errorMessage = "Recurso não encontrado.";
-            } else if (error.response.status === 500) {
-                errorMessage = "Erro interno do servidor.";
-            } else {
-                errorMessage = error.response.data?.message || "Erro desconhecido.";
-            }
-        } else if (error.code === 'ERR_NETWORK') {
-            errorMessage = "Falha na conexão com o servidor.";
-            router.push('/conta/sair');
-        }
-
-        toast.error(errorMessage, { position: "top-left" });
-
-        return { status: error.response?.status || 500, data: { message: errorMessage } };
-    }
+const safeRedirectToLogin = (): void => {
+  if (!isPublicRoute()) window.location.href = '/login';
 };
 
-export function exibirMensagemErroGenerica(response: any, campos: Array<Array<{ chave: any }>>) {
-    if (!response) {
-        toast.error("Erro desconhecido.", { position: "top-left" });
-        return;
-    }
-
-    const { status, data } = response;
-
-    if (status === 400 && !data.errors) {
-        toast.error("Erro: " + data.detail, { position: "top-left" });
-    } else if (status === 403) {
-        const message = data && data !== "" ? data : "O usuário não tem autorização para executar a ação";
-        toast(`Erro: ${message}`, { position: "top-left" });
-    } else if (data.status === 404) {
-        toast.error("Erro: " + data.detail, { position: "top-left" });
-    } else if (status === 409) {
-        toast.error("Erro: " + data.detail, { position: "top-left" });
-    } else if (status === 500) {
-        toast.error("Erro: " + data, { position: "top-left" });
-    } else if (data.errors) {
-        campos.forEach(linha => {
-            linha.forEach(campo => {
-                const error = data.errors[campo.chave];
-                if (error) {
-                    toast(`Erro: ${error}`, { position: "top-left" });
-                }
-            });
-        });
-    } else if (data.error) {
-        toast(data.error.message, { position: "top-left" });
-    }
+const clearTokenData = (): void => {
+  TokenService.stopTokenRefreshSchedule();
 };
+
+export async function ensureAuthenticated(): Promise<boolean> {
+  if (isPublicRoute()) return true;
+
+  // If token still valid
+  if (!TokenService.isTokenExpired()) {
+    // If near expiration, attempt proactive refresh
+    if (TokenService.isTokenNearExpiration()) {
+      const refreshed = await AuthService.refreshToken();
+      if (refreshed) return true;
+      // if refresh failed but token not yet expired, allow current token
+      if (!TokenService.isTokenExpired()) return true;
+    } else {
+      // token valid and not near expiration
+      return true;
+    }
+  }
+
+  // Token expired or refresh needed
+  const refreshed = await AuthService.refreshToken();
+  if (refreshed) return true;
+
+  // If refresh failed, clear and redirect
+  clearTokenData();
+  safeRedirectToLogin();
+  return false;
+}
+
+interface ApiParams {
+  metodo: string;
+  uri: string;
+  params?: any;
+  data?: any;
+  contentType?: string;
+  responseType?: AxiosRequestConfig['responseType'];
+}
+
+async function handleApiError(error: any) {
+  let message = 'Ocorreu um erro ao processar sua requisição.';
+  if (error.response) {
+    const status = error.response.status;
+    switch (status) {
+      case 401:
+        message = 'Sessão expirada. Faça login novamente.';
+        safeRedirectToLogin();
+        break;
+      case 404:
+        message = 'Recurso não encontrado.';
+        break;
+      case 500:
+        message = 'Erro interno do servidor.';
+        break;
+      default:
+        message = error.response.data?.message || message;
+    }
+    toast.error(message, { position: 'top-left' });
+    return { status, data: { message } };
+  } else if (error.code === 'ERR_NETWORK') {
+    message = 'Falha na conexão com o servidor.';
+    toast.error(message, { position: 'top-left' });
+    safeRedirectToLogin();
+  }
+  return { status: 500, data: { message } };
+}
+
+export async function api({
+  metodo,
+  uri,
+  params = {},
+  data = {},
+  contentType = 'application/json',
+  responseType = 'json'
+}: ApiParams) {
+  if (!(await ensureAuthenticated()))
+    return { status: 401, data: { message: 'Sessão inválida' } };
+  try {
+    const response = await axios({
+      method: metodo,
+      url: `${BASE_URL}${uri}`,
+      params,
+      data,
+      headers: { 'Content-Type': contentType },
+      responseType,
+      withCredentials: true,
+    });
+    return response;
+  } catch (error: any) {
+    return handleApiError(error);
+  }
+}
+
+// Legacy generica: supports both object param and optional contentType
+export async function generica(
+  params: ApiParams,
+  contentType?: string
+): Promise<any> {
+  const finalParams: ApiParams = contentType
+    ? { ...params, contentType }
+    : params;
+  return api(finalParams);
+}
+
+export async function geracsv(uri = '', fileName = '') {
+  return generica({ metodo: 'get', uri, responseType: 'blob' });
+}
+
+export async function downloadExcel(uri = '', fileName = '') {
+  return generica({ metodo: 'get', uri, responseType: 'blob' });
+}
+
+export async function uploadFile(uri: string, formData: FormData) {
+  return generica({
+    metodo: 'post',
+    uri,
+    data: formData,
+    contentType: 'multipart/form-data',
+  });
+}
+
+export async function genericaMultiForm({
+  metodo = 'post',
+  uri = '',
+  params = {},
+  data = {},
+  responseType = 'json',
+}: ApiParams) {
+  return generica({
+    metodo,
+    uri,
+    params,
+    data,
+    contentType: 'multipart/form-data',
+    responseType,
+  });
+}
 
 /**
- * Função genérica para consultar listagens de dados.
- *
- * @param uri - Endpoint da API para buscar os dados.
- * @param setDados - Função para atualizar o estado com os dados retornados.
- * @param params - Parâmetros opcionais da requisição.
+ * Use for public auth endpoints (signup, recover password)
  */
-export async function genericaListagem(
-    uri: string,
-    setDados: (dados: any) => void,
-    params: Record<string, any> | undefined
-) {
-    try {
-        const finalParams = {
-            size: 25,
-            page: 0,
-        };
+export async function genericaApiAuth({
+  metodo,
+  uri,
+  params = {},
+  data = {},
+  contentType = 'application/json',
+  responseType = 'json'
+}: ApiParams) {
+  try {
+    const response = await axios({
+      method: metodo,
+      url: `${BASE_URL}/auth${uri}`,
+      params,
+      data,
+      headers: { 'Content-Type': contentType },
+      responseType,
+      withCredentials: true,
+    });
+    return response;
+  } catch (error: any) {
+    return handleApiError(error);
+  }
+}
 
-        if (params) {
-            Object.assign(finalParams, params);
-        }
 
-        const response = await generica({
-            metodo: "get",
-            uri,
-            params: finalParams,
-        });
-
-        if (response && response.data && response.data.errors) {
-            toast.error("Erro. Tente novamente!", { position: "top-left" });
-        } else if (response && response.data && response.data.error) {
-            toast.error(response.data.error.message, { position: "top-left" });
-        } else {
-            if (response && response.data) {
-                setDados(response.data);
-            }
-        }
-    } catch (error) {
-        toast("Ocorreu um erro desconhecido ao buscar os dados.", {
-            position: "top-left",
-        });
-    }
-};
-
-export const genericaDashboard = async ({ metodo = '', uri = '', params = {}, data = {} }: any) => {
-    try {
-        const url = `${BASE_URL}${uri}`;
-
-        const response = await axios({
-            //httpsAgent: agent,
-            method: metodo,
-            url: url,
-            params: params,
-            data: data,
-            headers: {
-                "Content-Type": "application/json",
-            }
-        });
-
-        return response;
-
-    } catch (error) {
-        console.error(`Erro ao fazer requisição ${metodo} para ${uri}:`, error);
-
-        throw error;
-    }
-};
-
-export const genericaMultiForm = async ({
-    metodo = "",
-    uri = "",
-    params = {},
-    data = {},
-    responseType = "json", // valor default
-  }: any) => {
-    try {
-      const url = `${BASE_URL}${uri}`;
-      const accessToken = AuthTokenService.getAccessToken();
-  
-      if (accessToken === null) router.push("/e-Frotas/sair");
-      const response = await axios({
-        method: metodo,
-        url,
-        params,
-        data,
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        responseType, // <-- Importante! Passa o responseType recebido para o axios
-      });
-      return response;
-    } catch (error: unknown) {
-      const err = error as any;
-      console.error(`Erro ao fazer requisição ${metodo} para ${uri}:`, err);
-  
-      if (err.code && err.code === 'ERR_NETWORK') {
-        router.push('/e-Frotas');
-      } else if (err.response && err.response.status === 401) {
-        const errorData = err.response.data;
-        if (errorData && errorData.error && errorData.error.includes("JWT invalido"))
-          router.push("/e-Frotas");
-      }
-      return err.response;
-    }
-  };
+export { genericaApiAuth as authApi };
+export { uploadFile as uploadApi, geracsv as csvApi, downloadExcel as excelApi };

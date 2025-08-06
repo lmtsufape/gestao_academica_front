@@ -1,6 +1,6 @@
 "use client";
 
-import { default as AuthTokenService } from "@/app/authentication/auth.token";
+import { useAuth } from "@/components/AuthProvider/AuthProvider";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState, ComponentType } from "react";
 
@@ -10,14 +10,22 @@ const withAuthorization = <P extends object>(WrappedComponent: ComponentType<P>)
     const currentPath = usePathname();
     const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
     const [checked, setChecked] = useState<boolean>(false);
+    
+    // Use the new auth context
+    const { isAuthenticated, session, isLoading } = useAuth();
+
+    // Helper functions for role checking
+    const isAdmin = () => session?.roles?.includes("administrador") ?? false;
+    const isGestor = () => session?.roles?.includes("gestor") ?? false;
+    const isTecnico = () => session?.roles?.includes("tecnico") ?? false;
+    const isAluno = () => session?.roles?.includes("aluno") ?? false;
+    const getUserRoles = () => session?.roles ?? [];
 
     useEffect(() => {
-      const isAuthenticated = AuthTokenService.isAuthenticated(false);
+      // Wait for auth state to load
+      if (isLoading) return;
 
-      
       const restrictedURIsForGestor = [
-        // adicionar rotas proibidas para gestor
-
         "/perfil",
         "/questionario",
         "/pesquisa",
@@ -26,8 +34,6 @@ const withAuthorization = <P extends object>(WrappedComponent: ComponentType<P>)
         "/escala",
       ];
       const restrictedURIsForTecnico = [
-        // adicionar rotas proibidas para tecnico 
-
         "/perfil",
         "/questionario",
         "/pesquisa",
@@ -36,25 +42,23 @@ const withAuthorization = <P extends object>(WrappedComponent: ComponentType<P>)
         "/escala",
       ];
       const restrictedURIsForUsuario = [
-        // adicionar rotas proibidas para usuários 
         "/escala",
       ];
 
       const restrictedURIsForVisitante = ["/conta/token"];
 
-      // ✅ Evitar erro de iteração sobre `undefined`
-      const usuarioRole = AuthTokenService.getUsuarioRoles() || []; // Garante que é um array
-      const isAdmin = AuthTokenService.isAdmin(false);
-      const isGestor = AuthTokenService.isGestor(false);
-      const isTecnico = AuthTokenService.isTecnico(false);
-      const isAluno = AuthTokenService.isAluno(false);
-
+      // Use the helper functions
+      const usuarioRole = getUserRoles();
+      const adminRole = isAdmin();
+      const gestorRole = isGestor();
+      const tecnicoRole = isTecnico();
+      const alunoRole = isAluno();
       const isUriAllowed = (): boolean => {
-        if (isAuthenticated && isAdmin) return true;
+        if (isAuthenticated && adminRole) return true;
         if (!isAuthenticated && restrictedURIsForVisitante.includes(currentPath)) return false;
-        if (isGestor && restrictedURIsForGestor.includes(currentPath)) return false;
-        if (isTecnico && restrictedURIsForTecnico.includes(currentPath)) return false;
-        if (isAluno && restrictedURIsForUsuario.includes(currentPath)) return false;
+        if (gestorRole && restrictedURIsForGestor.includes(currentPath)) return false;
+        if (tecnicoRole && restrictedURIsForTecnico.includes(currentPath)) return false;
+        if (alunoRole && restrictedURIsForUsuario.includes(currentPath)) return false;
         return true;
       };
 
@@ -70,7 +74,7 @@ const withAuthorization = <P extends object>(WrappedComponent: ComponentType<P>)
 
         setChecked(true);
       }
-    }, [router, checked, currentPath]); // ✅ Adicionado `currentPath` para evitar reatividade incorreta
+    }, [router, checked, currentPath, isAuthenticated, isLoading]); // Added dependencies
 
     return checked && isAuthorized ? <WrappedComponent {...props} /> : null;
   };
