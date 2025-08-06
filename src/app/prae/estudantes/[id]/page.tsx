@@ -8,15 +8,15 @@ import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import { useEnderecoByCep } from "@/utils/brasilianStates";
 import { generica } from "@/utils/api";
-import AuthTokenService from "@/app/authentication/auth.token";
+import { useAuthService } from "@/app/authentication/auth.hook";
 import React from "react";
 
 const cadastro = () => {
   const router = useRouter();
   const { id } = useParams();
+  const auth = useAuthService(); // Add auth service
+  
   // Inicializamos com um objeto contendo 'endereco' para evitar problemas
-  const [isGestor, setIsGestor] = useState<boolean>(AuthTokenService.isGestor(false));
-  const [isAluno, setisAluno] = useState<boolean>(AuthTokenService.isAluno(false));
   const [dadosPreenchidos, setDadosPreenchidos] = useState<any>({ endereco: {} });
   const [dadosForm, setDadosForm] = useState<any>({ endereco: {} });
   const [dadosBancariosPreenchidos, setDadosBancariosPreenchidos] = useState<any>({});
@@ -42,7 +42,7 @@ const cadastro = () => {
       migalha: [
         { nome: 'Home', link: '/home' },
         { nome: 'Prae', link: '/prae' },
-        isAluno ? { nome: 'Meu Cadastro', link: '/prae/estudantes/atual' } :
+        auth.isAluno() ? { nome: 'Meu Cadastro', link: '/prae/estudantes/atual' } :
           { nome: 'Estudantes', link: '/prae/estudantes' },
         {
           nome: isEditMode ? "Editar" : "Criar",
@@ -70,7 +70,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: !isAluno || isEditMode,
+          bloqueado: !auth.isAluno() || isEditMode,
         },
         {
           line: 2,
@@ -80,7 +80,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite o nome social",
           obrigatorio: false,
-          bloqueado: !isAluno || isEditMode,
+          bloqueado: !auth.isAluno() || isEditMode,
         },
         {
           line: 2,
@@ -90,7 +90,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: !isAluno || isEditMode,
+          bloqueado: !auth.isAluno() || isEditMode,
         },
         {
           line: 3,
@@ -100,7 +100,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: !isAluno || isEditMode,
+          bloqueado: !auth.isAluno() || isEditMode,
           mascara: "cpf",
         },
         {
@@ -111,7 +111,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: !isAluno || isEditMode,
+          bloqueado: !auth.isAluno() || isEditMode,
           mascara: "celular",
         },
         {
@@ -123,7 +123,7 @@ const cadastro = () => {
           mensagem: "Digite a matrícula",
           obrigatorio: !isEditMode || isEditMode,
           exibirPara: ["ALUNO"],
-          bloqueado: !isAluno,
+          bloqueado: !auth.isAluno(),
         },
         {
           line: 3,
@@ -135,7 +135,7 @@ const cadastro = () => {
           obrigatorio: !isEditMode || isEditMode,
           selectOptions: isEditMode ? null : getOptions(cursos, dadosPreenchidos[0]?.cursoId),
           exibirPara: ["ALUNO"],
-          bloqueado: !isAluno,
+          bloqueado: !auth.isAluno(),
         },
         {
           line: 3,
@@ -148,7 +148,7 @@ const cadastro = () => {
           selectOptions: getOptions(etnia, dadosPreenchidos?.tipoEtniaId),
           opcaoChave: "chave",
           opcaoValor: "valor",
-          bloqueado: !isAluno,
+          bloqueado: !auth.isAluno(),
         },
         {
           line: 4,
@@ -158,7 +158,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite a renda percápita",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: !isAluno,
+          bloqueado: !auth.isAluno(),
         },
         {
           line: 4,
@@ -168,7 +168,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite o CEP",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: !isAluno,
+          bloqueado: !auth.isAluno(),
           mascara: "CEP",
         },
         {
@@ -179,7 +179,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite o nome da rua",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: !isAluno,
+          bloqueado: !auth.isAluno(),
         },
         {
           line: 4,
@@ -189,7 +189,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite o bairro",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: !isAluno,
+          bloqueado: !auth.isAluno(),
         },
         {
           line: 5,
@@ -199,7 +199,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite a cidade",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: !isAluno,
+          bloqueado: !auth.isAluno(),
         },
         {
           line: 5,
@@ -209,7 +209,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite o estado",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: !isAluno,
+          bloqueado: !auth.isAluno(),
         },
         {
           line: 5,
@@ -219,7 +219,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite o numero",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: !isAluno,
+          bloqueado: !auth.isAluno(),
         },
         {
           line: 5,
@@ -229,7 +229,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite o complemento",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: !isAluno,
+          bloqueado: !auth.isAluno(),
         },
         {
           line: 6,
@@ -239,7 +239,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite o contato familiar",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: !isAluno,
+          bloqueado: !auth.isAluno(),
           mascara: "celular",
         },
         {
@@ -254,7 +254,7 @@ const cadastro = () => {
           ],
           mensagem: "Selecione a opção",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: !isAluno,
+          bloqueado: !auth.isAluno(),
           mascara: "valor",
         },
         {
@@ -265,7 +265,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Qual o tipo da deficiência",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: !isAluno,
+          bloqueado: !auth.isAluno(),
         },/*
         {
           line: 7,
@@ -274,10 +274,10 @@ const cadastro = () => {
           chave: "laudo",
           tipo: "documento",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: !isAluno,
+          bloqueado: !auth.isAluno(),
         },*/
       ],
-      acoes: isAluno ? [
+      acoes: auth.isAluno() ? [
         { nome: "Cancelar", chave: "voltar", tipo: "botao" },
         { nome: isEditMode ? "Salvar" : "Cadastrar", chave: "salvar", tipo: "submit" }
       ] :
@@ -347,7 +347,7 @@ const cadastro = () => {
           obrigatorio: true,
         },
       ],
-      acoes: isGestor ? [
+      acoes: auth.isGestor() ? [
         { nome: "Cancelar", chave: "voltar", tipo: "botao" },
         { nome: dadosPreenchidos?.dadosBancarios ? "Salvar" : "Cadastrar", chave: "salvarDadosBancarios", tipo: "submit" }
       ] :
@@ -429,7 +429,7 @@ const cadastro = () => {
   };
 
   const voltarRegistro = () => {
-    if (isAluno)
+    if (auth.isAluno())
       router.push("/prae");
     else
       router.push("/prae/estudantes");
@@ -591,18 +591,21 @@ const cadastro = () => {
   };
 
   useEffect(() => {
+    // Wait for auth to load
+    if (auth.isLoading) return;
+    
     pesquisarEtnia();
     if (isEditMode) {
-      if (!isAluno && !id)
+      if (!auth.isAluno() && !id)
         chamarFuncao("voltar");
-      else if (isAluno)
+      else if (auth.isAluno())
         chamarFuncao("editar", "current");
       else
         chamarFuncao("editar", id);
     } else {
       currentUser();
     }
-  }, [id]);
+  }, [id, auth.isLoading]);
 
   return (
     <main className="flex flex-wrap justify-center mx-auto">
@@ -620,7 +623,7 @@ const cadastro = () => {
           setDadosPreenchidos={setDadosPreenchidos}
           chamarFuncao={chamarFuncao}
         />
-        {isGestor && (
+        {auth.isGestor() && (
           <div className="mt-10">
             <h2 className='text-3xl'>Dados Bancários</h2>
             <Cadastro

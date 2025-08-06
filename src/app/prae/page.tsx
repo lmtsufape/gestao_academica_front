@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import AuthTokenService from "../authentication/auth.token";
+import { useAuthService } from "../authentication/auth.hook";
 import { generica } from "@/utils/api";
 import { toast } from "react-toastify";
 import SuccessModal from "@/components/Cadastro/modalSucesso";
@@ -10,9 +10,15 @@ import Swal from "sweetalert2";
 
 export default function PageEFrotas() {
   const router = useRouter();
-  const [isAluno, setisAluno] = useState<boolean>(
-    AuthTokenService.isAluno(false)
-  );
+  const auth = useAuthService();
+  const [isAluno, setisAluno] = useState<boolean>(false);
+
+  useEffect(() => {
+    // Update isAluno when auth state changes
+    if (!auth.isLoading) {
+      setisAluno(auth.isAluno());
+    }
+  }, [auth.isAuthenticated, auth.isLoading]);
 
   useEffect(() => {
     if (isAluno) {

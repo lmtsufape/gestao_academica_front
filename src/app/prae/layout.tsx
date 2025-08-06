@@ -2,7 +2,7 @@
 
 import React from "react";
 import ClientWrapper from "@/components/AuthProvider/ClientWrapper";
-import AuthTokenService from "../authentication/auth.token"; // ajuste o path se necessário
+import { useAuthService } from "../authentication/auth.hook";
 import {
   School, PendingActions, Groups2, AccountCircleOutlined,
   CalendarMonth, EventNote, Schedule, Payment, VolunteerActivism,
@@ -17,7 +17,8 @@ import {
 import { InternalLayoutConfig } from "@/types/InternalLayoutConf";
 
 export default function PraeLayout({ children }: { children: React.ReactNode }) {
-  const isAluno = AuthTokenService.isAluno(false); // <- obtém se é aluno
+  const auth = useAuthService();
+  const isAluno = auth.isAluno(); // <- obtém se é aluno
 
   const layoutConfig: InternalLayoutConfig = {
     header: {

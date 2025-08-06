@@ -16,7 +16,7 @@ import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 // Serviço de autenticação
-import AuthTokenService from "@/app/authentication/auth.token";
+import { useAuthService } from "@/app/authentication/auth.hook";
 import SidebarMenuItem from "./MenuItem";
 
 // Importa o RoleProvider do seu roleContext
@@ -68,7 +68,7 @@ interface LayoutProps {
 
 export default function Layout({ children, layoutConfig }: LayoutProps) {
   const router = useRouter();
-  const { isAuthenticated, setIsAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const pathname = usePathname();
   const [isLogin, setIsLogin] = useState(false);
   // Estados do menu lateral e submenus
@@ -122,34 +122,45 @@ export default function Layout({ children, layoutConfig }: LayoutProps) {
   const config = layoutConfig || defaultConfig;
 
   // Efeito de autenticação e definição das roles
+  const auth = useAuthService();
+  const { session } = useAuth();
+
+  
   useEffect(() => {
-    const authenticated = AuthTokenService.isAuthenticated(false);
-    setIsAuthenticated(authenticated);
+  if (auth.isLoading) return;
 
-    if (authenticated) {
-      setUsuarioLogado(AuthTokenService.getUsuarioLogado(false));
+  if (auth.isAuthenticated) {
+    const newRoles: string[] = [];
+    if (auth.isAdmin()) newRoles.push("administrador");
+    if (auth.isGestor()) newRoles.push("gestor");
+    if (auth.isTecnico()) newRoles.push("tecnico");
+    if (auth.isProfessor()) newRoles.push("professor");
+    if (auth.isAluno()) newRoles.push("aluno");
+    if (auth.isVisitante()) newRoles.push("visitante");
 
-      // Extração das roles
-      const roles: string[] = [];
-      if (AuthTokenService.isAdmin(false)) roles.push("administrador");
-      if (AuthTokenService.isGestor(false)) roles.push("gestor");
-      if (AuthTokenService.isTecnico(false)) roles.push("tecnico");
-      if (AuthTokenService.isProfessor(false)) roles.push("professor");
-      if (AuthTokenService.isAluno(false)) roles.push("aluno");
-      if (AuthTokenService.isVisitante(false)) roles.push("visitante");
+    // ✅ só atualiza se houver diferenças
+    if (JSON.stringify(newRoles) !== JSON.stringify(userRoles)) {
+      setUserRoles(newRoles);
+    }
 
-      setUserRoles(roles);
+    if (!activeRole || !newRoles.includes(activeRole)) {
+      setActiveRole(newRoles[0] || "");
+    }
 
-      // Define o activeRole se ainda não estiver definido
-      if (roles.length > 0 && activeRole === "") {
-        setActiveRole(roles[0]);
-      }
-    } else {
+    const newUser = session?.email || ""; // Get actual user email from session
+    if (usuarioLogado !== newUser) {
+      setUsuarioLogado(newUser);
+    }
+  } else {
+    // ✅ só limpa se havia algo antes
+    if (usuarioLogado || userRoles.length || activeRole) {
       setUsuarioLogado(null);
       setUserRoles([]);
       setActiveRole("");
     }
-  }, [isAuthenticated]);
+  }
+}, [auth.isAuthenticated, auth.isLoading]); // 🚀 só depende de valores primitivos
+
 
   // Efeito para detectar clicks fora do dropdown
   useEffect(() => {

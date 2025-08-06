@@ -1,5 +1,5 @@
 "use client"
-import AuthTokenService from '@/app/authentication/auth.token';
+import { useAuthService } from '@/app/authentication/auth.hook';
 import withAuthorization from '@/components/AuthProvider/withAuthorization';
 import Cabecalho from '@/components/Layout/Interno/Cabecalho';
 import Tabela from '@/components/Tabela/Estrutura';
@@ -22,8 +22,8 @@ const cabecalho: any = {
 
 const PageLista = () => {
   const router = useRouter();
+  const auth = useAuthService(); // Add auth service
   const [dados, setDados] = useState<any>({ content: [] });
-  const [isAluno, setisAluno] = useState<boolean>(AuthTokenService.isAluno(false));
 
   const chamarFuncao = (nomeFuncao = "", valor: any = null) => {
     switch (nomeFuncao) {
@@ -70,12 +70,15 @@ const PageLista = () => {
   };
 
   useEffect(() => {
-    if (isAluno) {
+    // Wait for auth to load
+    if (auth.isLoading) return;
+    
+    if (auth.isAluno()) {
       editarRegistro({ id: "atual" });
       return;
     }
     chamarFuncao('pesquisar', null);
-  }, []);
+  }, [auth.isLoading, auth.isAluno]);
 
   return (
     <main className="flex flex-wrap justify-center mx-auto">

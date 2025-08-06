@@ -411,7 +411,7 @@ const cadastro = () => {
         ? [responseDocumentos.data]
         : [];
     const arquivosConvertidos = docList
-      .map((doc: any) => {
+      .map((doc: any): File | null => {
         if (doc.base64) {
           const bytes = atob(doc.base64);
           const arr = new Uint8Array(bytes.length);
@@ -429,7 +429,7 @@ const cadastro = () => {
         }
         return null;
       })
-      .filter((f) => f !== null) as File[];
+      .filter((f: File | null): f is File => f !== null);
     setDadosPreenchidos((prev: any) => ({
       ...prev,
       documentos: arquivosConvertidos,

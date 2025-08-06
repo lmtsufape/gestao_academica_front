@@ -1,5 +1,4 @@
 "use client";
-import AuthTokenService from '@/app/authentication/auth.token';
 import withAuthorization from '@/components/AuthProvider/withAuthorization';
 import Cabecalho from '@/components/Layout/Interno/Cabecalho';
 import Tabela from '@/components/Tabela/Estrutura';
