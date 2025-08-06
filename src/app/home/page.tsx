@@ -5,20 +5,26 @@ import { useRouter } from "next/navigation";
 import { Star, StarBorder } from "@mui/icons-material";
 import IconButton from "@mui/material/IconButton";
 import Modal from "@/components/Modal/Modal";
-import AuthTokenService from "../authentication/auth.token";
+import { useAuthService } from "../authentication/auth.hook";
 import { generica } from "@/utils/api";
 
 export default function HomePage() {
   const router = useRouter();
+  const auth = useAuthService();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [isAluno, setisAluno] = useState<boolean>(
-    AuthTokenService.isAluno(false)
-  );
+  const [isAluno, setisAluno] = useState<boolean>(false);
   const [notification, setNotification] = useState<{
     title: string;
     content: string;
     level: "success" | "error" | "warning" | "info";
   }>({ title: "", content: "", level: "warning" });
+
+  useEffect(() => {
+    // Update isAluno when auth state changes
+    if (!auth.isLoading) {
+      setisAluno(auth.isAluno());
+    }
+  }, [auth.isAuthenticated, auth.isLoading]);
 
   useEffect(() => {
     if (isAluno) {
