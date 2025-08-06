@@ -1,20 +1,22 @@
-"use client";
-import { useEffect } from "react";
-import { useAuth } from "@/components/AuthProvider/AuthProvider";
-import withAuthorization from "@/components/AuthProvider/withAuthorization";
+'use client';
+import { useEffect } from 'react';
+import { useAuth } from '@/components/AuthProvider/AuthProvider';
+import { useRouter } from 'next/navigation';
 
- function PageProfile() {
-  const { isAuthenticated, setIsAuthenticated } = useAuth();
+export default function LogoutPage() {
+  const { logout } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
-    // Executa logout sem redirecionar aqui
-    localStorage.removeItem("sgu_authenticated_user");
-    setIsAuthenticated(false);
-  }, [setIsAuthenticated]);
-  if(!isAuthenticated){
-    window.location.href = "/login";
-  }
-  return <p>Saindo...</p>;
-}
+    (async () => {
+      await logout();
+      router.replace('/login');
+    })();
+  }, [logout, router]);
 
-export default withAuthorization(PageProfile);
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <p className="text-lg">Saindo...</p>
+    </div>
+  );
+}
