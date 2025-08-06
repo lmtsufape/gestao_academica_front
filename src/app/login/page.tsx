@@ -1,26 +1,16 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { useAuth } from "@/components/AuthProvider/AuthProvider";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, FormEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import AuthTokenService from "@/app/authentication/auth.token";
-import authService from "@/app/authentication/auth.service";
 import { toast } from "react-toastify";
 import Modal from "@/components/Modal/Modal";
 
-const loginSchema = z.object({
-  email: z.string().email("Informe um e-mail válido"),
-  password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
-});
-
 export default function Login() {
   const router = useRouter();
-  const { setIsAuthenticated } = useAuth();
+  const { login, isAuthenticated } = useAuth();
 
   const [errorMessage, setErrorMessage] = useState("");
   const [remember, setRemember] = useState(false);
@@ -32,14 +22,13 @@ export default function Login() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    const isAuthenticated = AuthTokenService.isAuthenticated(false);
     if (isAuthenticated) router.push('/home');
     const emails = JSON.parse(localStorage.getItem("sgu_saved_emails") || "[]");
     setSavedEmails(emails);
     if (emails.length === 0) {
       setShowLoginForm(true);
     }
-  }, []);
+  }, [isAuthenticated, router]);
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -69,6 +58,17 @@ export default function Login() {
     const userEmail = dataForm.get('email') as string;
     const userPassword = dataForm.get('password') as string;
 
+    // Basic client-side validation
+    if (!userEmail || !userEmail.includes('@')) {
+      setErrorMessage("Por favor, informe um e-mail válido.");
+      return;
+    }
+
+    if (!userPassword || userPassword.length < 6) {
+      setErrorMessage("A senha deve ter no mínimo 6 caracteres.");
+      return;
+    }
+
     const toastId = toast.loading("Processando...", {
       position: "top-right",
       closeButton: false,
@@ -77,25 +77,14 @@ export default function Login() {
     });
 
     try {
-      const authData = await authService.authenticate({ email: userEmail, password: userPassword });
-      if (!authData || !authData.token) {
-        let errorMessage = (()=>{
-          if (typeof authData === "string") {
-            return authData;
-          }
-          if (authData?.hasOwnProperty("message")) {
-            return authData.message;
-          }
-          return "E-mail e/ou senha incorretos. Tente novamente ou redefina a sua senha.";
-        })()
-        throw new Error(authData?.message || errorMessage);
-      }
+      // Perform login; AuthService.login will throw on failure
+      await login(userEmail, userPassword);
+
       if (remember) {
         const updatedEmails = savedEmails.filter(email => email !== userEmail);
         updatedEmails.push(userEmail);
         localStorage.setItem("sgu_saved_emails", JSON.stringify(updatedEmails));
       }
-      setIsAuthenticated(true);
 
       // Update the toast to success
       toast.update(toastId, {
@@ -110,12 +99,13 @@ export default function Login() {
       router.push('/home');
     } catch (error: any) {
       console.error('Erro ao fazer o login:', error);
+      
+      const errorMsg = error.message || "Erro ao fazer o login.";
+      setErrorMessage(errorMsg);
 
       // Update the toast to error
       toast.update(toastId, {
-        render: error?.response?.status === 401
-          ? "E-mail ou senha incorretos"
-          : error.message || "Erro ao fazer o login.",
+        render: errorMsg,
         type: "error",
         isLoading: false,
         autoClose: 3000,
@@ -248,6 +238,12 @@ export default function Login() {
                     </Link>
                   </div>
                 </div>
+
+                {errorMessage && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
+                    {errorMessage}
+                  </div>
+                )}
 
                 <button
                   type="submit"
