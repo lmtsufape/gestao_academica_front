@@ -6,7 +6,7 @@ import Tabela from "@/components/Tabela/Estrutura";
 import { useRole } from "@/context/roleContext";
 import { generica } from "@/utils/api";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
@@ -17,12 +17,22 @@ const cadastro = () => {
   const [dadosPreenchidos, setDadosPreenchidos] = useState<any>();
   const [dadosTabela, setDadosTabela] = useState<any>({});
   const [colaboradores, setColaboradores] = useState<any[]>([]);
+  // 1) state for dynamic filters
+  const [filtros, setFiltros] = useState<Record<string,string>>({});
   const [UnidadesPai, setUnidadesPai] = useState<any[]>([]);
   const [tipoUnidade, setTipoUnidade] = useState<any[]>([]);
   const { activeRole, userRoles } = useRole();
   const isPrivileged = activeRole;
 
   const isEditMode = id && id !== "criar";
+  
+  // Callback disparado pela tabela ao filtrar colunas
+  const handleFilter = useCallback((field: string, value: string) => {
+    const next = { ...filtros, [field]: value };
+    setFiltros(next);
+    // reinicia página em 0 ao filtrar
+    pesquisarTodosColaboradores(id as string, next, 0);
+  }, [filtros, id]);
 
   const getOptions = (lista: any[], selecionado: any) => {
     if (!Array.isArray(lista) || lista.length === 0) return [];
@@ -64,11 +74,11 @@ const cadastro = () => {
         { nome: activeRole === "administrador" ? 'Alocar Novo Gestor' : 'Adicionar Colaborador', chave: 'adicionar', bloqueado: false },
       ] : [],
       colunas: [
-        { nome: "CPF", chave: activeRole === "administrador" ? "gestor.cpf" : "colaborador.cpf", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-        { nome: "Nome", chave: activeRole === "administrador" ? "gestor.nome" : "colaborador.nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-        { nome: "E-mail", chave: activeRole === "administrador" ? "gestor.email" : "colaborador.email", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+        { nome: "CPF", chave: activeRole === "administrador" ? "gestor.usuario.cpf" : "colaborador.cpf", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+        { nome: "Nome", chave: activeRole === "administrador" ? "gestor.usuario.nome" : "colaborador.nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+        { nome: "E-mail", chave: activeRole === "administrador" ? "gestor.usuario.email" : "colaborador.email", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
         { nome: "Siape", chave: activeRole === "administrador" ? "gestor.siape" : "colaborador.siape", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-        { nome: "Telefone", chave: activeRole === "administrador" ? "gestor.telefone" : "colaborador.telefone", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+        { nome: "Telefone", chave: activeRole === "administrador" ? "gestor.usuario.telefone" : "colaborador.telefone", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       ],
       acoes_dropdown: [
         { nome: 'Editar', chave: 'editar' },
@@ -142,6 +152,11 @@ const cadastro = () => {
       case 'adicionar':
         adicionarGestor(valor);
         break;
+      case 'pesquisar':
+        // 2) table search callback
+        await pesquisarTodosColaboradores(id as string, valor);
+        break;
+    
       default:
         break;
     }
@@ -300,20 +315,24 @@ const cadastro = () => {
     }
   };
 
-  const pesquisarTodosColaboradores = async (unidadeId: string) => {
+  const pesquisarTodosColaboradores = async (
+    unidadeId: string,
+    filtrosObj: Record<string, string> = {},
+    page = 0,
+    size = 20
+  ) => {
     try {
       const endpoint = activeRole === "administrador"
         ? `/auth/unidade-administrativa/${unidadeId}/gestores`
         : `/auth/unidade-administrativa/${unidadeId}/funcionarios`;
 
+      // Combine pagination and dynamic filters
+      const paramsObj = { size, page, ...filtrosObj };
       const response = await generica({
         metodo: 'get',
         uri: endpoint,
-        params: {
-          size: 20,
-          page: 0,
-        },
-        data: {}
+        params: paramsObj,
+        data: {},
       });
 
       if (response?.data?.errors) {
@@ -325,13 +344,27 @@ const cadastro = () => {
             id: item.id,
             papel: item.papel,
             [activeRole === "administrador" ? "gestor" : "colaborador"]: {
-              id: pessoa.id,
-              nome: pessoa.nome,
-              nomeSocial: pessoa.nomeSocial,
-              cpf: pessoa.cpf,
-              email: pessoa.email,
-              telefone: pessoa.telefone,
-              siape: pessoa.siape
+              // For gestores, map to usuario structure for filter compatibility
+              ...(activeRole === "administrador" ? {
+                usuario: {
+                  id: pessoa.id,
+                  nome: pessoa.nome,
+                  nomeSocial: pessoa.nomeSocial,
+                  cpf: pessoa.cpf,
+                  email: pessoa.email,
+                  telefone: pessoa.telefone,
+                },
+                siape: pessoa.siape
+              } : {
+                // For colaboradores, keep flat structure
+                id: pessoa.id,
+                nome: pessoa.nome,
+                nomeSocial: pessoa.nomeSocial,
+                cpf: pessoa.cpf,
+                email: pessoa.email,
+                telefone: pessoa.telefone,
+                siape: pessoa.siape
+              })
             }
           };
         });
@@ -395,6 +428,7 @@ const cadastro = () => {
               dados={dadosTabela}
               estrutura={estrutura}
               chamarFuncao={chamarFuncao}
+              onSearch={handleFilter}
             />
           </div>
         )}
