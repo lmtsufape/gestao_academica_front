@@ -10,6 +10,8 @@ import Swal from "sweetalert2";
 import { generica } from "@/utils/api";
 import TabelaEstudantes from "@/components/Tabela/Estudantes/TabelaEstudante";
 import { set } from "zod";
+import Tabela from "@/components/Tabela/Estrutura";
+import { PagamentosBeneficio } from "@/types/pagamentoBeneficio.interface";
 
 const cadastro = () => {
   const router = useRouter();
@@ -20,21 +22,28 @@ const cadastro = () => {
   const [estudanteSelecionado, setEstudanteSelecionado] = useState<Object | null>(null);
   const [estudantes, setEstudantes] = useState<any>({ content: [] });
   const [tipoBeneficio, setTipoBeneficio] = useState<any[]>([]);
-  const acoesEstudante: Array<Object> = [{ nome: 'Selecionar', chave: 'selecionarEstudante' }];
+  const [pagamentosEfetuados, setPagamentosEfetuados] = useState<PagamentosBeneficio[]>([]);
+  const acoesEstudante: Array<Object> = [{ nome: "Selecionar", chave: "selecionarEstudante" }];
 
   const isEditMode = id && id !== "criar";
 
   useEffect(() => {
-    setTipoBeneficioSelecionado(dadosPreenchidos?.tipoBeneficioId ? tipoBeneficio?.filter(tipo => tipo.id == dadosPreenchidos?.tipoBeneficioId)[0] : null);
+    setTipoBeneficioSelecionado(dadosPreenchidos?.tipoBeneficioId
+        ? tipoBeneficio?.filter((tipo) => tipo.id == dadosPreenchidos?.tipoBeneficioId)[0]
+        : null
+    );
   }, [dadosPreenchidos.tipoBeneficioId]);
 
   useEffect(() => {
     if (dadosPreenchidos.tipoBeneficioId) {
-      let valor = tipoBeneficio?.filter(tipo => tipo.id == dadosPreenchidos?.tipoBeneficioId)[0]?.valorBeneficio;
+      let valor = tipoBeneficio?.filter((tipo) => tipo.id == dadosPreenchidos?.tipoBeneficioId)[0]?.valorBeneficio;
       valor = aplicarMascara(valor, "valor");
       setDadosPreenchidos((prev: any) => ({ ...prev, valorBeneficio: valor }));
     } else {
-      setDadosPreenchidos((prev: any) => ({ ...prev, valorBeneficio: undefined }));
+      setDadosPreenchidos((prev: any) => ({
+        ...prev,
+        valorBeneficio: undefined,
+      }));
     }
   }, [dadosPreenchidos.tipoBeneficioId]);
 
@@ -44,7 +53,7 @@ const cadastro = () => {
     if (isEditMode) {
       chamarFuncao("editar", id);
     } else {
-      chamarFuncao('pesquisar', null);
+      chamarFuncao("pesquisar", null);
     }
   }, []);
 
@@ -52,20 +61,19 @@ const cadastro = () => {
     if (!Array.isArray(lista)) return [];
     const options = lista.map((item) => ({
       chave: item.id,
-      valor: item.nome || item.descricao || item.tipo || item.aluno.nome
+      valor: item.nome || item.descricao || item.tipo || item.aluno.nome,
     }));
     return options;
   };
-
 
   const estrutura: any = {
     uri: "beneficio",
     cabecalho: {
       titulo: isEditMode ? "Editar Benefício" : "Registrar Benefício",
       migalha: [
-        { nome: 'Home', link: '/home' },
-        { nome: 'Prae', link: '/prae' },
-        { nome: 'Benefícios', link: '/prae/beneficio/beneficios' },
+        { nome: "Home", link: "/home" },
+        { nome: "Prae", link: "/prae" },
+        { nome: "Benefícios", link: "/prae/beneficio/beneficios" },
         {
           nome: isEditMode ? "Editar" : "Criar",
           link: `/prae/beneficio/beneficios/${isEditMode ? id : "criar"}`,
@@ -104,7 +112,10 @@ const cadastro = () => {
           nome: "Tipo do Benefício",
           chave: "tipoBeneficioId",
           tipo: "select",
-          selectOptions: getOptions(tipoBeneficio, dadosPreenchidos?.tipoBeneficioId),
+          selectOptions: getOptions(
+            tipoBeneficio,
+            dadosPreenchidos?.tipoBeneficioId
+          ),
           mensagem: "Selecione",
           obrigatorio: false, // Alterado para não obrigatório inicialmente
           bloqueado: isEditMode,
@@ -119,7 +130,7 @@ const cadastro = () => {
           obrigatorio: false,
           bloqueado: true,
           mascara: "valor",
-          visivel: dadosPreenchidos?.valorBeneficio != undefined
+          visivel: dadosPreenchidos?.valorBeneficio != undefined,
         },
         {
           line: 3,
@@ -156,7 +167,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite",
           obrigatorio: false,
-          visivel: isEditMode
+          visivel: isEditMode,
         },
         {
           line: 5,
@@ -168,13 +179,58 @@ const cadastro = () => {
           obrigatorio: false,
           multiple: false,
           bloqueado: isEditMode,
-
         },
       ],
       acoes: [
         { nome: "Cancelar", chave: "voltar", tipo: "botao" },
-        { nome: isEditMode ? "Salvar" : "Cadastrar", chave: "salvar", tipo: "submit" },
+        {
+          nome: isEditMode ? "Salvar" : "Cadastrar",
+          chave: "salvar",
+          tipo: "submit",
+        },
       ],
+    },
+    tabela: {
+      configuracoes: {
+        pesquisar: false,
+        cabecalho: true,
+        rodape: false,
+      },
+      botoes: [],
+      colunas: [
+        {
+          nome: "CPF",
+          chave: "beneficio.estudantes.aluno.cpf",
+          tipo: "texto",
+          selectOptions: null,
+          sort: false,
+          pesquisar: true,
+        },
+        {
+          nome: "Tipo Pagamento",
+          chave: "beneficio.tipoBeneficio.tipo",
+          tipo: "texto",
+          selectOptions: null,
+          sort: false,
+          pesquisar: true,
+        },
+        {
+          nome: "Valor Pago",
+          chave: "beneficio.tipoBeneficio.valorBeneficio",
+          tipo: "texto",
+          selectOptions: null,
+          sort: false,
+          pesquisar: true,
+        },
+        {
+          nome: "Data Pagamento",
+          chave: "data",
+          tipo: "texto",
+          selectOptions: null,
+          sort: true,
+          pesquisar: true,
+        },
+      ]
     },
   };
 
@@ -189,13 +245,13 @@ const cadastro = () => {
       case "editar":
         editarRegistro(valor);
         break;
-      case 'pesquisar':
+      case "pesquisar":
         if (!isEditMode) {
           pesquisarEstudantes(valor);
         }
         pesquisarTipoBeneficio();
         break;
-      case 'selecionarEstudante':
+      case "selecionarEstudante":
         setEstudanteSelecionado(valor);
         setDadosPreenchidos((prev: any) => ({
           ...prev,
@@ -203,7 +259,7 @@ const cadastro = () => {
           estudante: `${valor.aluno.nome} (${valor.aluno.cpf})`,
         }));
         break;
-      case 'desselecionarEstudante':
+      case "desselecionarEstudante":
         setEstudanteSelecionado(null);
         setDadosPreenchidos((prev: any) => ({
           ...prev,
@@ -219,21 +275,32 @@ const cadastro = () => {
   function buildFormData(): any {
     const fd = new FormData();
     if (!dadosPreenchidos.estudanteId) {
-      toast.error("Selecione um estudante antes de salvar o benefício.", { position: "top-right" });
+      toast.error("Selecione um estudante antes de salvar o benefício.", {
+        position: "top-right",
+      });
       return undefined;
     }
-    fd.append('estudanteId', dadosPreenchidos.estudanteId.toString());
+    fd.append("estudanteId", dadosPreenchidos.estudanteId.toString());
     if (Array.isArray(dadosPreenchidos.documentos)) {
       dadosPreenchidos.documentos.forEach((file: string | Blob) =>
-        fd.append('termo', file)
+        fd.append("termo", file)
       );
     }
-    fd.append('tipoBeneficioId', dadosPreenchidos.tipoBeneficioId?.toString() || '');
-    fd.append('parecerTermino', dadosPreenchidos.parecerTermino || '');
-    fd.append('horasBeneficio', dadosPreenchidos.horasBeneficio?.toString() || '');
-    fd.append('inicioBeneficio', dadosPreenchidos.inicioBeneficio || '');
-    fd.append('fimBeneficio', dadosPreenchidos.fimBeneficio || '');
-    fd.append('valorPagamento', tipoBeneficioSelecionado?.valorBeneficio || '1');
+    fd.append(
+      "tipoBeneficioId",
+      dadosPreenchidos.tipoBeneficioId?.toString() || ""
+    );
+    fd.append("parecerTermino", dadosPreenchidos.parecerTermino || "");
+    fd.append(
+      "horasBeneficio",
+      dadosPreenchidos.horasBeneficio?.toString() || ""
+    );
+    fd.append("inicioBeneficio", dadosPreenchidos.inicioBeneficio || "");
+    fd.append("fimBeneficio", dadosPreenchidos.fimBeneficio || "");
+    fd.append(
+      "valorPagamento",
+      tipoBeneficioSelecionado?.valorBeneficio || "1"
+    );
     return fd;
   }
 
@@ -244,13 +311,13 @@ const cadastro = () => {
   const pesquisarEstudantes = async (params = null) => {
     try {
       let body = {
-        metodo: 'get',
-        uri: '/prae/estudantes',
+        metodo: "get",
+        uri: "/prae/estudantes",
         params: params != null ? params : { size: 10, page: 0 },
-        data: {}
-      }
+        data: {},
+      };
       const response = await generica(body);
-      console.log(response?.data)
+      console.log(response?.data);
       if (response && response.data.errors != undefined) {
         toast("Erro. Tente novamente!", { position: "bottom-left" });
       } else if (response && response.data.error != undefined) {
@@ -261,18 +328,18 @@ const cadastro = () => {
         }
       }
     } catch (error) {
-      console.error('Erro ao carregar registros:', error);
+      console.error("Erro ao carregar registros:", error);
     }
   };
 
-  const pesquisarEstudante = async (estudanteId:any) => {
+  const pesquisarEstudante = async (estudanteId: any) => {
     try {
       let body = {
-        metodo: 'get',
+        metodo: "get",
         uri: `/prae/estudantes/${estudanteId}`,
-        data: {}
-      }
-      
+        data: {},
+      };
+
       const response = await generica(body);
       if (response && response.data.errors != undefined) {
         toast("Erro. Tente novamente!", { position: "bottom-left" });
@@ -281,24 +348,63 @@ const cadastro = () => {
       } else {
         if (response && response.data) {
           setEstudantes({ content: [response.data] });
-          chamarFuncao('selecionarEstudante', response.data);
+          chamarFuncao("selecionarEstudante", response.data);
         }
       }
     } catch (error) {
-      console.error('Erro ao carregar registros:', error);
+      console.error("Erro ao carregar registros:", error);
     }
   };
 
+  const pesquisarPagamentosEfetuados = async (beneficioId: string, estudanteId: string): Promise<void> => {
+    try {
+      const response = await generica({
+        metodo: "get",
+        uri: `/prae/pagamento/beneficio/${beneficioId}`,
+        data: {},
+      });
+      
+      if (response?.data?.errors != undefined) {
+        toast("Erro. Tente novamente!", { position: "bottom-left" });
+      } else if (response?.data?.error != undefined) {
+        toast(response.data.error.message, { position: "bottom-left" });
+      } else if (response?.data) {
+        const filteredData = response?.data
+          .filter(
+            (data: PagamentosBeneficio) =>
+              data?.beneficio?.estudantes?.aluno?.id === estudanteId &&
+              data?.beneficio?.tipoBeneficio?.id === Number(beneficioId)
+          )
+          .map((item: PagamentosBeneficio) => ({
+            ...item,
+            beneficio: {
+              ...item.beneficio,
+              tipoBeneficio: {
+                ...item.beneficio.tipoBeneficio,
+                valorBeneficio: aplicarMascara(
+                  String(item.beneficio.tipoBeneficio.valorBeneficio),
+                  "valor"
+                ),
+              },
+            },
+            data: new Date(item.data).toJSON().split("T")[0],
+          }));
+        setPagamentosEfetuados(filteredData);
+      }
+    } catch (error) {
+      console.log(`Erro ao pesquisar pagamentos efetuados:`, error);
+    }
+  };
 
   const pesquisarTipoBeneficio = async (params = null) => {
     try {
       let body = {
-        metodo: 'get',
-        uri: '/prae/' + 'tipo-beneficio',
+        metodo: "get",
+        uri: "/prae/" + "tipo-beneficio",
         //+ '/page',
         params: params != null ? params : { size: 200, page: 0 },
-        data: {}
-      }
+        data: {},
+      };
       const response = await generica(body);
       if (response && response.data.errors != undefined) {
         toast("Erro. Tente novamente!", { position: "bottom-left" });
@@ -310,7 +416,7 @@ const cadastro = () => {
         }
       }
     } catch (error) {
-      console.error('Erro ao carregar registros:', error);
+      console.error("Erro ao carregar registros:", error);
     }
   };
 
@@ -320,26 +426,38 @@ const cadastro = () => {
       return;
     }
     try {
-
       const body = {
         metodo: `${isEditMode ? "patch" : "post"}`,
-        uri: "/prae/" + `${isEditMode ? estrutura.uri + "/" + id : estrutura.uri}`,
+        uri:
+          "/prae/" + `${isEditMode ? estrutura.uri + "/" + id : estrutura.uri}`,
         params: {},
         data: dataToSend,
       };
       const response = await generica(body, "multipart/form-data");
       if (!response || response.status < 200 || response.status >= 300) {
         if (response) {
-          console.error("DEBUG: Status de erro:", response.status, 'statusText' in response ? response.statusText : "Sem texto de status");
+          console.error(
+            "DEBUG: Status de erro:",
+            response.status,
+            "statusText" in response
+              ? response.statusText
+              : "Sem texto de status"
+          );
         }
-        toast.error(`Erro na requisição (HTTP ${response?.status || "desconhecido"})`, { position: "top-left" });
+        toast.error(
+          `Erro na requisição (HTTP ${response?.status || "desconhecido"})`,
+          { position: "top-left" }
+        );
         return;
       }
       if (response.data?.errors) {
         Object.keys(response.data.errors).forEach((campoErro) => {
-          toast.error(`Erro em ${campoErro}: ${response.data.errors[campoErro]}`, {
-            position: "top-left",
-          });
+          toast.error(
+            `Erro em ${campoErro}: ${response.data.errors[campoErro]}`,
+            {
+              position: "top-left",
+            }
+          );
         });
       } else if (response.data?.error) {
         toast(response.data.error.message, { position: "top-left" });
@@ -355,7 +473,9 @@ const cadastro = () => {
       }
     } catch (error) {
       console.error("DEBUG: Erro ao salvar registro:", error);
-      toast.error("Erro ao salvar registro. Tente novamente!", { position: "top-left" });
+      toast.error("Erro ao salvar registro. Tente novamente!", {
+        position: "top-left",
+      });
     }
   };
 
@@ -388,13 +508,19 @@ const cadastro = () => {
           estudanteId: beneficio.estudantes?.id,
           parecerTermino: beneficio.parecerTermino,
         });
-        setTipoBeneficioSelecionado(beneficio.tipoBeneficio.naturezaBeneficio);
-        pesquisarEstudante(beneficio.estudantes?.id);
+        setTipoBeneficioSelecionado(beneficio?.tipoBeneficio?.naturezaBeneficio);
+        pesquisarEstudante(beneficio?.estudantes?.id);
+        pesquisarPagamentosEfetuados(
+          beneficio?.tipoBeneficio?.id,
+          beneficio?.estudantes?.aluno?.id
+        );
         buscarTermo(Number(id));
       }
     } catch (error) {
       console.error("DEBUG: Erro ao localizar registro:", error);
-      toast.error("Erro ao localizar registro. Tente novamente!", { position: "top-left" });
+      toast.error("Erro ao localizar registro. Tente novamente!", {
+        position: "top-left",
+      });
     }
   };
 
@@ -405,9 +531,10 @@ const cadastro = () => {
       params: {},
       data: {},
     });
-    const docList = responseDocumentos && Array.isArray(responseDocumentos.data)
-      ? responseDocumentos.data
-      : responseDocumentos?.data
+    const docList =
+      responseDocumentos && Array.isArray(responseDocumentos.data)
+        ? responseDocumentos.data
+        : responseDocumentos?.data
         ? [responseDocumentos.data]
         : [];
     const arquivosConvertidos = docList
@@ -434,7 +561,7 @@ const cadastro = () => {
       ...prev,
       documentos: arquivosConvertidos,
     }));
-  }
+  };
 
   // Filtra os campos com base na visibilidade
   const camposFiltrados = estrutura.cadastro.campos.filter((campo: any) => {
@@ -447,7 +574,7 @@ const cadastro = () => {
         <Cabecalho dados={estrutura.cabecalho} />
         {!dadosPreenchidos?.estudanteId && (
           <>
-            <h2 className='text-3xl'>Estudantes</h2>
+            <h2 className="text-3xl">Estudantes</h2>
             <TabelaEstudantes
               botoes={[]}
               acoes={acoesEstudante}
@@ -457,13 +584,14 @@ const cadastro = () => {
           </>
         )}
 
+        <Tabela dados={pagamentosEfetuados} estrutura={estrutura} />
         <Cadastro
           estrutura={{
             ...estrutura,
             cadastro: {
               ...estrutura.cadastro,
-              campos: camposFiltrados
-            }
+              campos: camposFiltrados,
+            },
           }}
           dadosPreenchidos={dadosPreenchidos}
           setDadosPreenchidos={setDadosPreenchidos}
