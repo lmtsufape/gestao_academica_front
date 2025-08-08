@@ -61,7 +61,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           label: "Gerenciar Estudantes",
           route: "/prae/estudantes",
           icon: <School fontSize="small" className="text-white" />,
-          roles: ["administrador", "gestor", "tecnico"],
+          roles: ["gestor", "tecnico"],
         },
         {
           label: "Meu Cadastro",
@@ -73,7 +73,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           label: "Gerenciar Benefícios",
           route: "/prae/beneficios",
           icon: <VolunteerActivism fontSize="small" className="text-white" />,
-          roles: ["administrador", "gestor"],
+          roles: ["gestor"],
           subItems: [
             {
               label: "Tipos",
@@ -97,13 +97,13 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
               label: "Pagamentos Pendentes",
               route: "/prae/pagamentos/pagamentos-pendentes",
               icon: <PendingActions fontSize="small" className="text-white" />,
-              roles: ["administrador", "gestor"],
+              roles: ["gestor"],
             },
             {
               label: "Pagamentos Realizados",
               route: "/prae/pagamentos/pagamentos-realizados",
               icon: <DoneAll fontSize="small" className="text-white" />,
-              roles: ["administrador", "gestor"],
+              roles: ["gestor"],
             },
             {
               label: "Meus Recebimentos",
@@ -123,37 +123,37 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           label: isAluno ? "Agendamentos" : "Gerenciar Agendamentos",
           route: "/prae/agendamentos",
           icon: <EventNote fontSize="small" className="text-white" />,
-          roles: ["administrador", "gestor", "aluno"],
+          roles: ["gestor", "aluno"],
           subItems: [
             {
               label: "Tipo de Atendimento",
               route: "/prae/agendamentos/tipo",
               icon: <Category fontSize="small" className="text-white" />, // Ícone para categorias/tipos
-              roles: ["administrador"],
+              roles: ["gestor"],
             },
             {
               label: "Gerenciar Cronograma",
               route: "/prae/agendamentos/cronograma",
               icon: <Schedule fontSize="small" className="text-white" />, // Ícone de cronograma
-              roles: ["administrador", "gestor"],
+              roles: ["gestor"],
             },
             {
               label: "Calendário de Agendamentos",
               route: "/prae/agendamentos/calendario",
               icon: <CalendarMonth fontSize="small" className="text-white" />, // Ícone de calendário
-              roles: ["administrador", "gestor", "aluno"],
+              roles: ["gestor", "aluno"],
             },
             {
               label: "Meus Agendamentos",
               route: "/prae/agendamentos/calendario/meus-agendamentos",
               icon: <EventAvailable fontSize="small" className="text-white" />, // Ícone para eventos confirmados
-              roles: ["administrador", "gestor", "aluno"],
+              roles: ["gestor", "aluno"],
             },
             {
               label: "Meus Cancelamentos",
               route: "/prae/agendamentos/calendario/meus-cancelamentos",
               icon: <EventBusy fontSize="small" className="text-white" />, // Ícone para eventos cancelados
-              roles: ["administrador", "gestor", "aluno"],
+              roles: ["gestor", "aluno"],
             },
           ]
         }

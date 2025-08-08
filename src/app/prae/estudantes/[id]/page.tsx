@@ -10,6 +10,7 @@ import { useEnderecoByCep } from "@/utils/brasilianStates";
 import { generica } from "@/utils/api";
 import { useAuthService } from "@/app/authentication/auth.hook";
 import React from "react";
+import { EnderecoFields } from "@/components/EnderecoAutoComplete/EnderecoFields";
 
 const cadastro = () => {
   const router = useRouter();
@@ -25,6 +26,9 @@ const cadastro = () => {
   const [isDeficiente, setIsDeficiente] = useState<boolean>(false);
   const isCreateMode = id == "criar";
   const isEditMode = !isCreateMode;
+  // Controle de CEP para evitar busca automática ao carregar edição
+  const [initialCep, setInitialCep] = useState<string | null>(null);
+  const [cepParaBusca, setCepParaBusca] = useState<string>("");
 
   const getOptions = (lista: any[], selecionado: any) => {
     if (!Array.isArray(lista)) return [];
@@ -60,17 +64,17 @@ const cadastro = () => {
           tipo: "foto",
           mensagem: "Anexe os documentos",
           obrigatorio: false,
-          bloqueado: isEditMode,
+          bloqueado: true,
         },
         {
           line: 2,
-          colSpan: "md:col-span-1",
-          nome: "Nome do Solicitante",
+          colSpan: "md:col-span-auto",
+          nome: "Nome",
           chave: "nome",
           tipo: "text",
           mensagem: "Digite",
-          obrigatorio: isEditMode ? false : true,
-          bloqueado: !auth.isAluno() || isEditMode,
+          obrigatorio: true,
+          bloqueado: true,
         },
         {
           line: 2,
@@ -80,7 +84,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite o nome social",
           obrigatorio: false,
-          bloqueado: !auth.isAluno() || isEditMode,
+          bloqueado: true,
         },
         {
           line: 2,
@@ -90,17 +94,17 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: !auth.isAluno() || isEditMode,
+          bloqueado: true,
         },
         {
-          line: 3,
+          line: 2,
           colSpan: "md:col-span-1",
           nome: "CPF",
           chave: "cpf",
           tipo: "text",
           mensagem: "Digite",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: !auth.isAluno() || isEditMode,
+          bloqueado: true,
           mascara: "cpf",
         },
         {
@@ -111,34 +115,32 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite",
           obrigatorio: isEditMode ? false : true,
-          bloqueado: !auth.isAluno() || isEditMode,
+          bloqueado: true,
           mascara: "celular",
         },
         {
           line: 3,
           colSpan: "md:col-span-1",
           nome: "Matrícula",
-          chave: isEditMode ? "perfil.matricula" : "matricula",
+          chave: "matricula",
           tipo: "text",
           mensagem: "Digite a matrícula",
           obrigatorio: !isEditMode || isEditMode,
-          exibirPara: ["ALUNO"],
-          bloqueado: !auth.isAluno(),
+          bloqueado: true,
         },
         {
           line: 3,
-          colSpan: "md:col-span-1",
+          colSpan: "md:col-span-auto",
           nome: "Curso",
-          chave: isEditMode ? "perfil.curso.nome" : "cursoId",
+          chave: "curso.nome",
           tipo: isEditMode ? "select" : "text",
           mensagem: "Selecione o curso",
           obrigatorio: !isEditMode || isEditMode,
           selectOptions: isEditMode ? null : getOptions(cursos, dadosPreenchidos[0]?.cursoId),
-          exibirPara: ["ALUNO"],
-          bloqueado: !auth.isAluno(),
+          bloqueado: true,
         },
         {
-          line: 3,
+          line: 4,
           colSpan: "md:col-span-1",
           nome: "Etnia",
           chave: "tipoEtniaId",
@@ -155,7 +157,9 @@ const cadastro = () => {
           colSpan: "md:col-span-1",
           nome: "Renda Per Capta",
           chave: "rendaPercapta",
-          tipo: "text",
+          tipo: "money-brl",
+          mode: "decimal",       // ou "cents" se preferir armazenar em centavos
+          allowNegative: false,
           mensagem: "Digite a renda percápita",
           obrigatorio: isEditMode ? false : true,
           bloqueado: !auth.isAluno(),
@@ -172,7 +176,7 @@ const cadastro = () => {
           mascara: "CEP",
         },
         {
-          line: 4,
+          line: 5,
           colSpan: "md:col-span-1",
           nome: "Rua",
           chave: isEditMode ? "rua" : "rua",
@@ -182,7 +186,7 @@ const cadastro = () => {
           bloqueado: !auth.isAluno(),
         },
         {
-          line: 4,
+          line: 5,
           colSpan: "md:col-span-1",
           nome: "Bairro",
           chave: isEditMode ? "bairro" : "bairro",
@@ -202,7 +206,7 @@ const cadastro = () => {
           bloqueado: !auth.isAluno(),
         },
         {
-          line: 5,
+          line: 6,
           colSpan: "md:col-span-1",
           nome: "Estado",
           chave: isEditMode ? "estado" : "estado",
@@ -212,7 +216,7 @@ const cadastro = () => {
           bloqueado: !auth.isAluno(),
         },
         {
-          line: 5,
+          line: 6,
           colSpan: "md:col-span-1",
           nome: "Número",
           chave: isEditMode ? "numero" : "numero",
@@ -222,17 +226,17 @@ const cadastro = () => {
           bloqueado: !auth.isAluno(),
         },
         {
-          line: 5,
+          line: 6,
           colSpan: "md:col-span-1",
           nome: "Complemento",
           chave: isEditMode ? "complemento" : "complemento",
           tipo: "text",
           mensagem: "Digite o complemento",
-          obrigatorio: isEditMode ? false : true,
+          obrigatorio: false,
           bloqueado: !auth.isAluno(),
         },
         {
-          line: 6,
+          line: 7,
           colSpan: "md:col-span-1",
           nome: "Contato Familiar",
           chave: isEditMode ? "contatoFamilia" : "contatoFamilia",
@@ -243,7 +247,7 @@ const cadastro = () => {
           mascara: "celular",
         },
         {
-          line: 6,
+          line: 7,
           colSpan: "md:col-span-1",
           nome: "É portador de Deficiência",
           chave: "deficiente",
@@ -258,7 +262,7 @@ const cadastro = () => {
           mascara: "valor",
         },
         {
-          line: 6,
+          line: 7,
           colSpan: "md:col-span-1",
           nome: "Se sim, qual deficiência",
           chave: "tipoDeficiencia",
@@ -375,7 +379,7 @@ const cadastro = () => {
     try {
       let body = {
         metodo: 'get',
-        uri: '/auth/usuario/current',
+        uri: '/auth/aluno/current',
         params: params != null ? params : { size: 25, page: 0 },
         data: {}
       };
@@ -445,7 +449,24 @@ const cadastro = () => {
     };
   };
 
-  const endereco = useEnderecoByCep(dadosForm?.cep || "");
+  // Substitui chamada direta: só busca quando cepParaBusca definido pelo usuário
+  const endereco = useEnderecoByCep(cepParaBusca);
+
+  useEffect(() => {
+    const cepAtual = dadosPreenchidos?.cep;
+    if (!cepAtual) return;
+    if (initialCep === null) {
+      // Primeira vez que recebemos um CEP (carregamento de dados)
+      setInitialCep(cepAtual);
+      // Em modo criação podemos já buscar; em edição não buscamos ainda
+      if (isCreateMode) setCepParaBusca(cepAtual);
+      return;
+    }
+    // Se usuário alterou o CEP (diferente do inicial) disparamos busca
+    if (cepAtual !== initialCep) {
+      setCepParaBusca(cepAtual);
+    }
+  }, [dadosPreenchidos?.cep, initialCep, isCreateMode]);
 
   useEffect(() => {
     if (endereco) {
@@ -491,9 +512,13 @@ const cadastro = () => {
         Swal.fire({
           title: "Aluno registrado com sucesso!",
           icon: "success",
-        }).then((result) => {
-          if (result.isConfirmed) {
-            window.location.reload();
+          confirmButtonText: "OK"
+        }).then(() => {
+          // Redireciona em vez de recarregar a mesma página
+          if (auth.isAluno()) {
+            router.push("/prae");
+          } else {
+            router.push("/prae/estudantes");
           }
         });
       }
@@ -543,9 +568,16 @@ const cadastro = () => {
 
   const editarRegistro = async (item: any) => {
     try {
+      let uri;
+      if (auth.isAluno()) {
+        uri = '/prae/estudantes/current';
+      } else {
+        uri = `/prae/${estrutura.uri}/${item}`;
+      }
+      
       const body = {
         metodo: "get",
-        uri: `/prae/${estrutura.uri}/${item}`,
+        uri: uri,
         params: {},
         data: item,
       };
@@ -622,6 +654,15 @@ const cadastro = () => {
           dadosPreenchidos={dadosPreenchidos}
           setDadosPreenchidos={setDadosPreenchidos}
           chamarFuncao={chamarFuncao}
+        />
+        {/* Auto-complete endereço via CEP (reutilizável) */}
+        <EnderecoFields
+          cepValue={dadosPreenchidos?.cep || ''}
+          values={dadosPreenchidos}
+          onFieldChange={(name, value) =>
+            setDadosPreenchidos((prev: any) => ({ ...prev, [name]: value }))
+          }
+          disabled={!auth.isAluno()}
         />
         {auth.isGestor() && (
           <div className="mt-10">

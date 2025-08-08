@@ -200,7 +200,7 @@ const cadastro = () => {
           chave: isEditMode ? "perfil.cursos" : "cursoIds",
           tipo: "multi-select",
           mensagem: "Selecione cursos",
-          obrigatorio: false,
+          obrigatorio: true,
           exibirPara: ["PROFESSOR"],
           selectOptions: isEditMode ? null : getOptions(cursos, Array.isArray(dadosPreenchidos) && dadosPreenchidos[0]?.cursoIds),
           multiple: true, // Permite selecionar múltiplos cursos

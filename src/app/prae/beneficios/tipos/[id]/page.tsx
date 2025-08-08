@@ -91,11 +91,14 @@ const cadastro = () => {
         {
           line: 2,
           colSpan: "md:col-span-1",
-          nome: "Valor do Benefício",
+          nome: "Valor da Benefício",
           chave: "valorBeneficio",
-          tipo: "text",
-          mensagem: "Digite",
+          tipo: "money-brl",
+          mensagem: "Digite o valor",
           obrigatorio: true,
+          bloqueado: false,
+          mode: "decimal",       // ou "cents" se preferir armazenar em centavos
+          allowNegative: false,
         },
       ],
       acoes: [
