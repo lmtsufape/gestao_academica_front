@@ -33,6 +33,7 @@ const estrutura: any = {
         ],
         colunas: [
             { nome: "Nome", chave: "nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+            { nome: "Descrição", chave: "descricao", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
             { nome: "Ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
         ],
         acoes_dropdown: [
