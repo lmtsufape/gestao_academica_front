@@ -18,6 +18,8 @@ const withAuthorization = <P extends object>(WrappedComponent: ComponentType<P>)
     const isAdmin = () => session?.roles?.includes("administrador") ?? false;
     const isGestor = () => session?.roles?.includes("gestor") ?? false;
     const isTecnico = () => session?.roles?.includes("tecnico") ?? false;
+    const isProfessor = () => session?.roles?.includes("professor") ?? false;
+    const isProfissional = () => session?.roles?.includes("profissional") ?? false;
     const isAluno = () => session?.roles?.includes("aluno") ?? false;
     const getUserRoles = () => session?.roles ?? [];
 
@@ -52,6 +54,8 @@ const withAuthorization = <P extends object>(WrappedComponent: ComponentType<P>)
       const adminRole = isAdmin();
       const gestorRole = isGestor();
       const tecnicoRole = isTecnico();
+      const professorRole = isProfessor();
+      const profissionalRole = isProfissional();
       const alunoRole = isAluno();
       const isUriAllowed = (): boolean => {
         if (isAuthenticated && adminRole) return true;

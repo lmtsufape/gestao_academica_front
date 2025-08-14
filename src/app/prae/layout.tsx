@@ -12,7 +12,8 @@ import {
   Assessment,
   EventAvailable,
   EventBusy,
-  Category
+  Category,
+  Work
 } from "@mui/icons-material";
 import { InternalLayoutConfig } from "@/types/InternalLayoutConf";
 
@@ -69,6 +70,13 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           icon: <School fontSize="small" className="text-white" />,
           roles: ["aluno"],
         },
+
+        {
+          label: "Meu Cadastro",
+          route: "/prae/profissionais/atual",
+          icon: <Work fontSize="small" className="text-white" />,
+          roles: ["Tecnico", "Professor"],
+        },
         {
           label: "Gerenciar Benefícios",
           route: "/prae/beneficios",
@@ -123,19 +131,19 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           label: isAluno ? "Agendamentos" : "Gerenciar Agendamentos",
           route: "/prae/agendamentos",
           icon: <EventNote fontSize="small" className="text-white" />,
-          roles: ["gestor", "aluno"],
+          roles: ["gestor", "aluno", "Tecnico", "Professor"],
           subItems: [
             {
               label: "Tipo de Atendimento",
               route: "/prae/agendamentos/tipo",
               icon: <Category fontSize="small" className="text-white" />, // Ícone para categorias/tipos
-              roles: ["gestor"],
+              roles: ["gestor", "Tecnico", "Professor"],
             },
             {
               label: "Gerenciar Cronograma",
               route: "/prae/agendamentos/cronograma",
               icon: <Schedule fontSize="small" className="text-white" />, // Ícone de cronograma
-              roles: ["gestor"],
+              roles: ["gestor", "Tecnico", "Professor"],
             },
             {
               label: "Calendário de Agendamentos",
@@ -147,13 +155,13 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
               label: "Meus Agendamentos",
               route: "/prae/agendamentos/calendario/meus-agendamentos",
               icon: <EventAvailable fontSize="small" className="text-white" />, // Ícone para eventos confirmados
-              roles: ["gestor", "aluno"],
+              roles: ["gestor", "aluno", "Tecnico", "Professor"],
             },
             {
               label: "Meus Cancelamentos",
               route: "/prae/agendamentos/calendario/meus-cancelamentos",
               icon: <EventBusy fontSize="small" className="text-white" />, // Ícone para eventos cancelados
-              roles: ["gestor", "aluno"],
+              roles: ["gestor", "aluno", "Tecnico", "Professor"],
             },
           ]
         }
