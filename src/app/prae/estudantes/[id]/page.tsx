@@ -22,7 +22,6 @@ const cadastro = () => {
   const [dadosForm, setDadosForm] = useState<any>({ endereco: {} });
   const [dadosBancariosPreenchidos, setDadosBancariosPreenchidos] = useState<any>({});
   const [cursos, setCursos] = useState<any[]>([]);
-  const [etnia, setEtnia] = useState<any[]>([]);
   const [isDeficiente, setIsDeficiente] = useState<boolean>(false);
   const isCreateMode = id == "criar";
   const isEditMode = !isCreateMode;
@@ -138,19 +137,6 @@ const cadastro = () => {
           obrigatorio: !isEditMode || isEditMode,
           selectOptions: isEditMode ? null : getOptions(cursos, dadosPreenchidos[0]?.cursoId),
           bloqueado: true,
-        },
-        {
-          line: 4,
-          colSpan: "md:col-span-1",
-          nome: "Etnia",
-          chave: "tipoEtniaId",
-          tipo: "select",
-          mensagem: "Selecione a opção",
-          obrigatorio: isEditMode ? false : true,
-          selectOptions: getOptions(etnia, dadosPreenchidos?.tipoEtniaId),
-          opcaoChave: "chave",
-          opcaoValor: "valor",
-          bloqueado: !auth.isAluno(),
         },
         {
           line: 4,
@@ -415,22 +401,6 @@ const cadastro = () => {
     }
   };
 
-  const pesquisarEtnia = async (params = null) => {
-    try {
-      let body = {
-        metodo: 'get',
-        uri: '/prae/' + 'tipoEtnia',
-        params: params != null ? params : { size: 25, page: 0 },
-        data: {}
-      };
-      const response = await generica(body);
-      if (response && response.data) {
-        setEtnia(response.data.content);
-      }
-    } catch (error) {
-      console.error('Erro ao carregar registros:', error);
-    }
-  };
 
   const voltarRegistro = () => {
     if (auth.isAluno())
@@ -440,11 +410,10 @@ const cadastro = () => {
   };
 
   const transformarDados = (item: any) => {
-    const { cep, rua, complemento, numero, bairro, cidade, estado, tipoEtniaId, rendaPercapta, ...rest } = item;
+    const { cep, rua, complemento, numero, bairro, cidade, estado, rendaPercapta, ...rest } = item;
     return {
       ...rest,
       endereco: { cep, rua, complemento, numero, bairro, cidade, estado },
-      tipoEtniaId: Number(tipoEtniaId),
       rendaPercapta: Number(rendaPercapta)
     };
   };
@@ -607,7 +576,6 @@ const cadastro = () => {
           numero: response.data.endereco.numero,
           complemento: response.data.endereco.complemento,
           bairro: response.data.endereco.bairro,
-          tipoEtniaId: response.data.tipoEtnia.id,
           deficiente: response.data.deficiente,
           tipoDeficiencia: response.data.tipoDeficiencia,
         });
@@ -625,8 +593,6 @@ const cadastro = () => {
   useEffect(() => {
     // Wait for auth to load
     if (auth.isLoading) return;
-    
-    pesquisarEtnia();
     if (isEditMode) {
       if (!auth.isAluno() && !id)
         chamarFuncao("voltar");

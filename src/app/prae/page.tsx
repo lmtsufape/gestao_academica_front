@@ -16,6 +16,7 @@ export default function PageEFrotas() {
   const [isTecnico, setisTecnico] = useState<boolean>(false);
   const [isPraeAccess, setisPraeAccess] = useState<boolean>(false);
   const [isProfissional, setisProfissional] = useState<boolean>(false);
+  const [isGestor, setisGestor] = useState<boolean>(false);
 
   useEffect(() => {
     if (!auth.isLoading) {
@@ -24,6 +25,7 @@ export default function PageEFrotas() {
       setisProfessor(auth.isProfessor());
       setisTecnico(auth.isTecnico());
       setisPraeAccess(auth.isPraeAccess());
+      setisGestor(auth.isGestor());
     }
   }, [auth.isAuthenticated, auth.isLoading]);
 
@@ -33,10 +35,14 @@ export default function PageEFrotas() {
       console.log("DEBUG: Verificando estudante atual");
     }
 
+    if ((isProfessor || isTecnico || isGestor) && !isPraeAccess) {
+      redirectNoPraeAccess();
+    }
+
     if ((isProfessor || isTecnico) && !isProfissional && isPraeAccess) {
       criarProfissional();
     }
-  }, [isAluno, isProfessor, isTecnico, isProfissional]);
+  }, [isAluno, isProfessor, isTecnico, isProfissional, isPraeAccess, isGestor]);
 
   const buscarEstudanteAtual = async () => {
     try {
@@ -58,6 +64,17 @@ export default function PageEFrotas() {
         position: "top-left",
       });
     }
+  };
+
+  const redirectNoPraeAccess = () => {
+    Swal.fire({
+      title: "Acesso não autorizado",
+      text: "Você não tem permissão para acessar todas as funcionalidades da PRAE. " +
+        "Por favor, entre em contato com o administrador do sistema.",
+      icon: "error",
+      confirmButtonText: "OK",
+    }).then(() => {
+    });
   };
 
   const criarEstudante = async () => {
