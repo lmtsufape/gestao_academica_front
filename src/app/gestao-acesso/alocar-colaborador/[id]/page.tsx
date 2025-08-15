@@ -2,13 +2,21 @@
 import withAuthorization from "@/components/AuthProvider/withAuthorization";
 import Cadastro from "@/components/Cadastro/Estrutura";
 import Cabecalho from "@/components/Layout/Interno/Cabecalho";
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 import Tabela from "@/components/Tabela/Estrutura";
+=======
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 import { generica } from "@/utils/api";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 const cadastro = () => {
   const router = useRouter();
   const { id } = useParams() as { id: string }; // garante que é string
@@ -23,6 +31,41 @@ const cadastro = () => {
   }
   const estrutura: any = {
     uri: "alocar-funcionario",
+=======
+=======
+>>>>>>> Stashed changes
+const AlocarColaborador = () => {
+  const router = useRouter();
+  const { id } = useParams() as { id: string };
+
+  const [dadosPreenchidos, setDadosPreenchidos] = useState<any>();
+  const [colaboradores, setColaboradores] = useState<any[]>([]);
+
+  const isEditMode = id && id !== "criar";
+
+  const getOptions = (lista: any[], selecionado: any) => {
+    if (!Array.isArray(lista)) return [];
+
+    const options = lista.map((colaborador) => ({
+      chave: colaborador.id,
+      valor: colaborador.nome || colaborador.email
+    }));
+
+    if (isEditMode && selecionado) {
+      const selectedOption = options.find((opt) => opt.chave === selecionado);
+      if (selectedOption) {
+        return [selectedOption, ...options.filter((opt) => opt.chave !== selectedId)];
+      }
+    }
+    return options;
+  };
+
+  const estrutura = {
+    uri: "alocar-colaborador",
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
     cabecalho: {
       titulo: "Alocar Colaborador",
       migalha: [
@@ -30,6 +73,8 @@ const cadastro = () => {
         { nome: 'Gestão Acesso', link: '/gestao-acesso' },
         { nome: "Unidades Administrativas", link: "/gestao-acesso/unidades-administrativas" },
         {
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
           nome: "Criar",
           link: `/gestao-acesso/alocar-colaborador`,
         },
@@ -59,6 +104,38 @@ const cadastro = () => {
   /**
    * Chama funções de acordo com o botão clicado
    */
+=======
+=======
+>>>>>>> Stashed changes
+          nome: "Alocar Colaborador",
+          link: `/gestao-acesso/alocar-colaborador/${isEditMode ? id : "criar"}`,
+        },
+      ],
+    },
+    cadastro: {
+      campos: [
+        {
+          line: 1,
+          colSpan: "md:col-span-1",
+          nome: "Colaborador",
+          chave: "usuarioId",
+          tipo: "select",
+          mensagem: "Selecione o Colaborador",
+          obrigatorio: true,
+          selectOptions: getOptions(colaboradores, dadosPreenchidos?.usuarioId),
+        },
+      ],
+      acoes: [
+        { nome: "Cancelar", chave: "voltar", tipo: "botao" },
+        { nome: "Alocar Colaborador", chave: "salvar", tipo: "submit" },
+      ],
+    },
+  };
+
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
   const chamarFuncao = async (nomeFuncao = "", valor: any = null) => {
     switch (nomeFuncao) {
       case "salvar":
@@ -67,6 +144,18 @@ const cadastro = () => {
       case "voltar":
         voltarRegistro();
         break;
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+      case "editar":
+        editarRegistro(valor);
+        break;
+>>>>>>> Stashed changes
+=======
+      case "editar":
+        editarRegistro(valor);
+        break;
+>>>>>>> Stashed changes
       default:
         break;
     }
@@ -76,6 +165,8 @@ const cadastro = () => {
     router.push("/gestao-acesso/unidades-administrativas");
   };
 
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
   /**
    * Salva o registro via POST, transformando os dados para que os itens de endereço
    * fiquem agrupados em um objeto 'endereco'.
@@ -91,6 +182,16 @@ const cadastro = () => {
       const unidadeId = id;
 
       if (!unidadeId) {
+=======
+  const salvarRegistro = async (item: any) => {
+    try {
+      if (!id) {
+>>>>>>> Stashed changes
+=======
+  const salvarRegistro = async (item: any) => {
+    try {
+      if (!id) {
+>>>>>>> Stashed changes
         toast.error("Nenhuma unidade administrativa selecionada", {
           position: "top-left"
         });
@@ -104,6 +205,8 @@ const cadastro = () => {
         return;
       }
 
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
       // Converte o ID para número (caso seja string)
       const unidadeIdNumber = Number(unidadeId);
       if (isNaN(unidadeIdNumber)) {
@@ -124,13 +227,34 @@ const cadastro = () => {
       const body = {
         metodo: "post",
         uri: "/auth/unidade-administrativa/" + id + "/gestores", // Endpoint correto
+=======
+=======
+>>>>>>> Stashed changes
+      const payload = {
+        unidadeAdministrativaId: Number(id),
+        usuarioId: item.usuarioId
+      };
+
+      const body = {
+        metodo: "post",
+        uri: `/auth/unidade-administrativa/${id}/colaboradores`,
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
         params: {},
         data: payload,
       };
 
       const response = await generica(body);
 
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
       // Tratamento da resposta
+=======
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
       if (!response) {
         throw new Error("Sem resposta da API");
       }
@@ -139,9 +263,19 @@ const cadastro = () => {
         throw new Error(response.data.error.message || "Erro na API");
       }
 
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
       // Sucesso
       await Swal.fire({
         title: "Gestor alocado com sucesso!",
+=======
+      await Swal.fire({
+        title: "Colaborador alocado com sucesso!",
+>>>>>>> Stashed changes
+=======
+      await Swal.fire({
+        title: "Colaborador alocado com sucesso!",
+>>>>>>> Stashed changes
         icon: "success",
         confirmButtonText: "OK",
       });
@@ -150,10 +284,22 @@ const cadastro = () => {
 
     } catch (error: any) {
       console.error("Erro completo:", error);
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
       const errorMessage = error.response?.data?.message ||
         error.message ||
         "Erro desconhecido ao alocar gestor";
+=======
+      const errorMessage = error.response?.data?.message ||
+        error.message ||
+        "Erro ao alocar colaborador";
+>>>>>>> Stashed changes
+=======
+      const errorMessage = error.response?.data?.message ||
+        error.message ||
+        "Erro ao alocar colaborador";
+>>>>>>> Stashed changes
 
       toast.error(errorMessage, {
         position: "top-left",
@@ -161,6 +307,8 @@ const cadastro = () => {
       });
     }
   };
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
   
 
 
@@ -252,10 +400,82 @@ const cadastro = () => {
   }, [id]);
 
 
+=======
+=======
+>>>>>>> Stashed changes
+
+  const editarRegistro = async (item: string | number) => {
+    try {
+      const response = await generica({
+        metodo: "get",
+        uri: `/auth/unidade-administrativa/${item}/colaboradores`,
+        params: {},
+        data: {},
+      });
+
+      if (!response) throw new Error("Resposta inválida do servidor.");
+
+      if (response.data?.errors) {
+        Object.keys(response.data.errors).forEach((campoErro) => {
+          toast(`Erro em ${campoErro}: ${response.data.errors[campoErro]}`, {
+            position: "top-left",
+          });
+        });
+      } else if (response.data?.error) {
+        toast.error(response.data.error.message, { position: "top-left" });
+      } else {
+        setDadosPreenchidos(response.data);
+      }
+    } catch (error) {
+      console.error("Erro ao localizar registro:", error);
+      toast.error("Erro ao localizar registro. Tente novamente!", {
+        position: "top-left",
+        autoClose: 5000
+      });
+    }
+  };
+
+  const pesquisarColaboradores = async () => {
+    try {
+      const response = await generica({
+        metodo: 'get',
+        uri: '/auth/colaborador',
+        params: {
+          size: 50,
+          page: 0,
+          tipo: 'PROFESSOR,TECNICO' // Filtra apenas professores e técnicos
+        },
+        data: {}
+      });
+
+      if (response?.data?.errors) {
+        toast.error("Erro ao carregar colaboradores", { position: "bottom-left" });
+      } else {
+        setColaboradores(response?.data?.content || []);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar colaboradores:', error);
+      toast.error("Falha ao buscar colaboradores", { position: "bottom-left" });
+    }
+  };
+
+  useEffect(() => {
+    pesquisarColaboradores();
+    if (isEditMode) {
+      editarRegistro(id);
+    }
+  }, [id]);
+
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
   return (
     <main className="flex flex-wrap justify-center mx-auto">
       <div className="w-full md:w-11/12 lg:w-10/12 2xl:w-3/4 max-w-6xl p-4 pt-10 md:pt-12 md:pb-12">
         <Cabecalho dados={estrutura.cabecalho} />
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
         <div className="rounded-lg shadow-sm p-4 md:p-6 mt-6">
             <Tabela
               dados={colaboradores}
@@ -263,9 +483,30 @@ const cadastro = () => {
               chamarFuncao={chamarFuncao}
             />
           </div>
+=======
+=======
+>>>>>>> Stashed changes
+        <Cadastro
+          estrutura={estrutura}
+          dadosPreenchidos={dadosPreenchidos}
+          setDadosPreenchidos={setDadosPreenchidos}
+          chamarFuncao={chamarFuncao}
+        />
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
       </div>
     </main>
   );
 };
 
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 export default withAuthorization(cadastro);
+=======
+export default withAuthorization(AlocarColaborador);
+>>>>>>> Stashed changes
+=======
+export default withAuthorization(AlocarColaborador);
+>>>>>>> Stashed changes
