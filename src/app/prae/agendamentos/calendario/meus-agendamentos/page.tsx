@@ -7,45 +7,49 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
-
-const estrutura: any = {
-
-  uri: "agendamento", //caminho base
-
-  cabecalho: { //cabecalho da pagina
-    titulo: "Meus Agendamentos",
-    migalha: [
-      { nome: 'Home', link: '/home' },
-      { nome: 'Prae', link: '/prae' },
-      { nome: 'Meus Agendamentos', link: '/prae/agendamentos/calendario/meus-agendamentos' },
-    ]
-  },
-
-  tabela: {
-    configuracoes: {
-      pesquisar: true,//campo pesquisar nas colunas (booleano)
-      cabecalho: true,//cabecalho da tabela (booleano)
-      rodape: true,//rodape da tabela (booleano)
-    },
-    botoes: [ //links
-      { nome: 'Agendar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
-    ],
-    colunas: [ //colunas da tabela
-      { nome: "Tipo de Atendimento", chave: "tipoAtendimento", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-      { nome: "Dia de Atendimento", chave: "data", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-      { nome: "Horário", chave: "vaga.horaInicio", tipo: "texto", selectOptions: null, sort: false, pesquisar: false },
-      { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
-    ],
-    acoes_dropdown: [ //botão de acoes de cada registro
-      { nome: 'Deletar', chave: 'deletar' },
-    ]
-  }
-
-}
+import AuthService, { useAuthService } from "../../../../authentication/auth.hook";
 
 const PageLista = () => {
+  const isProfissional = useAuthService().isProfissional();
+  const isAluno = useAuthService().isAluno();
   const router = useRouter();
   const [dados, setDados] = useState<any>({ content: [] });
+
+  const estrutura: any = {
+
+    uri: "agendamento", //caminho base
+
+    cabecalho: { //cabecalho da pagina
+      titulo: "Meus Agendamentos",
+      migalha: [
+        { nome: 'Home', link: '/home' },
+        { nome: 'Prae', link: '/prae' },
+        { nome: 'Meus Agendamentos', link: '/prae/agendamentos/calendario/meus-agendamentos' },
+      ]
+    },
+
+    tabela: {
+      configuracoes: {
+        pesquisar: true,//campo pesquisar nas colunas (booleano)
+        cabecalho: true,//cabecalho da tabela (booleano)
+        rodape: true,//rodape da tabela (booleano)
+      },
+      botoes: isAluno ?
+        [
+          { nome: 'Agendar', chave: 'adicionar', bloqueado: false } //nome(string),chave(string),bloqueado(booleano)
+        ] : [],
+      colunas: [ //colunas da tabela
+        { nome: "Tipo de Atendimento", chave: "tipoAtendimento", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
+        { nome: "Dia de Atendimento", chave: "data", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
+        { nome: "Horário", chave: "vaga.horaInicio", tipo: "texto", selectOptions: null, sort: false, pesquisar: false },
+        { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
+      ],
+      acoes_dropdown: [ //botão de acoes de cada registro
+        { nome: 'Deletar', chave: 'deletar' },
+      ]
+    }
+
+  }
 
   const chamarFuncao = (nomeFuncao = "", valor: any = null) => {
     switch (nomeFuncao) {
@@ -71,8 +75,8 @@ const PageLista = () => {
     try {
       let body = {
         metodo: 'get',
-        uri: '/prae/' + estrutura.uri + '/estudante',
-        //+ '/page',
+        uri: '/prae/' + estrutura.uri +
+          (isProfissional ? '/profissional' : '/estudante'),
         params: params != null ? params : { size: 10, page: 0 },
         data: {}
       }

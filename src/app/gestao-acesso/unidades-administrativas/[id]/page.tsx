@@ -339,7 +339,7 @@ const cadastro = () => {
         toast.error("Erro ao carregar dados", { position: "bottom-left" });
       } else if (response?.data) {
         const dadosMapeados = response.data.content.map((item: any) => {
-          const pessoa = activeRole === "administrador" ? item.gestor : item.colaborador;
+          const pessoa = activeRole === "administrador" ? item.gestor : item;
           return {
             id: item.id,
             papel: item.papel,
