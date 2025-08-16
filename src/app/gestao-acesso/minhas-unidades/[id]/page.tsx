@@ -2,6 +2,8 @@
 import withAuthorization from "@/components/AuthProvider/withAuthorization";
 import Cadastro from "@/components/Cadastro/Estrutura";
 import Cabecalho from "@/components/Layout/Interno/Cabecalho";
+import Tabela from "@/components/Tabela/Estrutura";
+import { useRole } from "@/context/roleContext";
 import { generica } from "@/utils/api";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -11,95 +13,309 @@ import Swal from "sweetalert2";
 const cadastro = () => {
   const router = useRouter();
   const { id } = useParams();
-  // Inicializamos com um objeto contendo 'endereco' para evitar problemas
-  const [dadosPreenchidos, setDadosPreenchidos] = useState<any>();
+  const { activeRole, userRoles } = useRole();
+
+  const [dadosTabelaFuncionarios, setDadosTabelaFuncionarios] = useState<any>({ content: [] });
+  const [dadosTabelaAlocados, setDadosTabelaAlocados] = useState<any>({ content: [] });
+  const [dadosPreenchidos, setDadosPreenchidos] = useState<any>(null);
   const [UnidadesPai, setUnidadesPai] = useState<any[]>([]);
-  const [colaboradores, setColaboradores] = useState<any[]>([]);
-  const [user, setUser] = useState<any[]>([]);
+  const [tipoUnidade, setTipoUnidade] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const isEditMode = id && id !== "criar";
-  const getOptions = (lista: any[], selecionado: any) => {
-    if (!Array.isArray(lista) || lista.length === 0) return [];
+
+  const carregarDadosUnidade = async () => {
+    if (!isEditMode) {
+      setDadosPreenchidos({});
+      setLoading(false);
+      return;
+    }
+
+    try {
+      // Carrega os dados básicos da unidade
+      const response = await generica({
+        metodo: "get",
+        uri: `/auth/unidade-administrativa/${id}`,
+        params: {},
+        data: {},
+      });
+
+      if (response?.data && !response.data.errors) {
+        const dados = response.data;
+
+        // Se tiver apenas o ID da unidade pai, carrega os detalhes
+        if (dados.unidadePaiId && !dados.unidadePai) {
+          const responsePai = await generica({
+            metodo: "get",
+            uri: `/auth/unidade-administrativa/${dados.unidadePaiId}`,
+            params: {},
+            data: {},
+          });
+
+          if (responsePai?.data && !responsePai.data.errors) {
+            dados.unidadePai = {
+              id: responsePai.data.id,
+              nome: responsePai.data.nome
+            };
+          }
+        }
+
+        // Se tiver apenas o ID do tipo de unidade, carrega os detalhes
+        if (dados.tipoUnidadeAdministrativaId && !dados.tipoUnidadeAdministrativa) {
+          const responseTipo = await generica({
+            metodo: "get",
+            uri: `/auth/tipo-unidade-administrativa/${dados.tipoUnidadeAdministrativaId}`,
+            params: {},
+            data: {},
+          });
+
+          if (responseTipo?.data && !responseTipo.data.errors) {
+            dados.tipoUnidadeAdministrativa = {
+              id: responseTipo.data.id,
+              nome: responseTipo.data.nome
+            };
+          }
+        }
+
+        setDadosPreenchidos(dados);
+      } else {
+        toast.error("Erro ao carregar dados da unidade", { position: "top-left" });
+      }
+    } catch (error) {
+      toast.error("Erro ao carregar dados da unidade", { position: "top-left" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getOptions = (lista: any[], selecionado: any, itemCompleto: any = null) => {
+    if (!Array.isArray(lista)) return [];
+
+    // Cria as opções baseadas na lista
     const options = lista.map((item) => ({
-      chave: item.id, // ID do item (numérico, por exemplo)
-      valor: item.nome, // Texto exibido no <option>
+      chave: item.id,
+      valor: item.nome,
     }));
+
+    // Se estiver no modo de edição e tiver um valor selecionado
     if (isEditMode && selecionado) {
-      const selectedId = Number(selecionado); // Converte para número, se necessário
-      const selectedOption = options.find((opt) => opt.chave === selectedId);
-      if (selectedOption) {
-        // Coloca a opção selecionada na frente do array
-        return [selectedOption, ...options.filter((opt) => opt.chave !== selectedId)];
+      const selectedId = Number(selecionado);
+
+      // Verifica se o item selecionado está na lista
+      const selectedInList = options.find(opt => opt.chave === selectedId);
+
+      // Se não estiver na lista, mas temos o objeto completo (itemCompleto)
+      if (!selectedInList && itemCompleto) {
+        return [
+          { chave: itemCompleto.id, valor: itemCompleto.nome },
+          ...options
+        ];
+      }
+
+      // Se estiver na lista, coloca como primeira opção
+      if (selectedInList) {
+        return [
+          selectedInList,
+          ...options.filter(opt => opt.chave !== selectedId)
+        ];
       }
     }
+
     return options;
   };
-  const estrutura: any = {
-    uri: "gestor",
+
+  const estruturaEdicao: any = {
+    uri: "edicao",
     cabecalho: {
-      titulo: isEditMode ? "Alocar Colaborador" : "Alocar Colaborador",
-      migalha: [
-        { nome: 'Início', link: '/home' },
-        { nome: 'Gestão Acesso', link: '/gestao-acesso' },
-        { nome: "Minhas Unidades", link: "/gestao-acesso/minhas-unidades" },
-        {
-          nome: isEditMode ? "Visualizar" : "Criar",
-          link: `/gestao-acesso/minhas-unidades/${isEditMode ? id : "criar"}`,
-        },
-      ],
+      titulo: isEditMode ? "Editar Unidade Administrativa" : "Criar Unidade Administrativa",
+      migalha: [],
     },
     cadastro: {
       campos: [
-
+        {
+          line: 1,
+          colSpan: "md:col-span-2",
+          nome: "Nome",
+          chave: "nome",
+          tipo: "text",
+          mensagem: "Digite",
+          obrigatorio: true,
+          maxLength: 50,
+        },
         {
           line: 1,
           colSpan: "md:col-span-1",
-          nome: "Colaborador",
-          chave: "usuarioId",
-          tipo: "select",
-          mensagem: "Selecione colaborador",
-          obrigatorio: false,
-          selectOptions: getOptions(colaboradores, dadosPreenchidos?.usuarioId),
-          //exibirPara: ["ALUNO"],
-
+          nome: "Código",
+          chave: "codigo",
+          tipo: "text",
+          mensagem: "Digite",
+          obrigatorio: true,
         },
-
-
+        {
+          line: 2,
+          colSpan: "md:col-span-1",
+          nome: "Tipo Unidade",
+          chave: "tipoUnidadeAdministrativaId",
+          tipo: "select",
+          mensagem: "Selecione o tipo de unidade",
+          obrigatorio: false,
+          selectOptions: getOptions(
+            tipoUnidade,
+            dadosPreenchidos?.tipoUnidadeAdministrativaId,
+            dadosPreenchidos?.tipoUnidadeAdministrativa
+          ),
+          valorPadrao: dadosPreenchidos?.tipoUnidadeAdministrativaId
+        },
+        {
+          line: 2,
+          colSpan: "md:col-span-1",
+          nome: "Unidade Administrativa Responsavel",
+          chave: "unidadePaiId",
+          tipo: "select",
+          mensagem: "Selecione a unidade responsavel",
+          obrigatorio: false,
+          selectOptions: getOptions(
+            UnidadesPai,
+            dadosPreenchidos?.unidadePaiId,
+            dadosPreenchidos?.unidadePai
+          ),
+          valorPadrao: dadosPreenchidos?.unidadePaiId
+        }
       ],
-      acoes: [
-        { nome: "Cancelar", chave: "voltar", tipo: "botao" },
-        { nome: isEditMode ? "Salvar" : "Cadastrar", chave: "salvar", tipo: "submit" },
+      acoes_dropdown: isEditMode ? [{ nome: 'Deletar', chave: 'deletar' }] : [],
+    }
+  };
+
+  const estruturaFuncionarios: any = {
+    uri: "funcionarios",
+    cabecalho: {
+      titulo: "Funcionários Disponíveis",
+      migalha: [],
+    },
+    tabela: {
+      configuracoes: { pesquisar: true, cabecalho: true, rodape: true },
+      botoes: [],
+      colunas: [
+        { nome: "Nome", chave: "nome", tipo: "texto", sort: false, pesquisar: true },
+        { nome: "Tipo", chave: "tipo", tipo: "texto", sort: false, pesquisar: true },
+        { nome: "Ações", chave: "acoes", tipo: "button", sort: false, pesquisar: false },
       ],
+      acoes_dropdown: [{ nome: "AlocarFunc", chave: "alocar" }],
     },
   };
 
-  /**
-   * Chama funções de acordo com o botão clicado
-   */
+  const estruturaAlocados: any = {
+    uri: "gestor",
+    cabecalho: {
+      titulo: "Alocar Funcionários",
+      migalha: [
+        { nome: "Início", link: "/home" },
+        { nome: "Gestão Acesso", link: "/gestao-acesso" },
+        { nome: "Minhas Unidades", link: "/gestao-acesso/minhas-unidades" },
+        { nome: "Alocar Funcionário", link: `/gestao-acesso/minhas-unidades/${isEditMode ? id : "criar"}` },
+      ],
+    },
+    tabela: {
+      configuracoes: { pesquisar: true, cabecalho: true, rodape: true },
+      botoes: [],
+      colunas: [
+        { nome: "CPF", chave: "cpf", tipo: "texto", sort: false, pesquisar: true },
+        { nome: "Nome", chave: "nome", tipo: "texto", sort: false, pesquisar: true },
+        { nome: "E-mail", chave: "email", tipo: "texto", sort: false, pesquisar: true },
+        { nome: "Siape", chave: "siape", tipo: "texto", sort: false, pesquisar: true },
+        { nome: "Telefone", chave: "telefone", tipo: "texto", sort: false, pesquisar: true },
+        { nome: "Ações", chave: "acoes", tipo: "button", sort: false, pesquisar: false },
+      ],
+      acoes_dropdown: [{ nome: "Deletar", chave: "deletar" }],
+    },
+  };
+
   const chamarFuncao = async (nomeFuncao = "", valor: any = null) => {
     switch (nomeFuncao) {
-      case "salvar":
-        await salvarRegistro(valor);
-        break;
-      case "voltar":
-        voltarRegistro();
+      case "alocar":
+        await salvarRegistro({ usuarioId: valor.id });
         break;
       case "editar":
-        editarRegistro(valor);
+        await editarRegistro(valor);
+        break;
+      case "deletar":
+        await deletarRegistro(valor);
         break;
       default:
         break;
     }
   };
 
-  const voltarRegistro = () => {
-    router.push("/gestao-acesso/minhas-unidades");
+  const carregarAlocados = async () => {
+    if (!isEditMode) {
+      return { raw: { content: [] }, ids: new Set<number>() };
+    }
+
+    const unidadeId = Number(id);
+    const response = await generica({
+      metodo: "get",
+      uri: `/auth/unidade-administrativa/${unidadeId}/funcionarios`,
+      params: { size: 50, page: 0 },
+      data: {},
+    });
+
+    const raw = response?.data ?? { content: [] };
+    const lista = raw?.content ?? raw;
+    const ids = new Set<number>(
+      (Array.isArray(lista) ? lista : []).map(
+        (a: any) => a.funcionario?.id ?? a.colaborador?.id ?? a.id
+      )
+    );
+    return { raw, ids };
   };
 
-  /**
-   * Salva o registro via POST, transformando os dados para que os itens de endereço
-   * fiquem agrupados em um objeto 'endereco'.
-   */
+  const carregarFuncionariosBase = async () => {
+    let tecnicos: any[] = [];
+    let professores: any[] = [];
+    let totalTecnicos = 0;
+    let totalProfessores = 0;
+
+    const [responseTecnicos, responseProfessores] = await Promise.all([
+      generica({ metodo: "get", uri: "/auth/tecnico", params: { size: 50, page: 0 }, data: {} }),
+      generica({ metodo: "get", uri: "/auth/professor", params: { size: 50, page: 0 }, data: {} }),
+    ]);
+
+    if (responseTecnicos?.data && !responseTecnicos.data.errors) {
+      tecnicos = (responseTecnicos.data.content ?? []);
+      totalTecnicos = responseTecnicos.data.totalElements || 0;
+    }
+
+    if (responseProfessores?.data && !responseProfessores.data.errors) {
+      professores = (responseProfessores.data.content ?? []);
+      totalProfessores = responseProfessores.data.totalElements || 0;
+    }
+
+    const combined = [...tecnicos, ...professores].map(item => ({
+      id: item.id,
+      nome: item.nome,
+      tipo: item.siape ? "Técnico" : "Professor",
+    }));
+
+    return {
+      content: combined,
+      totalElements: totalTecnicos + totalProfessores
+    };
+  };
+
+  const sincronizarListas = async () => {
+    try {
+      const [alocados, base] = await Promise.all([carregarAlocados(), carregarFuncionariosBase()]);
+      const disponiveis = base.content.filter((f: any) => !alocados.ids.has(f.id));
+
+      setDadosTabelaAlocados(alocados.raw);
+      setDadosTabelaFuncionarios({
+        content: disponiveis,
+        totalElements: base.totalElements - alocados.ids.size
+      });
+    } catch (error) {
+      toast.error("Erro ao sincronizar listas!", { position: "top-left" });
+    }
+  };
 
   const salvarRegistro = async (item: any) => {
     try {
@@ -107,199 +323,195 @@ const cadastro = () => {
       const usuarioId = item.usuarioId;
 
       if (!unidadeId || !usuarioId) {
-        toast.error("É necessário selecionar a unidade e o colaborador!", { position: "top-left" });
+        toast.error("É necessário selecionar a unidade e o funcionário!", { position: "top-left" });
         return;
       }
 
-      const body = {
+      const response = await generica({
         metodo: "post",
         uri: `/auth/unidade-administrativa/${unidadeId}/funcionarios`,
         params: {},
-        data: { usuarioId }, // apenas o ID do colaborador no body
-      };
+        data: { usuarioId },
+      });
 
-      const response = await generica(body);
-
-      if (!response || response.status < 200 || response.status >= 300) {
-        console.error("Status de erro:", response?.status, (response as any)?.statusText || "Status text não disponível");
-        toast(`Erro na requisição (HTTP ${response?.status})`, { position: "top-left" });
-        return;
-      }
-
-      if (response.data?.errors) {
-        Object.keys(response.data.errors).forEach((campoErro) => {
-          toast(`Erro em ${campoErro}: ${response.data.errors[campoErro]}`, {
-            position: "top-left",
-          });
-        });
-      } else if (response.data?.error) {
-        toast(response.data.error.message, { position: "top-left" });
+      if (response?.data && !response.data.errors) {
+        toast.success("Funcionário alocado com sucesso!", { position: "top-left" });
+        await sincronizarListas();
       } else {
-        Swal.fire({
-          title: "Colaborador alocado com sucesso!",
-          icon: "success",
-          customClass: {
-            popup: "my-swal-popup",
-            title: "my-swal-title",
-            htmlContainer: "my-swal-html",
-          },
-        }).then((result) => {
-          if (result.isConfirmed) {
-            chamarFuncao("voltar");
-          }
-        });
+        toast.error("Erro ao alocar. Tente novamente!", { position: "top-left" });
       }
     } catch (error) {
-      console.error("Erro ao salvar registro:", error);
-      toast.error("Erro ao salvar registro. Tente novamente!", { position: "top-left" });
+      toast.error("Erro ao salvar registro!", { position: "top-left" });
     }
   };
 
-
-
-  /**
-   * Localiza o registro para edição e preenche os dados
-   */
-  const editarRegistro = async (item: any) => {
-    try {
-      const body = {
-        metodo: "get",
-        uri: "/auth/" + estrutura.uri + "/" + item,
-        params: {},
-        data: item,
-      };
-
-      const response = await generica(body);
-      if (!response) {
-        throw new Error("Resposta inválida do servidor.");
-      }
-
-      if (response.data?.errors) {
-        Object.keys(response.data.errors).forEach((campoErro) => {
-          toast(`Erro em ${campoErro}: ${response.data.errors[campoErro]}`, {
-            position: "top-left",
-          });
-        });
-      } else if (response.data?.error) {
-        toast(response.data.error.message, { position: "top-left" });
-      } else {
-        const data = response.data;
-        // data.endereco existe e tem { cep, logradouro, ... }.
-        // Precisamos jogar cada um deles para o "top-level" do estado,
-
-        setDadosPreenchidos(data);
-      }
-    } catch (error) {
-      console.error("Erro ao localizar registro:", error);
-      toast.error("Erro ao localizar registro. Tente novamente!", { position: "top-left" });
-    }
-  };
-  const pesquisarUnidadesAdm = async (params = null) => {
+  const pesquisarUnidadesPai = async (params = null) => {
     try {
       let body = {
         metodo: 'get',
-        uri: '/auth/' + "unidade-administrativa",
+        uri: '/auth/unidade-administrativa',
         params: params != null ? params : { size: 25, page: 0 },
         data: {}
       }
       const response = await generica(body);
-      // Tratamento de erros
       if (response && response.data.errors != undefined) {
         toast("Erro. Tente novamente!", { position: "bottom-left" });
       } else if (response && response.data.error != undefined) {
         toast(response.data.error.message, { position: "bottom-left" });
       } else if (response && response.data) {
-        // Filtra os itens para manter somente aqueles sem unidade pai (unidadePaiId nulo ou indefinido)
-        //const unidadesSemPai = response.data.filter((item: any) => item.unidadePaiId == null || item.unidadePaiId == undefined || item.unidadePaiId == "");
-        setUnidadesPai(response.data);
+        setUnidadesPai(response.data.content || response.data);
       }
     } catch (error) {
       console.error('Erro ao carregar registros:', error);
     }
   };
 
-  const pesquisarColaboradores = async () => {
+  const pesquisarTipoUnidades = async (params = null) => {
     try {
-      let tecnicos: any[] = [];
-      let professores: any[] = [];
+      let body = {
+        metodo: 'get',
+        uri: '/auth/tipo-unidade-administrativa',
+        params: params != null ? params : { size: 25, page: 0 },
+        data: {}
+      };
+      const response = await generica(body);
 
-      // Buscar técnicos
-      const responseTecnicos = await generica({
-        metodo: "get",
-        uri: "/auth/tecnico",
-        params: { size: 50, page: 0 },
-        data: {},
-      });
-
-      if (responseTecnicos?.data && !responseTecnicos.data.errors) {
-        tecnicos = responseTecnicos.data.content.map((item: any) => ({
-          id: item.id,
-          nome: item.nome, // ou item.nomeSocial, se preferir
-          tipo: "Técnico",
-        }));
-      }
-
-      // Buscar professores
-      const responseProfessores = await generica({
-        metodo: "get",
-        uri: "/auth/professor",
-        params: { size: 50, page: 0 },
-        data: {},
-      });
-
-      if (responseProfessores?.data && !responseProfessores.data.errors) {
-        professores = responseProfessores.data.content.map((item: any) => ({
-          id: item.id,
-          nome: item.nome, // ou item.nomeSocial, se preferir
-          tipo: "Professor",
-        }));
-      }
-
-      const uniao = [...tecnicos, ...professores];
-      setColaboradores(uniao);
-    } catch (error) {
-      console.error("Erro ao carregar colaboradores:", error);
-      toast.error("Erro ao carregar colaboradores!", { position: "top-left" });
-    }
-  };
-
-
-  const currentUser = async () => {
-    try {
-      const response = await generica(
-        {
-          metodo: 'get',
-          uri: '/auth/usuario/current',
-          data: {}
-        }
-      );
       if (response?.data?.errors) {
-        toast.error("Erro ao carregar dados do usuário!", { position: "top-left" });
-      } else {
-        setUser(response?.data);
+        toast("Erro. Tente novamente!", { position: "bottom-left" });
+      } else if (response?.data?.error) {
+        toast(response.data.error.message, { position: "bottom-left" });
+      } else if (response?.data?.content) {
+        setTipoUnidade(response.data.content);
       }
     } catch (error) {
-      toast.error('Erro ao carregar dados!', { position: "top-left" });
+      console.error('Erro ao carregar registros:', error);
     }
   };
 
-  // Se estiver em modo de edição, carrega os dados ao montar
-  useEffect(() => {
-    pesquisarColaboradores();
+  const editarRegistro = async (item: any) => {
+    try {
+      await carregarDadosUnidade();
+    } catch (error) {
+      console.error("Erro ao localizar registro:", error);
+      toast.error("Erro ao localizar registro. Tente novamente!", { position: "top-left" });
+    }
+  };
 
+  const deletarRegistro = async (item: any) => {
+    const confirmacao = await Swal.fire({
+      title: `Você deseja desalocar o funcionário ${item.funcionario?.nome ?? item.nome}?`,
+      text: "Essa ação removerá o vínculo com a unidade administrativa",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#1A759F",
+      cancelButtonColor: "#9F2A1A",
+      confirmButtonText: "Sim, quero desalocar!",
+      cancelButtonText: "Cancelar",
+      customClass: {
+        popup: "my-swal-popup",
+        title: "my-swal-title",
+        htmlContainer: "my-swal-html",
+      },
+    });
+
+    if (!confirmacao.isConfirmed) return;
+
+    try {
+      const unidadeId = Number(id);
+      const usuarioId = item.funcionario?.id ?? item.id;
+
+      const response = await generica({
+        metodo: "delete",
+        uri: `/auth/unidade-administrativa/${unidadeId}/funcionarios`,
+        params: {},
+        data: { usuarioId },
+      });
+
+      const ok =
+        response &&
+        response.status >= 200 &&
+        response.status < 300 &&
+        !response?.data?.errors;
+
+      if (ok) {
+        await sincronizarListas();
+        await Swal.fire({
+          title: "Funcionário desalocado com sucesso!",
+          icon: "success",
+          customClass: {
+            popup: "my-swal-popup",
+            title: "my-swal-title",
+            htmlContainer: "my-swal-html",
+          },
+        });
+      } else {
+        if (response?.data?.error?.message) {
+          toast.error(response.data.error.message, { position: "top-left" });
+        } else {
+          toast.error("Erro ao desalocar. Tente novamente!", { position: "top-left" });
+        }
+      }
+    } catch (error) {
+      console.error("Erro ao desalocar funcionário:", error);
+      toast.error("Erro ao desalocar funcionário!", { position: "top-left" });
+    }
+  };
+
+  useEffect(() => {
+    const carregarTudo = async () => {
+      setLoading(true);
+      try {
+        await Promise.all([
+          pesquisarTipoUnidades(),
+          pesquisarUnidadesPai(),
+          carregarDadosUnidade(),
+          sincronizarListas(),
+        ]);
+      } catch (error) {
+        console.error("Erro ao carregar dados:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    carregarTudo();
   }, [id]);
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
   return (
     <main className="flex flex-wrap justify-center mx-auto">
       <div className="w-full md:w-11/12 lg:w-10/12 2xl:w-3/4 max-w-6xl p-4 pt-10 md:pt-12 md:pb-12">
-        <Cabecalho dados={estrutura.cabecalho} />
-        <Cadastro
-          estrutura={estrutura}
-          dadosPreenchidos={dadosPreenchidos}
-          setDadosPreenchidos={setDadosPreenchidos}
+        <Cabecalho dados={estruturaAlocados.cabecalho} />
+        <div className="rounded-lg shadow-sm p-4 md:p-6">
+          <Cadastro
+            estrutura={estruturaEdicao}
+            dadosPreenchidos={dadosPreenchidos}
+            setDadosPreenchidos={setDadosPreenchidos}
+            chamarFuncao={chamarFuncao}
+          />
+        </div>
+
+        <Tabela
+          dados={dadosTabelaFuncionarios}
+          estrutura={estruturaFuncionarios}
           chamarFuncao={chamarFuncao}
         />
+
+        <div className="rounded-lg shadow-sm p-4 md:p-6 mt-6">
+          <span className="block text-center text-2xl font-semibold mb-4">Funcionários Alocados</span>
+          <Tabela
+            dados={dadosTabelaAlocados}
+            estrutura={estruturaAlocados}
+            chamarFuncao={chamarFuncao}
+          />
+        </div>
       </div>
     </main>
   );

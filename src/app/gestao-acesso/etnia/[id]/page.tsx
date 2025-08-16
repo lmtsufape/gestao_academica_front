@@ -41,11 +41,11 @@ const cadastro = () => {
       titulo: isEditMode ? "Editar Etnia" : "Cadastrar Etnia",
       migalha: [
         { nome: 'Home', link: '/home' },
-        { nome: 'Prae', link: '/prae' },
-        { nome: 'Etnia', link: '/prae/etnia' },
+        { nome: 'Gestão de Acesso', link: '/gestao-acesso' },
+        { nome: 'Etnia', link: '/gestao-acesso/etnia' },
         {
           nome: isEditMode ? "Editar" : "Criar",
-          link: `/prae/etnia/${isEditMode ? id : "criar"}`,
+          link: `/auth/etnia/${isEditMode ? id : "criar"}`,
         },
       ],
     },
@@ -101,7 +101,7 @@ const cadastro = () => {
     try {
       const body = {
         metodo: `${isEditMode ? "patch" : "post"}`,
-        uri: "/prae/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri}`,
+        uri: "/auth/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri}`,
         params: {},
         data: item,
       };
@@ -144,7 +144,7 @@ const cadastro = () => {
     try {
       const body = {
         metodo: "get",
-        uri: "/prae/" + estrutura.uri + "/" + item,
+        uri: "/auth/" + estrutura.uri + "/" + item,
         params: {},
         data: item,
       };

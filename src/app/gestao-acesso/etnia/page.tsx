@@ -16,8 +16,8 @@ const estrutura: any = {
     titulo: "Tipo Etnia",
     migalha: [
       { nome: 'Home', link: '/home' },
-      { nome: 'Prae', link: '/prae' },
-      { nome: 'Tipo Etnia', link: '/prae/etnia' },
+      { nome: 'Gestão Acesso', link: '/gestao-acesso' },
+      { nome: 'Tipo Etnia', link: '/gestao-acesso/etnia' },
     ]
   },
 
@@ -64,18 +64,16 @@ const PageLista = () => {
         break;
     }
   }
-  // Função para carregar os dados
+  
   const pesquisarRegistro = async (params = null) => {
     try {
       let body = {
         metodo: 'get',
-        uri: '/prae/' + estrutura.uri,
-        //+ '/page',
+        uri: '/auth/' + estrutura.uri,
         params: params != null ? params : { size: 10, page: 0 },
         data: {}
       }
       const response = await generica(body);
-      //tratamento dos erros
       if (response && response.data.errors != undefined) {
         toast("Erro. Tente novamente!", { position: "bottom-left" });
       } else if (response && response.data.error != undefined) {
@@ -89,14 +87,17 @@ const PageLista = () => {
       console.error('Erro ao carregar registros:', error);
     }
   };
+
   // Função que redireciona para a tela adicionar
   const adicionarRegistro = () => {
     router.push('/gestao-acesso/etnia/criar');
   };
+  
   // Função que redireciona para a tela editar
   const editarRegistro = (item: any) => {
     router.push('/gestao-acesso/etnia/' + item.id);
   };
+
   // Função que deleta um registro
   const deletarRegistro = async (item: any) => {
     const confirmacao = await Swal.fire({
@@ -125,7 +126,7 @@ const PageLista = () => {
       try {
         const body = {
           metodo: 'delete',
-          uri: '/prae/' + estrutura.uri + '/' + item.id,
+          uri: '/auth/' + estrutura.uri + '/' + item.id,
           params: {},
           data: {}
         };
