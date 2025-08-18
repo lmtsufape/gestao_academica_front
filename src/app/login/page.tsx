@@ -99,7 +99,7 @@ export default function Login() {
       router.push('/home');
     } catch (error: any) {
       console.error('Erro ao fazer o login:', error);
-      
+
       const errorMsg = error.message || "Erro ao fazer o login.";
       setErrorMessage(errorMsg);
 
@@ -122,19 +122,15 @@ export default function Login() {
       <Modal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        content="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur et
-          dignissim felis. Nullam porta, libero vel volutpat hendrerit, turpis
-          urna fermentum justo, ut maximus orci ligula ac risus."
+        content="O sistema de gestão universitária tem como finalidade simplificar e otimizar os processos da unidade acadêmica, oferecendo uma plataforma moderna e intuitiva para apoiar gestores, professores, colaboradores e alunos. Com ele, é possível organizar turmas, disciplinas, alocação de docentes e organização do pagamentos de bolsas, garantindo eficiência e transparência na gestão acadêmica."
       />
       {/* Seção Esquerda - Descrição */}
       <section className="hidden md:flex flex-col justify-center px-16 bg-white w-1/2">
         <h1 className="text-primary-700 text-display-small font-bold mb-4">
           Sistema de Gestão
         </h1>
-        <p className="text-neutrals-600 text-body-large leading-relaxed">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur et
-          dignissim felis. Nullam porta, libero vel volutpat hendrerit, turpis
-          urna fermentum justo, ut maximus orci ligula ac risus.
+        <p className="text-neutrals-600 text-body-large leading-relaxed text-left">
+          O sistema de gestão universitária tem como finalidade simplificar e otimizar os processos da unidade acadêmica, oferecendo uma plataforma moderna e intuitiva para apoiar gestores, professores, colaboradores e alunos no acesso e na organização das atividades acadêmicas, promovendo eficiência e transparência.
         </p>
       </section>
 
@@ -216,9 +212,8 @@ export default function Login() {
                         id="remember"
                         aria-describedby="remember"
                         type="checkbox"
-                        className={`w-4 h-4 ${
-                          errorMessage ? "border-red-500" : "border-gray-300"
-                        } rounded bg-gray-50 focus:ring-3 focus:ring-primary-300`}
+                        className={`w-4 h-4 ${errorMessage ? "border-red-500" : "border-gray-300"
+                          } rounded bg-gray-50 focus:ring-3 focus:ring-primary-300`}
                         checked={remember}
                         onChange={(e) => setRemember(e.target.checked)}
                       />

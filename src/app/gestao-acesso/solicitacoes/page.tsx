@@ -21,7 +21,6 @@ const PageLista = () => {
   // Verifique se o usuário é privilegiado com base na role ativa
   const isPrivileged = activeRole === "administrador";
 
-
   const estrutura = {
     uri: "solicitacao", // Caminho base
     cabecalho: {
@@ -84,71 +83,48 @@ const PageLista = () => {
     }
   };
 
-  const pesquisarRegistro = async (params?: null, routeOverride?: string) => {
+  const pesquisarRegistro = async (params?: any, routeOverride?: string) => {
     try {
-      // 1) Busca usuário atual
       const respUser = await generica({
         metodo: 'get',
         uri: '/auth/usuario/current',
-        params: params != null ? params : { size: 10, page: 0 },
+        params: {},
         data: {},
       });
 
-      // Validações antes de prosseguir
-      if (!respUser) {
-        toast.error('Falha na conexão ao obter usuário.', { position: 'top-left' });
-        return;
-      }
-      if (respUser.data.errors) {
-        toast.error('Erro ao obter usuário. Tente novamente.', { position: 'top-left' });
-        return;
-      }
-      if (respUser.data.error) {
-        toast.error(respUser.data.error.message, { position: 'top-left' });
+      if (!respUser?.data?.id) {
+        toast.error('Usuário não encontrado.', { position: 'top-left' });
         return;
       }
 
       const userId = respUser.data.id;
-      if (!userId) {
-        toast.error('ID do usuário não encontrado.', { position: 'top-left' });
-        return;
-      }
 
-      // 2) Determina rota: usa override ou pendentes/usuario
       const routeToFetch =
         routeOverride ??
-        (isPrivileged
-          ? 'pendentes'
-          : `${userId}/usuario`);
+        (isPrivileged ? 'pendentes' : `${userId}/usuario`);
 
-      // 3) Busca registros na rota apropriada
+      // garante paginação correta
+      const queryParams = {
+        size: params?.size ?? 10,
+        page: params?.page ?? 0,
+      };
+
       const respRegs = await generica({
         metodo: 'get',
         uri: `/auth/${estrutura.uri}/${routeToFetch}`,
-        params,
+        params: queryParams,
         data: {},
       });
 
-      if (!respRegs) {
-        toast.error('Falha na conexão ao buscar registros.', { position: 'bottom-left' });
-        return;
+      if (respRegs?.data) {
+        setDados(respRegs.data);
       }
-      if (respRegs.data.errors) {
-        toast.error('Erro ao buscar registros. Tente novamente.', { position: 'bottom-left' });
-        return;
-      }
-      if (respRegs.data.error) {
-        toast.error(respRegs.data.error.message, { position: 'bottom-left' });
-        return;
-      }
-
-      // 4) Atualiza estado
-      setDados(respRegs.data);
     } catch (err) {
       console.error('Erro ao carregar registros:', err);
-      toast.error('Ocorreu um erro inesperado.', { position: 'bottom-left' });
+      toast.error('Erro inesperado ao carregar registros.', { position: 'bottom-left' });
     }
   };
+
 
 
   const adicionarRegistro = () => {
