@@ -79,9 +79,9 @@ const cadastro = () => {
         { nome: "E-mail", chave: activeRole === "administrador" ? "gestor.usuario.email" : "colaborador.email", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
         { nome: "Siape", chave: activeRole === "administrador" ? "gestor.siape" : "colaborador.siape", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
         { nome: "Telefone", chave: activeRole === "administrador" ? "gestor.usuario.telefone" : "colaborador.telefone", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+        { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
       ],
       acoes_dropdown: [
-        { nome: 'Editar', chave: 'editar' },
         { nome: 'Deletar', chave: 'deletar' },
       ],
     },
@@ -157,6 +157,9 @@ const cadastro = () => {
         await pesquisarTodosColaboradores(id as string, valor);
         break;
     
+      case "deletar":
+        deletarRegistro(valor);
+        break;
       default:
         break;
     }
@@ -389,6 +392,64 @@ const cadastro = () => {
       toast.error("Falha ao buscar dados", { position: "bottom-left" });
     }
   };
+
+  const deletarRegistro = async (item: any) => {
+    try {
+      console.log("item recebido:", item);
+
+      const result = await Swal.fire({
+        title: 'Tem certeza?',
+        text: "Você está prestes a remover este gestor da unidade!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sim, desalocar!',
+        cancelButtonText: 'Cancelar'
+      });
+
+      if (!result.isConfirmed) return;
+
+      const unidadeId = id;
+      const usuarioId = item?.gestor?.id;
+
+      if (!unidadeId || !usuarioId || usuarioId.length < 10) {
+        toast.error("IDs inválidos para a operação!", { position: "top-left" });
+        return;
+      }
+
+      const endpoint = `/auth/unidade-administrativa/${unidadeId}/gestores`;
+
+      const response = await generica({
+        metodo: "delete",
+        uri: endpoint,
+        data: { usuarioId },
+        params: {},
+      });
+
+      if (response?.data?.errors) {
+        Object.keys(response.data.errors).forEach((campoErro) => {
+          toast(`Erro em ${campoErro}: ${response.data.errors[campoErro]}`, {
+            position: "top-left",
+          });
+        });
+      } else if (response?.status === 204) {
+        toast.success("Gestor removido da unidade com sucesso!", { position: "top-left" });
+        if (typeof id === 'string') {
+          await pesquisarTodosColaboradores(id);
+        }
+      } else if (response?.data?.error) {
+        toast(response.data.error.message, { position: "top-left" });
+      } else {
+        toast.error("Erro ao desalocar gestor. Tente novamente!", { position: "top-left" });
+      }
+    } catch (error) {
+      console.error("Erro ao desalocar gestor:", error);
+      toast.error("Erro ao desalocar gestor. Tente novamente!", { position: "top-left" });
+    }
+  };
+
+
 
   useEffect(() => {
     const carregarDados = async () => {
