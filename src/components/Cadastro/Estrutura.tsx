@@ -150,14 +150,14 @@ const Cadastro = ({
             return (
               <button
                 key={index}
-                type={isSubmit ? "submit" : "button"}
+                type="button" // <- mantém tudo como button
                 name={botao.chave}
                 className={
                   isSubmit
                     ? "bg-primary-500 hover:bg-primary-700 text-white px-4 py-2 rounded text-body-medium"
                     : "bg-neutrals-200 hover:bg-neutrals-300 text-neutrals-700 px-4 py-2 rounded text-body-medium"
                 }
-                onClick={!isSubmit ? () => chamarFuncao?.(botao.chave, dadosPreenchidos) : undefined}
+                onClick={() => chamarFuncao?.(botao.chave, dadosPreenchidos)}
               >
                 {botao.nome}
               </button>
