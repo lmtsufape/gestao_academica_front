@@ -34,39 +34,38 @@ const Cadastro = ({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Pré-visualização de foto
+  // Substitua os dois useEffects por este:
   useEffect(() => {
-    if (estrutura?.cadastro?.campos) {
+    // Inicialização única dos multi-selects
+    if (estrutura?.cadastro?.campos && !dadosPreenchidos?._initialized) {
       const flat = flattenCampos(estrutura.cadastro.campos);
-      const fotoCampo = flat.find((c: any) => c.tipo === "foto");
-      if (fotoCampo) {
-        const valor = getNestedValue(dadosPreenchidos, fotoCampo.chave);
-        if (valor && typeof valor === "string") setPhotoPreview(valor);
-      }
-    }
-  }, [dadosPreenchidos, estrutura]);
+      const updates: Record<string, any> = {};
 
-  // Inicializa multi-selects com allSelect (se definido)
-  useEffect(() => {
-    if (!estrutura?.cadastro?.campos) return;
-    const flat = flattenCampos(estrutura.cadastro.campos);
-
-    const updates: Record<string, any> = {};
-
-    flat.forEach((campo: Campo) => {
-      if (campo.tipo === "multi-select" || campo.tipo === "multi-select2") {
-        const curr = getNestedValue(dadosPreenchidos, campo.chave);
-        if (!Array.isArray(curr)) updates[campo.chave] = [];
-        if (campo.allSelect && campo.selectOptions?.length) {
-          updates[campo.chave] = campo.selectOptions.map((o) => o.chave.toString());
+      // Processar multi-selects
+      flat.forEach((campo: Campo) => {
+        if (campo.tipo === "multi-select" || campo.tipo === "multi-select2") {
+          const curr = getNestedValue(dadosPreenchidos, campo.chave);
+          if (!Array.isArray(curr)) updates[campo.chave] = [];
+          if (campo.allSelect && campo.selectOptions?.length) {
+            updates[campo.chave] = campo.selectOptions.map((o) => o.chave.toString());
+          }
         }
-      }
-    });
 
-    if (Object.keys(updates).length > 0) {
-      setDadosPreenchidos((prev: any) => ({ ...prev, ...updates }));
+        // Processar foto
+        if (campo.tipo === "foto") {
+          const valor = getNestedValue(dadosPreenchidos, campo.chave);
+          if (valor && typeof valor === "string" && valor !== photoPreview) {
+            setPhotoPreview(valor);
+          }
+        }
+      });
+
+      if (Object.keys(updates).length > 0) {
+        updates._initialized = true;
+        setDadosPreenchidos((prev: any) => ({ ...prev, ...updates }));
+      }
     }
-  }, [estrutura, setDadosPreenchidos, dadosPreenchidos]);
+  }, [dadosPreenchidos, estrutura, photoPreview]); // Dependências completas
 
   // Perfil atual (para exibir campos condicionais)
   const perfilAtual = useMemo(

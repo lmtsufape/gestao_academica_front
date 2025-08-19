@@ -65,18 +65,6 @@ export default function EfrotasLayout({ children }: { children: React.ReactNode 
           route: "/gestao-acesso/solicitacoes",
           icon: <PendingActions fontSize="small" className="text-white" />,
           roles: ["aluno", "professor", "visitante", "tecnico", "gestor"],
-          // subItems: [
-          //   {
-          //     label: "Aguardando",
-          //     route: "/gestao-acesso/solicitacoes/aguardando",
-          //     icon: <PendingActions fontSize="small" className="text-white"/>,
-          //   },
-          //   {
-          //     label: "Aprovadas",
-          //     route: "/gestao-acesso/solicitacoes/aprovadas",
-          //     icon: <PendingActions fontSize="small"className="text-white" />,
-          //   },
-          // ],
         },
         {
           label: "Gerenciar Solicitações",
