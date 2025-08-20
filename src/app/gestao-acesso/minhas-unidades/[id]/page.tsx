@@ -76,8 +76,9 @@ const cadastro = () => {
             };
           }
         }
-
-        setDadosPreenchidos(dados);
+        let dadosMapeados = response.data;
+        dados.tipoUnidadeAdministrativaId = response.data.tipoUnidadeAdministrativa?.id;
+        setDadosPreenchidos(dadosMapeados);
       } else {
         toast.error("Erro ao carregar dados da unidade", { position: "top-left" });
       }
@@ -141,6 +142,7 @@ const cadastro = () => {
           mensagem: "Digite",
           obrigatorio: true,
           maxLength: 50,
+          bloqueado: true,
         },
         {
           line: 1,
@@ -150,6 +152,7 @@ const cadastro = () => {
           tipo: "text",
           mensagem: "Digite",
           obrigatorio: true,
+          bloqueado: true,
         },
         {
           line: 2,
@@ -159,6 +162,7 @@ const cadastro = () => {
           tipo: "select",
           mensagem: "Selecione o tipo de unidade",
           obrigatorio: false,
+          bloqueado: true,
           selectOptions: getOptions(
             tipoUnidade,
             dadosPreenchidos?.tipoUnidadeAdministrativaId,
@@ -174,6 +178,7 @@ const cadastro = () => {
           tipo: "select",
           mensagem: "Selecione a unidade responsavel",
           obrigatorio: false,
+          bloqueado: true,
           selectOptions: getOptions(
             UnidadesPai,
             dadosPreenchidos?.unidadePaiId,
@@ -362,6 +367,7 @@ const cadastro = () => {
         setUnidadesPai(response.data.content || response.data);
       }
     } catch (error) {
+
       console.error('Erro ao carregar registros:', error);
     }
   };
