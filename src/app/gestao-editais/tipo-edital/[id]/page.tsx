@@ -79,7 +79,7 @@ const cadastro = () => {
         try {
             const body = {
                 metodo: `${isEditMode ? "patch" : "post"}`,
-                uri: "/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri}`,
+                uri: "/editais/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri}`,
                 params: {},
                 data: item,
             };
@@ -124,7 +124,7 @@ const cadastro = () => {
         try {
             const body = {
                 metodo: "get",
-                uri: "/" + estrutura.uri + "/" + item,
+                uri: "/editais" + estrutura.uri + "/" + item,
                 params: {},
                 data: item,
             };
