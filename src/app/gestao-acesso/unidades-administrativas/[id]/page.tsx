@@ -119,10 +119,10 @@ const cadastro = () => {
           ),
           chave: "tipoUnidadeAdministrativaId",
           tipo: "select",
-          mensagem: "",
+          mensagem: "Selecione um tipo",
           obrigatorio: false,
           selectOptions: getOptions(tipoUnidade, dadosPreenchidos?.tipoUnidadeAdministrativaId),
-          bloqueado: true,
+          bloqueado: isEditMode ? true : false,
         },
         {
           line: 2,
@@ -130,10 +130,10 @@ const cadastro = () => {
           nome: "Unidade Administrativa Responsavel",
           chave: "unidadePaiId",
           tipo: "select",
-          mensagem: "",
+          mensagem: "Selecione uma unidade",
           obrigatorio: false,
           selectOptions: getOptions(UnidadesPai, dadosPreenchidos?.unidadePaiId),
-          bloqueado: true,
+          bloqueado: isEditMode ? true : false,
         }
       ],
       acoes: [
