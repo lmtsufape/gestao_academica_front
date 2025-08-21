@@ -191,20 +191,23 @@ const cadastro = () => {
 
   const salvarRegistro = async (item: any) => {
     try {
+      // Converter para número (JavaScript number) - a maioria dos backends aceita
+      const tipoUnidadeId = item.tipoUnidadeAdministrativaId ?
+        Number(item.tipoUnidadeAdministrativaId) : null;
+
+      const unidadePaiId = item.unidadePaiId ?
+        Number(item.unidadePaiId) : null;
+
       const dadosParaEnviar = {
         nome: item.nome,
         codigo: item.codigo,
-        tipoUnidadeAdministrativaId: item.tipoUnidadeAdministrativaId,
-        unidadePaiId: item.unidadePaiId,
+        tipoUnidadeAdministrativaId: tipoUnidadeId,
+        unidadePaiId: unidadePaiId,
       };
 
       if (item.nome?.length > 30) {
         toast.warning("O nome deve ter no máximo 30 caracteres", { position: "top-left" });
         return;
-      }
-
-      if (item.unidadePaiId !== undefined && item.unidadePaiId !== null) {
-        dadosParaEnviar.unidadePaiId = item.unidadePaiId;
       }
 
       const body = {
@@ -404,8 +407,6 @@ const cadastro = () => {
 
   const deletarRegistro = async (item: any) => {
     try {
-      console.log("item recebido:", item);
-
       const result = await Swal.fire({
         title: 'Tem certeza?',
         text: "Você está prestes a remover este gestor da unidade!",
