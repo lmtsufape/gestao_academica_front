@@ -205,10 +205,6 @@ const cadastro = () => {
         unidadePaiId: unidadePaiId,
       };
 
-      console.log('Dados enviados:', dadosParaEnviar);
-      console.log('Tipo de tipoUnidadeAdministrativaId:', typeof tipoUnidadeId);
-      console.log('Tipo de unidadePaiId:', typeof unidadePaiId);
-
       if (item.nome?.length > 30) {
         toast.warning("O nome deve ter no máximo 30 caracteres", { position: "top-left" });
         return;
@@ -411,8 +407,6 @@ const cadastro = () => {
 
   const deletarRegistro = async (item: any) => {
     try {
-      console.log("item recebido:", item);
-
       const result = await Swal.fire({
         title: 'Tem certeza?',
         text: "Você está prestes a remover este gestor da unidade!",
