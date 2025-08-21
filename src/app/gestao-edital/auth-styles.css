@@ -1,0 +1,17 @@
+.custom-text-color {
+    color: #1A4568;
+}
+
+.custom-blue-purple-button {
+    background-color: #1A4568;
+    transition: background-color 0.3s;
+}
+
+.custom-blue-purple-button:hover {
+    background-color: #153a57;
+}
+
+.custom-blue-purple-button:focus {
+    outline: 4px solid #1A4568;
+    outline-offset: 2px;
+}
