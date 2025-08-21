@@ -1,6 +1,4 @@
 import React from 'react';
-import Link from 'next/link';
-import theme from "@/theme/theme";
 import Image from 'next/image';
 
 const Footer = ({ dados }: any) => {
@@ -19,12 +17,22 @@ const Footer = ({ dados }: any) => {
                     </a>
                 </div>
                 <div className="flex flex-wrap justify-center md:justify-end gap-4">
-                    <Link href="https://www.facebook.com/LMTSUFAPE/" className="hover:opacity-80 transition">
+                    <a
+                        href="https://www.facebook.com/LMTSUFAPE/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:opacity-80 transition"
+                    >
                         <Image src="/assets/icons/facebook.svg" alt="Facebook Icon" width={24} height={24} />
-                    </Link>
-                    <Link href="https://www.instagram.com/lmts_ufape/" className="hover:opacity-80 transition">
+                    </a>
+                    <a
+                        href="https://www.instagram.com/lmts_ufape/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:opacity-80 transition"
+                    >
                         <Image src="/assets/icons/instagram.svg" alt="Instagram Icon" width={24} height={24} />
-                    </Link>
+                    </a>
                     <a
                         href="https://mail.google.com/mail/?view=cm&fs=1&to=lmts@ufape.edu.br"
                         target="_blank"
@@ -36,7 +44,6 @@ const Footer = ({ dados }: any) => {
                 </div>
             </div>
         </footer>
-
     );
 };
 
