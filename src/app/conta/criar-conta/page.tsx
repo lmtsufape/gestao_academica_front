@@ -1,7 +1,5 @@
 "use client"
-import { FormEvent, useState } from "react";
-
-
+import { FormEvent, useState, useEffect } from "react";
 import '../auth-styles.css';
 import Link from "next/link";
 import { genericaApiAuth } from "@/utils/api";
@@ -10,6 +8,7 @@ import { toast } from "react-toastify";
 import TermosDeUso from "@/app/conta/criar-conta/termos-de-uso/page";
 import Swal from "sweetalert2";
 import SuccessModal from '@/components/Cadastro/modalSucesso';
+import Image from "next/image";
 
 const openPopup = (url: any) => {
     window.open(url, 'popup', 'width=600,height=600,scrollbars=no,resizable=no');
@@ -22,6 +21,9 @@ export default function PageRegister() {
     const [errorMessage, setErrorMessage] = useState<string>("");
     const [successMessage, setSuccessMessage] = useState<string>("");
     const [showModal, setShowModal] = useState(false);
+    const [etnias, setEtnias] = useState<any[]>([]);
+    const [loadingEtnias, setLoadingEtnias] = useState(true);
+
     const [formData, setFormData] = useState<any>({
         nome: "",
         nomeSocial: "",
@@ -31,9 +33,35 @@ export default function PageRegister() {
         repetirEmail: "",
         senha: "",
         repetirSenha: "",
-        termosUso: false
+        termosUso: false,
+        etniaId: "" // Adicionado campo para armazenar a etnia selecionada
     });
     const [mostrarSenha, setMostrarSenha] = useState<boolean>(false);
+
+    useEffect(() => {
+        // Carrega as etnias da API quando o componente montar
+        const carregarEtnias = async (params = null) => {
+            try {
+                const response = await genericaApiAuth({
+                    metodo: 'get',
+                    uri: '/tipoEtnia',
+                    params: params != null ? params : { size: 15, page: 0 },
+                    data: {}
+                });
+
+                if (response.data && response.data.content && Array.isArray(response.data.content)) {
+                    setEtnias(response.data.content); // Agora pegamos response.data.content
+                }
+            } catch (error) {
+                console.error("Erro ao carregar etnias:", error);
+                toast.error("Erro ao carregar opções de etnia");
+            } finally {
+                setLoadingEtnias(false);
+            }
+        };
+
+        carregarEtnias();
+    }, []);
 
     const handleClickTermosDeUso = (e: any) => {
         e.preventDefault();
@@ -277,11 +305,46 @@ export default function PageRegister() {
                             <label htmlFor="repetirEmail" className="block mb-2 text-sm font-medium text-gray-900">Repetir E-mail <span className="text-red-500">*</span></label>
                             <input type="email" name="repetirEmail" id="repetirEmail" value={formData.repetirEmail} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
                         </div>
+                        <div>
+                            <label htmlFor="tipoEtniaId" className="block mb-2 text-sm font-medium text-gray-900">Etnia <span className="text-red-500">*</span></label>
+                            <select
+                                name="tipoEtniaId"
+                                id="tipoEtniaId"
+                                value={formData.tipoEtniaId}
+                                onChange={handleChange}
+                                className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
+                                required
+                                disabled={loadingEtnias}
+                            >
+                                <option value="">Selecione uma etnia</option>
+                                {etnias.map((etnia) => (
+                                    <option key={etnia.id} value={etnia.id}>
+                                        {etnia.tipo}
+                                    </option>
+                                ))}
+                            </select>
+                            {loadingEtnias && <p className="text-sm text-gray-500">Carregando opções...</p>}
+                        </div>
                         <div className="relative">
                             <label htmlFor="senha" className="block mb-2 text-sm font-medium text-gray-900">Senha <span className="text-red-500">*</span></label>
                             <input type={mostrarSenha ? "text" : "password"} name="senha" id="senha" value={formData.senha} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
                             <button type="button" className="absolute right-2 top-9 text-sm text-gray-700" onClick={() => setMostrarSenha(!mostrarSenha)}>
-                                {mostrarSenha ? 'ocultar' : 'Exibir'}
+                                {mostrarSenha ? (
+                                    <Image
+                                        src="/assets/icons/eyeOff.svg"
+                                        alt="Facebook Icon"
+                                        width={24}
+                                        height={24}
+                                    />
+                                ) : (
+                                    <Image
+                                        src="/assets/icons/eyeOn.svg"
+                                        className="text-purple-900"
+                                        alt="Facebook Icon"
+                                        width={25}
+                                        height={25}
+                                    />
+                                )}
                             </button>
                             {errorMessageSenha && <p className="text-red-500 text-sm mt-2">{errorMessageSenha}</p>}
                         </div>

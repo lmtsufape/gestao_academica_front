@@ -35,7 +35,7 @@ const estrutura: any = {
       { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
     ],
     acoes_dropdown: [
-      { nome: 'Alocar', chave: 'editar' }, //nome(string),chave(string),bloqueado(booleano)
+      { nome: 'AlocarFunc', chave: 'editar' }, //nome(string),chave(string),bloqueado(booleano)
     ]
   }
 

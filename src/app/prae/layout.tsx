@@ -12,13 +12,15 @@ import {
   Assessment,
   EventAvailable,
   EventBusy,
-  Category
+  Category,
+  Work
 } from "@mui/icons-material";
 import { InternalLayoutConfig } from "@/types/InternalLayoutConf";
 
 export default function PraeLayout({ children }: { children: React.ReactNode }) {
   const auth = useAuthService();
-  const isAluno = auth.isAluno(); // <- obtém se é aluno
+  const isAluno = auth.isAluno();
+  const isPraeAccess = auth.isPraeAccess();
 
   const layoutConfig: InternalLayoutConfig = {
     header: {
@@ -55,13 +57,13 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           label: "Início",
           route: "/home",
           icon: <Home fontSize="small" className="text-white" />,
-          roles: ["administrador", "gestor", "tecnico", "aluno"],
+          roles: ["administrador", "gestor", "tecnico", "aluno", "visitante", "professor"],
         },
         {
           label: "Gerenciar Estudantes",
           route: "/prae/estudantes",
           icon: <School fontSize="small" className="text-white" />,
-          roles: ["gestor", "tecnico"],
+          roles: isPraeAccess ? ["gestor", "tecnico"] : [""],
         },
         {
           label: "Meu Cadastro",
@@ -69,11 +71,18 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           icon: <School fontSize="small" className="text-white" />,
           roles: ["aluno"],
         },
+
+        {
+          label: "Meu Cadastro",
+          route: "/prae/profissionais/atual",
+          icon: <Work fontSize="small" className="text-white" />,
+          roles: isPraeAccess ? ["tecnico", "professor"] : [""],
+        },
         {
           label: "Gerenciar Benefícios",
           route: "/prae/beneficios",
           icon: <VolunteerActivism fontSize="small" className="text-white" />,
-          roles: ["gestor"],
+          roles: isPraeAccess ? ["gestor"] : [""],
           subItems: [
             {
               label: "Tipos",
@@ -91,19 +100,19 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           label: isAluno ? "Pagamentos" : "Gerenciar Pagamentos",
           route: "/prae/pagamentos",
           icon: <Payment fontSize="small" className="text-white" />,
-          roles: ["gestor", "aluno"],
+          roles: isPraeAccess ? ["gestor"] : ["aluno"],
           subItems: [
             {
               label: "Pagamentos Pendentes",
               route: "/prae/pagamentos/pagamentos-pendentes",
               icon: <PendingActions fontSize="small" className="text-white" />,
-              roles: ["gestor"],
+              roles: isPraeAccess ? ["gestor"] : [""],
             },
             {
               label: "Pagamentos Realizados",
               route: "/prae/pagamentos/pagamentos-realizados",
               icon: <DoneAll fontSize="small" className="text-white" />,
-              roles: ["gestor"],
+              roles: isPraeAccess ? ["gestor"] : [""],
             },
             {
               label: "Meus Recebimentos",
@@ -115,7 +124,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
               label: "Relatório Financeiro",
               route: "/prae/pagamentos/relatorio-financeiro",
               icon: <Assessment fontSize="small" className="text-white" />,
-              roles: ["gestor"],
+              roles: isPraeAccess ? ["gestor"] : [""],
             },
           ],
         },
@@ -123,37 +132,37 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           label: isAluno ? "Agendamentos" : "Gerenciar Agendamentos",
           route: "/prae/agendamentos",
           icon: <EventNote fontSize="small" className="text-white" />,
-          roles: ["gestor", "aluno"],
+          roles: isPraeAccess ? ["gestor", "Tecnico", "Professor"]  : ["aluno"],
           subItems: [
             {
               label: "Tipo de Atendimento",
               route: "/prae/agendamentos/tipo",
               icon: <Category fontSize="small" className="text-white" />, // Ícone para categorias/tipos
-              roles: ["gestor"],
+              roles: isPraeAccess ? ["gestor", "tecnico", "professor"] : [""],
             },
             {
               label: "Gerenciar Cronograma",
               route: "/prae/agendamentos/cronograma",
               icon: <Schedule fontSize="small" className="text-white" />, // Ícone de cronograma
-              roles: ["gestor"],
+              roles: isPraeAccess ? ["gestor", "tecnico", "professor"] : [""],
             },
             {
               label: "Calendário de Agendamentos",
               route: "/prae/agendamentos/calendario",
               icon: <CalendarMonth fontSize="small" className="text-white" />, // Ícone de calendário
-              roles: ["gestor", "aluno"],
+              roles: isPraeAccess ? ["gestor"] : ["aluno"],
             },
             {
               label: "Meus Agendamentos",
               route: "/prae/agendamentos/calendario/meus-agendamentos",
               icon: <EventAvailable fontSize="small" className="text-white" />, // Ícone para eventos confirmados
-              roles: ["gestor", "aluno"],
+              roles: isPraeAccess ? ["gestor", "Tecnico", "Professor"] : ["aluno"],
             },
             {
               label: "Meus Cancelamentos",
               route: "/prae/agendamentos/calendario/meus-cancelamentos",
               icon: <EventBusy fontSize="small" className="text-white" />, // Ícone para eventos cancelados
-              roles: ["gestor", "aluno"],
+              roles: isPraeAccess ? ["gestor", "Tecnico", "Professor"] : ["aluno"],
             },
           ]
         }

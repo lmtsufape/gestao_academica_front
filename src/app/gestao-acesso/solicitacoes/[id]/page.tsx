@@ -365,51 +365,36 @@ const cadastro = () => {
   };
   const aprovarRegistro = async (item: any) => {
     try {
-      const formData = {
-        parecer: item.parecer,
-      }
       const body = {
         metodo: "post",
-        uri: "/auth/" + estrutura.uri + "/" + item.id + "/aprovar",
+        uri: `/auth/${estrutura.uri}/${item.id}/aprovar`,
         params: {},
-        data: formData,
+        data: { parecer: item.parecer }, // só isso vai no corpo
       };
+
       const response = await generica(body);
+
       if (!response || response.status < 200 || response.status >= 300) {
-        if (response) {
-          console.error("DEBUG: Status de erro:", response.status, 'statusText' in response ? response.statusText : "Sem texto de status");
-        }
-        toast.error(`Erro na requisição (HTTP ${response?.status || "desconhecido"})`, { position: "top-left" });
+        toast.error(`Erro na aprovação (HTTP ${response?.status || "desconhecido"})`);
         return;
       }
-      if (response.data?.errors) {
-        Object.keys(response.data.errors).forEach((campoErro) => {
-          toast.error(`Erro em ${campoErro}: ${response.data.errors[campoErro]}`, {
-            position: "top-left",
-          });
-        });
-      } else if (response.data?.error) {
-        toast(response.data.error.message, { position: "top-left" });
-      } else {
-        Swal.fire({
-          title: "Solicitação aprovada!",
-          icon: "success",
-          customClass: {
-            popup: "my-swal-popup",
-            title: "my-swal-title",
-            htmlContainer: "my-swal-html",
-          },
-        }).then((result) => {
-          if (result.isConfirmed) {
-            chamarFuncao("voltar");
-          }
-        });
-      }
+
+      Swal.fire({
+        title: "Solicitação aprovada!",
+        icon: "success",
+        customClass: {
+          popup: "my-swal-popup",
+          title: "my-swal-title",
+          htmlContainer: "my-swal-html",
+        },
+      }).then(() => chamarFuncao("voltar"));
+
     } catch (error) {
-      console.error("DEBUG: Erro ao salvar registro:", error);
-      toast.error("Erro ao salvar registro. Tente novamente!", { position: "top-left" });
+      console.error("DEBUG: Erro ao aprovar solicitação:", error);
+      toast.error("Erro ao aprovar. Tente novamente!");
     }
   };
+
 
   /**
  * Monta um FormData de acordo com item.tipoUsuario:
@@ -468,19 +453,37 @@ const cadastro = () => {
 
     return fd;
   }
+
+  // Valida extensão e tamanho dos arquivos
+  const validateFiles = (files: File[], maxSize: number, allowedTypes: string[] = ["application/pdf"]) => {
+    for (const file of files) {
+
+      if (!allowedTypes.includes(file.type)) {
+        return { valid: false, message: `O arquivo "${file.name}" não é um PDF válido.` };
+      }
+
+      if (file.size > maxSize) {
+        return { valid: false, message: `O arquivo "${file.name}" excede o tamanho máximo de 2MB.` };
+      }
+    }
+    return { valid: true, message: "" };
+  };
+
+
   const salvarRegistro = async (item: any) => {
     try {
-
       if (item.documentos && item.documentos.length > 0) {
         const maxSize = 2 * 1024 * 1024; // 2MB
-        if (!validateFileSize(item.documentos, maxSize)) {
-          toast.error("Um ou mais arquivos excedem o tamanho máximo de 2MB");
+        const validation = validateFiles(item.documentos, maxSize);
+
+        if (!validation.valid) {
+          toast.error(validation.message);
           return;
         }
       }
+
       const formData = buildSolicitacaoFormData(item);
 
-      // 2) dispara a chamada multipart
       const response = await genericaMultiForm({
         metodo: 'post',
         uri: `/auth/solicitacao/${item.tipoUsuario.toLowerCase()}`,

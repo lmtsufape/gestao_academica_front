@@ -7,45 +7,48 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
-
-const estrutura: any = {
-
-  uri: "cancelamento", //caminho base
-
-  cabecalho: { //cabecalho da pagina
-    titulo: "Meus Cancelamentos",
-    migalha: [
-      { nome: 'Home', link: '/home' },
-      { nome: 'Prae', link: '/prae' },
-      { nome: 'Meus Cancelamentos', link: '/prae/agendamentos/calendario/meus-cancelamentos' },
-    ]
-  },
-
-  tabela: {
-    configuracoes: {
-      pesquisar: true,//campo pesquisar nas colunas (booleano)
-      cabecalho: true,//cabecalho da tabela (booleano)
-      rodape: true,//rodape da tabela (booleano)
-    },
-    botoes: [ //links
-
-    ],
-    colunas: [ //colunas da tabela
-      { nome: "Tipo de Atendimento", chave: "tipoAtendimento", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-      { nome: "Dia do Atendimento", chave: "agendamento.data", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-      { nome: "Horário", chave: "agendamento.vaga.horaInicio", tipo: "array", selectOptions: null, sort: false, pesquisar: false },
-      { nome: "Data do Cancelamento", chave: "dataCancelamento", tipo: "array", selectOptions: null, sort: false, pesquisar: false },
-    ],
-    acoes_dropdown: [ //botão de acoes de cada registro
-      { nome: 'Deletar', chave: 'deletar' },
-    ]
-  }
-
-}
+import { useAuthService } from '@/app/authentication/auth.hook';
 
 const PageLista = () => {
   const router = useRouter();
   const [dados, setDados] = useState<any>({ content: [] });
+  const isProfissional = useAuthService().isProfissional();
+  const isAluno = useAuthService().isAluno();
+
+  const estrutura: any = {
+
+    uri: "cancelamento", //caminho base
+
+    cabecalho: { //cabecalho da pagina
+      titulo: "Meus Cancelamentos",
+      migalha: [
+        { nome: 'Home', link: '/home' },
+        { nome: 'Prae', link: '/prae' },
+        { nome: 'Meus Cancelamentos', link: '/prae/agendamentos/calendario/meus-cancelamentos' },
+      ]
+    },
+
+    tabela: {
+      configuracoes: {
+        pesquisar: true,//campo pesquisar nas colunas (booleano)
+        cabecalho: true,//cabecalho da tabela (booleano)
+        rodape: true,//rodape da tabela (booleano)
+      },
+      botoes: [ //links
+
+      ],
+      colunas: [ //colunas da tabela
+        { nome: "Tipo de Atendimento", chave: "tipoAtendimento", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
+        { nome: "Dia do Atendimento", chave: "agendamento.data", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
+        { nome: "Horário", chave: "agendamento.vaga.horaInicio", tipo: "array", selectOptions: null, sort: false, pesquisar: false },
+        { nome: "Data do Cancelamento", chave: "dataCancelamento", tipo: "array", selectOptions: null, sort: false, pesquisar: false },
+      ],
+      acoes_dropdown: [ //botão de acoes de cada registro
+        { nome: 'Deletar', chave: 'deletar' },
+      ]
+    }
+
+  }
 
   const chamarFuncao = (nomeFuncao = "", valor: any = null) => {
     switch (nomeFuncao) {
@@ -71,7 +74,8 @@ const PageLista = () => {
     try {
       let body = {
         metodo: 'get',
-        uri: '/prae/agendamento/' + estrutura.uri + '/estudante',
+        uri: '/prae/agendamento/' + estrutura.uri +
+          (isProfissional ? '/profissional' : '/estudante'),
         //+ '/page',
         params: params != null ? params : { size: 10, page: 0 },
         data: {}

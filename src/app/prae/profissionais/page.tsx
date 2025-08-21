@@ -10,14 +10,14 @@ import Swal from 'sweetalert2';
 
 const estrutura: any = {
 
-  uri: "tipoEtnia", //caminho base
+  uri: "profissional", //caminho base
 
   cabecalho: { //cabecalho da pagina
-    titulo: "Tipo Etnia",
+    titulo: "Profissionais",
     migalha: [
       { nome: 'Home', link: '/home' },
-      { nome: 'Gestão Acesso', link: '/gestao-acesso' },
-      { nome: 'Tipo Etnia', link: '/gestao-acesso/etnia' },
+      { nome: 'Prae', link: '/prae' },
+      { nome: 'Profissionais', link: '/prae/profissionais/profissionais' },
     ]
   },
 
@@ -27,15 +27,15 @@ const estrutura: any = {
       cabecalho: true,//cabecalho da tabela (booleano)
       rodape: true,//rodape da tabela (booleano)
     },
-    botoes: [ //links
-      { nome: 'Adicionar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
-    ],
+    botoes: [],
     colunas: [ //colunas da tabela
-      { nome: "Tipo Etnia", chave: "tipo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
+      { nome: "Nome", chave: "tecnico.nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Siape", chave: "tecnico.siape", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Especialidade", chave: "especialidade", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
     ],
-    acoes_dropdown: [ //botão de acoes de cada registro
-      { nome: 'Editar', chave: 'editar' }, //nome(string),chave(string),bloqueado(booleano)
+    acoes_dropdown: [
+      { nome: 'Visualizar', chave: 'visualizar' },
       { nome: 'Deletar', chave: 'deletar' },
     ]
   }
@@ -51,11 +51,8 @@ const PageLista = () => {
       case 'pesquisar':
         pesquisarRegistro(valor);
         break;
-      case 'adicionar':
-        adicionarRegistro();
-        break;
-      case 'editar':
-        editarRegistro(valor);
+      case 'visualizar':
+        visualizarRegistro(valor);
         break;
       case 'deletar':
         deletarRegistro(valor);
@@ -64,16 +61,18 @@ const PageLista = () => {
         break;
     }
   }
-  
+  // Função para carregar os dados
   const pesquisarRegistro = async (params = null) => {
     try {
       let body = {
         metodo: 'get',
-        uri: '/auth/' + estrutura.uri,
+        uri: '/prae/' + estrutura.uri,
+        //+ '/page',
         params: params != null ? params : { size: 10, page: 0 },
         data: {}
       }
       const response = await generica(body);
+      //tratamento dos erros
       if (response && response.data.errors != undefined) {
         toast("Erro. Tente novamente!", { position: "bottom-left" });
       } else if (response && response.data.error != undefined) {
@@ -88,20 +87,15 @@ const PageLista = () => {
     }
   };
 
-  // Função que redireciona para a tela adicionar
-  const adicionarRegistro = () => {
-    router.push('/gestao-acesso/etnia/criar');
-  };
-  
-  // Função que redireciona para a tela editar
-  const editarRegistro = (item: any) => {
-    router.push('/gestao-acesso/etnia/' + item.id);
+  // Função que visualiza um registro
+  const visualizarRegistro = (item: any) => {
+    router.push('/prae/profissionais/' + item.id);
   };
 
   // Função que deleta um registro
   const deletarRegistro = async (item: any) => {
     const confirmacao = await Swal.fire({
-      title: `Você deseja deletar a etnia:  ${item.etnia}?`,
+      title: `Você deseja deletar o profissional ${item.tecnico.nome}?`,
       text: "Essa ação não poderá ser desfeita",
       icon: "warning",
       showCancelButton: true,
@@ -140,7 +134,7 @@ const PageLista = () => {
         } else {
           pesquisarRegistro();
           Swal.fire({
-            title: "Curso deletado com sucesso!",
+            title: "Profissional excluído com sucesso!",
             icon: "success"
           });
         }
@@ -157,14 +151,6 @@ const PageLista = () => {
 
   return (
     <main className="flex flex-wrap justify-center mx-auto">
-      {/* 
-      Em telas muito pequenas: w-full, p-4
-      A partir de sm (>=640px): p-6
-      A partir de md (>=768px): p-8
-      A partir de lg (>=1024px): p-12
-      A partir de xl (>=1280px): p-16
-      A partir de 2xl (>=1536px): p-20 e w-10/12
-    */}
       <div className="w-full sm:w-11/12 2xl:w-10/12 p-4 sm:p-6 md:p-8 lg:p-12 :p-16 2xl:p-20 pt-7 md:pt-8 md:pb-8 ">
         <Cabecalho dados={estrutura.cabecalho} />
         <Tabela

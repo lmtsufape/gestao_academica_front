@@ -241,8 +241,8 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                                     <button
                                       key={generateUniqueKey(cellKey, acao.chave)}
                                       className={`block px-3 py-2 text-sm w-full text-center justify-center
-                                        ${acao.nome === 'Selecionar' || acao.nome === 'Alocar'
-                                          ? 'bg-primary-100 text-primary-700 font-bold rounded hover:bg-primary-100'
+                                        ${acao.nome === 'Selecionar' || acao.nome === 'AlocarGest' || acao.nome === 'AlocarFunc'
+                                          ? 'bg-primary-700 text-white font-bold rounded hover:bg-primary-500'
                                           : acao.nome === 'Remover'
                                             ? 'bg-danger-50 text-danger-500 font-bold rounded hover:bg-danger-50'
                                             : 'text-neutrals-700 hover:bg-neutrals-100'}`}
@@ -261,11 +261,17 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                                       {acao.nome === 'Selecionar' && (
                                         <span>Selecionar</span>
                                       )}
-                                      {acao.nome === 'Alocar' && (
-                                        <span>Alocar Colaborador</span>
+                                      {acao.nome === 'AlocarFunc' && (
+                                        <span>Alocar Funcionario</span>
                                       )}
-                                      {acao.nome === 'Remover' && (
-                                        <span>Remover Colaborador</span>
+                                      {acao.nome === 'RemoverFunc' && (
+                                        <span>Remover Funcionario</span>
+                                      )}
+                                      {acao.nome === 'AlocarGest' && (
+                                        <span>Alocar Gestor</span>
+                                      )}
+                                      {acao.nome === 'RemoverGest' && (
+                                        <span>Remover Gestor</span>
                                       )}
                                     </button>
                                   ))}

@@ -12,20 +12,37 @@ export default function PageEFrotas() {
   const router = useRouter();
   const auth = useAuthService();
   const [isAluno, setisAluno] = useState<boolean>(false);
+  const [isProfessor, setisProfessor] = useState<boolean>(false);
+  const [isTecnico, setisTecnico] = useState<boolean>(false);
+  const [isPraeAccess, setisPraeAccess] = useState<boolean>(false);
+  const [isProfissional, setisProfissional] = useState<boolean>(false);
+  const [isGestor, setisGestor] = useState<boolean>(false);
 
   useEffect(() => {
-    // Update isAluno when auth state changes
     if (!auth.isLoading) {
       setisAluno(auth.isAluno());
+      setisProfissional(auth.isProfissional());
+      setisProfessor(auth.isProfessor());
+      setisTecnico(auth.isTecnico());
+      setisPraeAccess(auth.isPraeAccess());
+      setisGestor(auth.isGestor());
     }
   }, [auth.isAuthenticated, auth.isLoading]);
 
   useEffect(() => {
     if (isAluno) {
       buscarEstudanteAtual();
-      console.log();
+      console.log("DEBUG: Verificando estudante atual");
     }
-  }, [isAluno]);
+
+    if ((isProfessor || isTecnico || isGestor) && !isPraeAccess) {
+      redirectNoPraeAccess();
+    }
+
+    if ((isProfessor || isTecnico) && !isProfissional && isPraeAccess) {
+      criarProfissional();
+    }
+  }, [isAluno, isProfessor, isTecnico, isProfissional, isPraeAccess, isGestor]);
 
   const buscarEstudanteAtual = async () => {
     try {
@@ -49,6 +66,17 @@ export default function PageEFrotas() {
     }
   };
 
+  const redirectNoPraeAccess = () => {
+    Swal.fire({
+      title: "Acesso não autorizado",
+      text: "Você não tem permissão para acessar todas as funcionalidades da PRAE. " +
+        "Por favor, entre em contato com o administrador do sistema.",
+      icon: "error",
+      confirmButtonText: "OK",
+    }).then(() => {
+    });
+  };
+
   const criarEstudante = async () => {
     Swal.fire({
       title: "Para usar o módulo da Prae conclua seu cadastro!",
@@ -61,6 +89,22 @@ export default function PageEFrotas() {
     }).then((result) => {
       if (result.isConfirmed) {
         router.push("/prae/estudantes/criar");
+      }
+    });
+  };
+
+  const criarProfissional = async () => {
+    Swal.fire({
+      title: "Para usar o módulo da Prae conclua seu cadastro!",
+      icon: "warning",
+      customClass: {
+        popup: "my-swal-popup",
+        title: "my-swal-title",
+        htmlContainer: "my-swal-html",
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        router.push("/prae/profissionais/criar");
       }
     });
   };
