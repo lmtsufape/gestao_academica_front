@@ -93,7 +93,7 @@ export default function HomePage() {
     {
       id: "gestao-editais",
       name: "Editais",
-      route: "/gestao-editais",
+      route: "/gestao-edital",
       description: "Acesse o módulo de Editais",
       image: "/assets/brasaoUfapeCol.png",
     },
