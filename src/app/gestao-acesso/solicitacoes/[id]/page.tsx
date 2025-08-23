@@ -174,7 +174,7 @@ const cadastro = () => {
           chave: isEditMode ? "perfil.matricula" : "matricula",
           tipo: "text",
           mensagem: "Digite a matrícula",
-          obrigatorio: false,
+          obrigatorio: true,
           exibirPara: ["ALUNO"],
           bloqueado: isEditMode,
 
