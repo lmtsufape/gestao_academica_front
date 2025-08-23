@@ -1,12 +1,13 @@
 "use client"
-import { genericaApiAuth } from "@/utils/api";
-import router from "next/router";
+import { AuthService } from "@/app/authentication/auth.service";
+import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
 import '../auth-styles.css';
 
 export default function PageLogin() 
 {
+    const router = useRouter();
     const [errorMessage, setErrorMessage] = useState("");
     const [email, setEmail] = useState("");
     const [formData, setFormData] = useState<any>({
@@ -36,15 +37,7 @@ export default function PageLogin()
             "email" : email
         };
 
-        const body = 
-        {
-            metodo: 'post',
-            uri: '/reset/resetPassword',
-            params: {},
-            data: formDataWithEmail
-        };
-
-        const response = await genericaApiAuth(body);
+        const response = await AuthService.resetPassword(email);
 
         if (response.status && response.status === 500)
             setErrorMessage(response.data.message);
@@ -66,7 +59,7 @@ export default function PageLogin()
         if (response.data.detail) 
             setErrorMessage(`${response.data.detail}`);
         else 
-        if (response.status === 200) 
+        if (response.ok) 
             router.push('/conta/recuperar-senha/sucesso')
         else
         {

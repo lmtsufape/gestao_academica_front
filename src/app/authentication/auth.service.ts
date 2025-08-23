@@ -55,6 +55,23 @@ export class AuthService {
     TokenService.stopTokenRefreshSchedule();
   }
 
+  static async resetPassword(email: string): Promise<any> {
+    const params = new URLSearchParams({ email });
+    const res = await fetch(`${BASE}/auth/reset-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString(),
+    });
+    
+    const data = await res.json().catch(() => ({}));
+    
+    return {
+      status: res.status,
+      ok: res.ok,
+      data
+    };
+  }
+
   static redirectToLogin(): void {
     window.location.href = '/login';
   }
