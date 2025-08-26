@@ -77,7 +77,6 @@ export default function Login() {
     });
 
     try {
-      // Perform login; AuthService.login will throw on failure
       await login(userEmail, userPassword);
 
       if (remember) {
@@ -86,7 +85,6 @@ export default function Login() {
         localStorage.setItem("sgu_saved_emails", JSON.stringify(updatedEmails));
       }
 
-      // Update the toast to success
       toast.update(toastId, {
         render: "Login realizado com sucesso!",
         type: "success",
@@ -100,15 +98,21 @@ export default function Login() {
     } catch (error: any) {
       console.error('Erro ao fazer o login:', error);
 
-      const errorMsg = error.message || "Erro ao fazer o login.";
+      let errorMsg = "Erro ao fazer o login.";
+
+      if (error.message?.includes('400') || error.response?.status === 400) {
+        errorMsg = "Conta não confirmada. Verifique seu e-mail para confirmar sua conta antes de fazer login.";
+      } else if (error.message) {
+        errorMsg = error.message;
+      }
+
       setErrorMessage(errorMsg);
 
-      // Update the toast to error
       toast.update(toastId, {
         render: errorMsg,
         type: "error",
         isLoading: false,
-        autoClose: 3000,
+        autoClose: 5000,
         closeButton: true,
         hideProgressBar: false,
       });

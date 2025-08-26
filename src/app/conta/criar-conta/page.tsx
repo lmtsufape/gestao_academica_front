@@ -369,7 +369,7 @@ export default function PageRegister() {
                                 />
                             </div>
                             <label htmlFor="termosUso" className="ml-2 text-sm font-medium text-gray-900">
-                                Concordo com os <a href="/conta/criar-conta/termos-de-uso" target="_blank" className="text-blue-600 hover:underline">Termos de Uso</a> e <a href="/conta/criar-conta/termos-de-uso#aviso-de-privacidade" className="text-blue-600 hover:underline">Política de Privacidade</a>
+                                Concordo com os <Link href="/conta/criar-conta/termos-de-uso" className="text-blue-600 hover:underline">Termos de Uso</Link> e <Link href="/conta/criar-conta/termos-de-uso#aviso-de-privacidade" className="text-blue-600 hover:underline">Política de Privacidade</Link>
                             </label>
                         </div>
                     </div>
