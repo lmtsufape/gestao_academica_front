@@ -77,7 +77,6 @@ export default function Login() {
     });
 
     try {
-      // Perform login; AuthService.login will throw on failure
       await login(userEmail, userPassword);
 
       if (remember) {
@@ -86,7 +85,6 @@ export default function Login() {
         localStorage.setItem("sgu_saved_emails", JSON.stringify(updatedEmails));
       }
 
-      // Update the toast to success
       toast.update(toastId, {
         render: "Login realizado com sucesso!",
         type: "success",
