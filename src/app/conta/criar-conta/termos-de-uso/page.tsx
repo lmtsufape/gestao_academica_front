@@ -18,6 +18,26 @@ export default function PageRegister() {
         }
 
         setIsPopup(checkIfPopup());
+
+        if (typeof window !== 'undefined') {
+            const hash = window.location.hash;
+            if (hash) {
+                // Pequeno delay para garantir que o DOM esteja totalmente carregado
+                setTimeout(() => {
+                    const element = document.querySelector(hash);
+                    if (element) {
+                        // Calcular a posição com offset
+                        const elementPosition = element.getBoundingClientRect().top;
+                        const offsetPosition = elementPosition + window.pageYOffset + 1300; // 100px de offset
+
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                }, 100);
+            }
+        }
     }, []);
 
     const closePopup = () => {
@@ -29,7 +49,7 @@ export default function PageRegister() {
     return (
         <div className="flex flex-col items-center justify-center px-6 pt-10">
             <div className="w-full max-w-[110em] p-6 space-y-8 sm:p-8 bg-white rounded-lg shadow">
-                <h3 className="text-2xl font-bold custom-text-color dark:text-white text-white text-center">
+                <h3 id="aviso-de-privacidade" className="text-2xl font-bold custom-text-color dark:text-white text-white text-center">
                     TERMOS DE USO
                 </h3>
                 <div className="container">
