@@ -1,6 +1,6 @@
 import * as TokenService from './auth.token';
 
-const BASE = process.env.NEXT_PUBLIC_BASE_URL!;
+const BASE = process.env.NEXT_PUBLIC_BASE_URL || '';
 
 export class AuthService {
   static async login(email: string, password: string): Promise<void> {
