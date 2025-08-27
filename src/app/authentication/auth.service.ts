@@ -1,6 +1,18 @@
 import * as TokenService from './auth.token';
 
-const BASE = process.env.NEXT_PUBLIC_BASE_URL || '';
+// Detecta a URL base dinamicamente
+let BASE = process.env.NEXT_PUBLIC_BASE_URL || '';
+
+if (!BASE && typeof window !== 'undefined') {
+  // Mapa de hosts do front => backend correspondente
+  const backendMap: Record<string, string> = {
+    'lmtsteste20.ufape.edu.br': 'https://lmtsteste23.ufape.edu.br',
+    'localhost': 'http://localhost:8080',
+    // adicione outros mapeamentos conforme necessário
+  };
+
+  BASE = backendMap[window.location.hostname] || '';
+}
 
 export class AuthService {
   static async login(email: string, password: string): Promise<void> {
@@ -16,8 +28,7 @@ export class AuthService {
       try {
         const errData = await res.json();
         if (errData?.mensagem) errMsg = errData.mensagem;
-      } catch {
-      }
+      } catch {}
       throw new Error(errMsg);
     }
     const data = await res.json();
