@@ -12,10 +12,8 @@ import { generica } from "@/utils/api";
 const cadastro = () => {
   const router = useRouter();
   const { id } = useParams();
-  // Inicializamos com um objeto contendo 'endereco' para evitar problemas
+
   const [dadosPreenchidos, setDadosPreenchidos] = useState<any>({ endereco: {} });
-  const [unidadesGestoras, setUnidadesGestoras] = useState<any[]>([]);
-  const [lastMunicipioQuery, setLastMunicipioQuery] = useState("");
   const isEditMode = id && id !== "criar";
 
   const getOptions = (lista: any[], selecionado: any) => {
@@ -58,8 +56,22 @@ const cadastro = () => {
           nome: "Nome",
           chave: "nome",
           tipo: "text",
-          mensagem: "Digite",
+          mensagem: "Digite o nome do curso",
           obrigatorio: true,
+          minLength: 1,
+          maxLength: 100,
+          validacao: (valor: string) => {
+            if (!valor || valor.trim().length === 0) {
+              return "O nome do curso é obrigatório";
+            }
+            if (valor.length > 100) {
+              return "O nome do curso deve ter no máximo 100 caracteres";
+            }
+            if (valor.length < 1) {
+              return "O nome do curso deve ter pelo menos 1 caractere";
+            }
+            return null;
+          }
         },
         {
           line: 1,
@@ -67,11 +79,10 @@ const cadastro = () => {
           nome: "Quantidade de Períodos",
           chave: "numeroPeriodos",
           tipo: "number",
-          mensagem: "Digite",
+          mensagem: "Digite a quantidade de períodos",
           obrigatorio: true,
           min: 1,
           step: 1,
-
         },
       ],
       acoes: [
@@ -80,7 +91,6 @@ const cadastro = () => {
       ],
     },
   };
-
 
   /**
    * Chama funções de acordo com o botão clicado
@@ -110,8 +120,29 @@ const cadastro = () => {
    * fiquem agrupados em um objeto 'endereco'.
    */
   const salvarRegistro = async (item: any) => {
-    const numero = Number(item.numeroPeriodos);
+    // Validação do nome
+    if (!item.nome || item.nome.trim().length === 0) {
+      toast.error("O nome do curso é obrigatório", {
+        position: "top-left",
+      });
+      return;
+    }
 
+    if (item.nome.length > 100) {
+      toast.error("O nome do curso deve ter no máximo 100 caracteres", {
+        position: "top-left",
+      });
+      return;
+    }
+
+    if (item.nome.length < 1) {
+      toast.error("O nome do curso deve ter pelo menos 1 caractere", {
+        position: "top-left",
+      });
+      return;
+    }
+
+    const numero = Number(item.numeroPeriodos);
     if (!Number.isFinite(numero) || numero <= 0) {
       toast.error("A quantidade de períodos deve ser um número maior que zero!", {
         position: "top-left",
@@ -127,20 +158,31 @@ const cadastro = () => {
         data: item,
       };
       const response = await generica(body);
+
       if (!response || response.status < 200 || response.status >= 300) {
         if (response) {
           console.error("DEBUG: Status de erro:", response.status, 'statusText' in response ? response.statusText : "Sem texto de status");
         }
         return;
       }
+
       if (response.data?.errors) {
         Object.keys(response.data.errors).forEach((campoErro) => {
-          toast.error(`Erro em ${campoErro}: ${response.data.errors[campoErro]}`, {
+          const mensagemErro = Array.isArray(response.data.errors[campoErro])
+            ? response.data.errors[campoErro].join(', ')
+            : response.data.errors[campoErro];
+
+          toast.error(`Erro em ${campoErro}: ${mensagemErro}`, {
             position: "top-left",
           });
         });
       } else if (response.data?.error) {
-        toast(response.data.error.message, { position: "top-left" });
+        // Captura mensagens de erro específicas do servidor
+        const mensagemErro = response.data.error.message || response.data.error;
+        toast.error(mensagemErro, { position: "top-left" });
+      } else if (response.data?.message) {
+        // Se o servidor retornar uma mensagem específica
+        toast.error(response.data.message, { position: "top-left" });
       } else {
         Swal.fire({
           title: "Curso salvo com sucesso!",
@@ -150,21 +192,45 @@ const cadastro = () => {
             title: "my-swal-title",
             htmlContainer: "my-swal-html",
           },
+          confirmButtonColor: "#125371", // Cor de fundo do botão
+          confirmButtonText: "OK", // Texto do botão
         }).then((result) => {
           if (result.isConfirmed) {
             chamarFuncao("voltar");
           }
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("DEBUG: Erro ao salvar registro:", error);
-      toast.error("Erro ao salvar registro. Tente novamente!", { position: "top-left" });
+
+      if (error.response?.data) {
+        const errorData = error.response.data;
+
+        if (errorData.errors) {
+          Object.keys(errorData.errors).forEach((campoErro) => {
+            const mensagemErro = Array.isArray(errorData.errors[campoErro])
+              ? errorData.errors[campoErro].join(', ')
+              : errorData.errors[campoErro];
+
+            toast.error(`Erro em ${campoErro}: ${mensagemErro}`, {
+              position: "top-left",
+            });
+          });
+        } else if (errorData.error) {
+          toast.error(errorData.error.message || errorData.error, {
+            position: "top-left"
+          });
+        } else if (errorData.message) {
+          toast.error(errorData.message, { position: "top-left" });
+        }
+      } else {
+        toast.error("Erro ao salvar registro. Tente novamente!", {
+          position: "top-left"
+        });
+      }
     }
   };
 
-  /**
-   * Localiza o registro para edição e preenche os dados
-   */
   const editarRegistro = async (item: any) => {
     try {
       const body = {
@@ -175,24 +241,44 @@ const cadastro = () => {
       };
       const response = await generica(body);
       if (!response) throw new Error("Resposta inválida do servidor.");
+
       if (response.data?.errors) {
         Object.keys(response.data.errors).forEach((campoErro) => {
-          toast(`Erro em ${campoErro}: ${response.data.errors[campoErro]}`, {
+          const mensagemErro = Array.isArray(response.data.errors[campoErro])
+            ? response.data.errors[campoErro].join(', ')
+            : response.data.errors[campoErro];
+
+          toast.error(`Erro em ${campoErro}: ${mensagemErro}`, {
             position: "top-left",
           });
         });
       } else if (response.data?.error) {
-        toast.error(response.data.error.message, { position: "top-left" });
+        toast.error(response.data.error.message || response.data.error, {
+          position: "top-left"
+        });
       } else {
         setDadosPreenchidos(response.data);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("DEBUG: Erro ao localizar registro:", error);
-      toast.error("Erro ao localizar registro. Tente novamente!", { position: "top-left" });
+
+      if (error.response?.data) {
+        const errorData = error.response.data;
+        if (errorData.error) {
+          toast.error(errorData.error.message || errorData.error, {
+            position: "top-left"
+          });
+        } else if (errorData.message) {
+          toast.error(errorData.message, { position: "top-left" });
+        }
+      } else {
+        toast.error("Erro ao localizar registro. Tente novamente!", {
+          position: "top-left"
+        });
+      }
     }
   };
 
-  // Efeito exclusivo para o modo de edição
   useEffect(() => {
     if (id && id !== "criar") {
       chamarFuncao("editar", id);

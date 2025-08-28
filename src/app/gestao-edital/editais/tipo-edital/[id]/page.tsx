@@ -4,8 +4,6 @@ import Cadastro from "@/components/Cadastro/Estrutura";
 import Cabecalho from "@/components/Layout/Interno/Cabecalho";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
-import Swal from "sweetalert2";
 import { generica } from "@/utils/api";
 
 const cadastro = () => {
@@ -21,9 +19,9 @@ const cadastro = () => {
             titulo: isEditMode ? "Editar o Tipo de Edital" : "Cadastrar o Tipo de Edital",
             migalha: [
                 { nome: 'Início', link: '/home' },
-                { nome: 'Gestão de Editais', link: '/gestao-editais' },
-                { nome: "Tipos de Editais", link: "/gestao-editais/tipo-edital" },
-                { nome: isEditMode ? "Editar" : "Criar", link: `/gestao-editais/tipo-editais/${isEditMode ? id : "criar"}` },
+                { nome: 'Gestão de Editais', link: '/gestao-edital/editais' },
+                { nome: "Tipos de Editais", link: "/gestao-edital/editais/tipo-edital" },
+                { nome: isEditMode ? "Editar" : "Criar", link: `/gestao-edital/editais/tipo-editais/${isEditMode ? id : "criar"}` },
             ],
         },
         cadastro: {
@@ -72,78 +70,42 @@ const cadastro = () => {
     };
 
     const voltarRegistro = () => {
-        router.push("/gestao-editais/tipo-edital");
+        router.push("/gestao-edital/editais/tipo-edital");
     };
 
     const salvarRegistro = async (item: any) => {
         try {
+            
             const body = {
                 metodo: `${isEditMode ? "patch" : "post"}`,
-                uri: "/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri}`,
-                params: {},
-                data: item,
-            };
-            const response = await generica(body);
-            if (!response || response.status < 200 || response.status >= 300) {
-                if (response) {
-                    console.error("DEBUG: Status de erro:", response.status, 'statusText' in response ? response.statusText : "Sem texto de status");
-                }
-                toast.error(`Erro na requisição (HTTP ${response?.status || "desconhecido"})`, { position: "top-left" });
-                return;
-            }
-            if (response.data?.errors) {
-                Object.keys(response.data.errors).forEach((campoErro) => {
-                    toast.error(`Erro em ${campoErro}: ${response.data.errors[campoErro]}`, {
-                        position: "top-left",
-                    });
-                });
-            } else if (response.data?.error) {
-                toast(response.data.error.message, { position: "top-left" });
-            } else {
-                Swal.fire({
-                    title: "Tipo de edital salvo com sucesso!",
-                    icon: "success",
-                    customClass: {
-                    popup: "my-swal-popup",
-                    title: "my-swal-title",
-                    htmlContainer: "my-swal-html",
-                },
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        chamarFuncao("voltar");
-                    }
-                });
-            }
-        } catch (error) {
-            console.error("DEBUG: Erro ao salvar registro:", error);
-            toast.error("Erro ao salvar registro. Tente novamente!", { position: "top-left" });
-        }
-    };
-
-    const editarRegistro = async (item: any) => {
-        try {
-            const body = {
-                metodo: "get",
-                uri: "/" + estrutura.uri + "/" + item,
+                uri: "/editais/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri}`,
                 params: {},
                 data: item,
             };
             const response = await generica(body);
             if (!response) throw new Error("Resposta inválida do servidor.");
-            if (response.data?.errors) {
-                Object.keys(response.data.errors).forEach((campoErro) => {
-                    toast(`Erro em ${campoErro}: ${response.data.errors[campoErro]}`, {
-                        position: "top-left",
-                    });
-                });
-            } else if (response.data?.error) {
-                toast.error(response.data.error.message, { position: "top-left" });
-            } else {
-                setDadosPreenchidos(response.data);
-            }
+            chamarFuncao("voltar");
+
+        } catch (error) {
+            console.error("DEBUG: Erro ao salvar registro:", error);
+        }
+    };
+
+    const editarRegistro = async (item: any) => {
+        try {
+
+            const body = {
+                metodo: "get",
+                uri: "/editais/" + estrutura.uri + "/" + item,
+                params: {},
+                data: item,
+            };
+
+            const response = await generica(body);
+            if (!response) throw new Error("Resposta inválida do servidor.");
+            setDadosPreenchidos(response.data);
         } catch (error) {
             console.error("DEBUG: Erro ao localizar registro:", error);
-            toast.error("Erro ao localizar registro. Tente novamente!", { position: "top-left" });
         }
     };
 

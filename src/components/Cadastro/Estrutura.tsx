@@ -1,20 +1,15 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 
-// === Componentes de campo (seus) ===
 
 // === Utilidades que você já usava ===
 import aplicarMascara from "@/utils/mascaras";
-// Substitui tipos e helpers locais por módulos
+
 import { Campo } from "./campoTypes";
 import { getNestedValue, setNestedValue, updateNestedField, asArray, normalizarLinhas, findCampoByChave, getColSpanValue, flattenCampos } from "./utilsCampo";
 import RenderCampo from "./RenderCampo";
 
-// ===================== Tipos =====================
 
-// ===================== Helpers (notação ponto) =====================
-
-// ===================== Componente principal =====================
 const Cadastro = ({
   estrutura = null,
   dadosPreenchidos = null,
@@ -108,7 +103,7 @@ const Cadastro = ({
 
   const linhasNormalizadas = useMemo(() => normalizarLinhas(estrutura?.cadastro?.campos), [estrutura]);
 
-  // ======= Render =======
+  
   return (
     <div className="rounded-md p-6">
       <form onSubmit={handleSubmit} className="w-full">

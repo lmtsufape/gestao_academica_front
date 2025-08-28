@@ -14,6 +14,7 @@ import HelpOutline from "@mui/icons-material/HelpOutline";
 import GpsFixed from "@mui/icons-material/GpsFixed";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import CloseIcon from "@mui/icons-material/Close";
 
 // Serviço de autenticação
 import { useAuthService } from "@/app/authentication/auth.hook";
@@ -83,13 +84,16 @@ export default function Layout({ children, layoutConfig }: LayoutProps) {
   // Dropdown de usuário
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const dropdownRef = useRef<any>(null);
+  const sidebarRef = useRef<any>(null);
 
   useEffect(() => {
     setIsLogin(
       pathname === "/home" ||
-      pathname === "/conta/perfil"
+      pathname === "/conta/perfil" ||
+      pathname === "/perfil"
     );
   }, [pathname]);
+  
   // Configuração default (caso não seja passada)
   const defaultConfig: InternalLayoutConfig = {
     header: {
@@ -159,7 +163,7 @@ export default function Layout({ children, layoutConfig }: LayoutProps) {
       setActiveRole("");
     }
   }
-}, [auth.isAuthenticated, auth.isLoading]); // 🚀 só depende de valores primitivos
+}, [auth.isAuthenticated, auth.isLoading]);
 
 
   // Efeito para detectar clicks fora do dropdown
@@ -177,22 +181,37 @@ export default function Layout({ children, layoutConfig }: LayoutProps) {
     if (isPopupWindow) return;
 
     const handleClickOutside = (event: any) => {
+      // Fechar dropdown do usuário
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
       }
+      
+      // Fechar menu lateral no mobile quando clicar fora
+      if (window.innerWidth < 640 && 
+          isMenuOpen && 
+          sidebarRef.current && 
+          !sidebarRef.current.contains(event.target) &&
+          !event.target.closest('.mobile-menu-button')) {
+        setIsMenuOpen(false);
+      }
     };
+    
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [isMenuOpen]);
 
   // Handlers do menu lateral
   const handleMouseEnter = () => {
-    setIsMenuOpen(true);
+    if (window.innerWidth >= 640) {
+      setIsMenuOpen(true);
+    }
   };
 
   const handleMouseLeave = () => {
-    setIsMenuOpen(false);
-    setOpenSubMenus({});
+    if (window.innerWidth >= 640) {
+      setIsMenuOpen(false);
+      setOpenSubMenus({});
+    }
   };
 
   const handleToggleMenu = () => {
@@ -209,6 +228,12 @@ export default function Layout({ children, layoutConfig }: LayoutProps) {
       ...prev,
       [key]: !prev[key],
     }));
+  };
+
+  // Função para fechar o menu lateral completamente
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+    setOpenSubMenus({});
   };
 
   const handleLogout = () => {
@@ -229,21 +254,37 @@ export default function Layout({ children, layoutConfig }: LayoutProps) {
     }
   };
 
+  // Verifica se é a página home para ocultar os controles do menu lateral no mobile
+  const isHomePage = pathname === "/home";
+  // Verifica se deve mostrar controles do menu (não mostrar na home nem nas páginas de perfil)
+  const shouldShowMenuControls = !isLogin && !isHomePage && pathname !== "/perfil" && pathname !== "/conta/perfil";
+
   return (
     <>
       {/* Cabeçalho */}
       <div
-        className={`fixed top-0 z-10 bg-white shadow-sm transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] left-0 right-0 ${isLogin ? "sm:left: 0" : isMenuOpen ? "sm:left-60" : "sm:left-12"
+        className={`fixed top-0 z-30 bg-white shadow-sm transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] left-0 right-0 ${isLogin ? "sm:left: 0" : isMenuOpen ? "sm:left-60" : "sm:left-12"
           }`}
       >
         <div className="flex items-center justify-between p-3 pl-5 pr-5 shadow-lg">
           <div className="flex items-center">
-            {/* Botão Hambúrguer (mobile) */}
-            <div className="sm:hidden">
-              <button onClick={handleToggleMenu} className="focus:outline-none">
-                {isMenuOpen ? <MenuOpen /> : <MenuIcon />}
-              </button>
-            </div>
+            {/* Botão Hambúrguer (mobile) - Oculto na página home e perfil */}
+            {shouldShowMenuControls && (
+              <div className="sm:hidden mr-3">
+                <button 
+                  onClick={handleToggleMenu} 
+                  className="mobile-menu-button focus:outline-none p-1 rounded-md hover:bg-gray-100 transition-colors"
+                  aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}
+                >
+                  {isMenuOpen ? (
+                    <CloseIcon className="text-primary-600" />
+                  ) : (
+                    <MenuIcon className="text-primary-600" />
+                  )}
+                </button>
+              </div>
+            )}
+            
             {/* Logo (header) */}
             <div className="hidden sm:flex items-center">
               {isMenuOpen ? (
@@ -261,6 +302,7 @@ export default function Layout({ children, layoutConfig }: LayoutProps) {
               )}
             </div>
           </div>
+          
           {/* Seletor de Role (se houver mais de uma) */}
           {userRoles.length > 1 && (
             <select
@@ -275,6 +317,7 @@ export default function Layout({ children, layoutConfig }: LayoutProps) {
               ))}
             </select>
           )}
+          
           {/* Menu de Ações */}
           <div className="flex items-center space-x-1">
             {isAuthenticated && (
@@ -314,36 +357,58 @@ export default function Layout({ children, layoutConfig }: LayoutProps) {
         </div>
       </div>
 
-      {/* MENU LATERAL */}
-      {!isLogin && (
+      {/* MENU LATERAL - Oculto na página home e perfil no mobile */}
+      {shouldShowMenuControls && (
         <>
-
+          {/* Overlay para mobile quando menu está aberto */}
+          {isMenuOpen && (
+            <div 
+              className="fixed inset-0 bg-black bg-opacity-50 z-20 sm:hidden"
+              onClick={closeMenu}
+            />
+          )}
+          
           <div
-            className={`fixed top-0 left-0 h-screen bg-secondary-500 shadow-lg 
-            transition-[width,opacity] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] 
-            z-20 ${isMenuOpen ? "w-60" : "w-12"} 
-            ${!isMenuOpen ? "max-sm:hidden" : ""}
+            ref={sidebarRef}
+            className={`fixed top-0 left-0 h-full bg-secondary-500 shadow-lg 
+            transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] 
+            z-30 ${isMenuOpen ? "w-60 translate-x-0" : "-translate-x-full"} 
+            sm:translate-x-0 sm:w-12
+            sm:hover:w-60
             will-change-transform`}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             style={{
-              transitionProperty: 'width, transform, opacity',
+              transitionProperty: 'transform, width',
               transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
               transitionDuration: '300ms',
             }}
           >
+            {/* Cabeçalho do menu lateral com botão de fechar para mobile */}
             <div
               className={`border-b border-gray-500 overflow-hidden 
               transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]
-              flex items-center justify-start pl-4 ${isMenuOpen ? "w-60" : "w-12"} h-12
+              flex items-center justify-between pl-4 pr-2 ${isMenuOpen ? "w-60" : "w-12"} h-12
               will-change-transform`}
             >
               <a href="/home" title="Sistema de Gestão Universitária" className="flex items-center">
                 <GpsFixed fontSize="medium" className="text-white" />
+                {isMenuOpen && <span className="ml-3 text-white">{config.sidebar.logo.text}</span>}
               </a>
-              {isMenuOpen && <span className="ml-3 text-white">{config.sidebar.logo.text}</span>}
+              
+              {/* Botão de fechar no menu lateral (visível apenas no mobile) */}
+              {isMenuOpen && (
+                <button 
+                  onClick={closeMenu}
+                  className="sm:hidden text-white p-1 rounded-full hover:bg-secondary-600 transition-colors"
+                  aria-label="Fechar menu"
+                >
+                  <CloseIcon fontSize="medium" />
+                </button>
+              )}
             </div>
-            <div className="flex flex-col h-[calc(100vh-3rem)]">
+            
+            <div className="flex flex-col h-full">
               <div className="pt-4 px-2 flex-1 overflow-y-auto">
                 <ul className="space-y-4 text-gray-500">
                   {config.sidebar.menuItems.map((item, idx) => (
@@ -353,7 +418,8 @@ export default function Layout({ children, layoutConfig }: LayoutProps) {
                       isMenuOpen={isMenuOpen}
                       openSubMenus={openSubMenus}
                       toggleSubMenu={toggleSubMenu}
-                      activeRole={activeRole} // Passa a role ativa para filtrar os itens
+                      activeRole={activeRole}
+                      closeMenu={closeMenu} // Passa a função para fechar o menu
                     />
                   ))}
                 </ul>
@@ -363,10 +429,8 @@ export default function Layout({ children, layoutConfig }: LayoutProps) {
         </>
       )}
 
-
       {/* CONTEÚDO PRINCIPAL */}
-      <div className="pt-12">
-        {/* Agora, os children são envoltos pelo RoleProvider para repassar activeRole e userRoles */}
+      <div className={`pt-12 min-h-screen ${shouldShowMenuControls ? (isMenuOpen ? "sm:pl-60" : "sm:pl-12") : ""}`}>
         <RoleProvider activeRole={activeRole} userRoles={userRoles}>
           {children}
         </RoleProvider>

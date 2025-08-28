@@ -1,23 +1,9 @@
 import React from "react";
-import { Metadata } from "next";
 import ClientWrapper from "@/components/AuthProvider/ClientWrapper";
-import { Article, PendingActions, Description, AccountCircleOutlined, Home } from "@mui/icons-material";
+import { Article, PendingActions, Description, AccountCircleOutlined, Home, List, Folder, Timeline, Assignment } from "@mui/icons-material";
 import { InternalLayoutConfig } from "@/types/InternalLayoutConf";
 
-
-export const metadata: Metadata = {
-  title: "Gestão editais",
-  description: "Modulo de Gestão de editais",
-  icons: {
-    icon: "/assets/crosshairs-gps.png",
-  },
-};
-
-
-
 export default function EditaisLayout({ children }: { children: React.ReactNode }) {
-  // config/authLayoutConfig.tsx
-
   const layoutConfig: InternalLayoutConfig = {
     header: {
       logo: {
@@ -57,13 +43,19 @@ export default function EditaisLayout({ children }: { children: React.ReactNode 
         },
         {
           label: "Editais",
-          route: "/gestao-editais/edital",
+          route: "/gestao-edital/editais",
           icon: <Description fontSize="small" className="text-white" />,
+          roles: ["administrador", "gestor", "tecnico"],
+        },  
+        {
+          label: "Status",
+          route: "/gestao-edital/editais/status-personalizado",
+          icon: <Article fontSize="small" className="text-white" />,
           roles: ["administrador", "gestor", "tecnico"],
         },
         {
-          label: "Tipos de Editais",
-          route: "/gestao-editais/tipo-edital",
+          label: "Tipo Edital",
+          route: "/gestao-edital/editais/tipo-edital",
           icon: <Article fontSize="small" className="text-white" />,
           roles: ["administrador", "gestor", "tecnico"],
         },
@@ -74,4 +66,3 @@ export default function EditaisLayout({ children }: { children: React.ReactNode 
     <ClientWrapper layoutConfig={layoutConfig}>{children}</ClientWrapper>
   )
 }
-

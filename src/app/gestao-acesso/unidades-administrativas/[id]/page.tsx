@@ -8,6 +8,7 @@ import { generica } from "@/utils/api";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
 import { toast } from "react-toastify";
+import { blob } from "stream/consumers";
 import Swal from "sweetalert2";
 
 const cadastro = () => {
@@ -18,14 +19,14 @@ const cadastro = () => {
   const [dadosTabela, setDadosTabela] = useState<any>({});
   const [colaboradores, setColaboradores] = useState<any[]>([]);
   // 1) state for dynamic filters
-  const [filtros, setFiltros] = useState<Record<string,string>>({});
+  const [filtros, setFiltros] = useState<Record<string, string>>({});
   const [UnidadesPai, setUnidadesPai] = useState<any[]>([]);
   const [tipoUnidade, setTipoUnidade] = useState<any[]>([]);
   const { activeRole, userRoles } = useRole();
-  const isPrivileged = activeRole;
+  const isPrivileged = userRoles.includes("administrador");
 
   const isEditMode = id && id !== "criar";
-  
+
   // Callback disparado pela tabela ao filtrar colunas
   const handleFilter = useCallback((field: string, value: string) => {
     const next = { ...filtros, [field]: value };
@@ -94,8 +95,9 @@ const cadastro = () => {
           chave: "nome",
           tipo: "text",
           mensagem: "Digite",
-          obrigatorio: true,
+          obrigatorio: false,
           maxLength: 50,
+          bloqueado: isPrivileged ? false : true,
         },
         {
           line: 1,
@@ -104,7 +106,8 @@ const cadastro = () => {
           chave: "codigo",
           tipo: "text",
           mensagem: "Digite",
-          obrigatorio: true,
+          obrigatorio: false,
+          bloqueado: isPrivileged ? false : true,
         },
         {
           line: 2,
@@ -116,9 +119,10 @@ const cadastro = () => {
           ),
           chave: "tipoUnidadeAdministrativaId",
           tipo: "select",
-          mensagem: "Selecione o tipo de unidade",
+          mensagem: "Selecione um tipo",
           obrigatorio: false,
           selectOptions: getOptions(tipoUnidade, dadosPreenchidos?.tipoUnidadeAdministrativaId),
+          bloqueado: isEditMode ? true : false,
         },
         {
           line: 2,
@@ -126,14 +130,17 @@ const cadastro = () => {
           nome: "Unidade Administrativa Responsavel",
           chave: "unidadePaiId",
           tipo: "select",
-          mensagem: "Selecione a unidade responsavel",
+          mensagem: "Selecione uma unidade",
           obrigatorio: false,
           selectOptions: getOptions(UnidadesPai, dadosPreenchidos?.unidadePaiId),
+          bloqueado: isEditMode ? true : false,
         }
       ],
       acoes: [
         { nome: "Cancelar", chave: "voltar", tipo: "botao" },
-        { nome: isEditMode ? "Salvar" : "Cadastrar", chave: "salvar", tipo: "submit" },
+        ...(isPrivileged ? [
+          { nome: isEditMode ? "Salvar" : "Cadastrar", chave: "salvar", tipo: "submit" }
+        ] : [])
       ],
     },
   };
@@ -156,7 +163,7 @@ const cadastro = () => {
         // 2) table search callback
         await pesquisarTodosColaboradores(id as string, valor);
         break;
-    
+
       case "deletar":
         deletarRegistro(valor);
         break;
@@ -184,20 +191,23 @@ const cadastro = () => {
 
   const salvarRegistro = async (item: any) => {
     try {
+      // Converter para número (JavaScript number) - a maioria dos backends aceita
+      const tipoUnidadeId = item.tipoUnidadeAdministrativaId ?
+        Number(item.tipoUnidadeAdministrativaId) : null;
+
+      const unidadePaiId = item.unidadePaiId ?
+        Number(item.unidadePaiId) : null;
+
       const dadosParaEnviar = {
         nome: item.nome,
         codigo: item.codigo,
-        tipoUnidadeAdministrativaId: item.tipoUnidadeAdministrativaId,
-        unidadePaiId: item.unidadePaiId,
+        tipoUnidadeAdministrativaId: tipoUnidadeId,
+        unidadePaiId: unidadePaiId,
       };
 
       if (item.nome?.length > 30) {
         toast.warning("O nome deve ter no máximo 30 caracteres", { position: "top-left" });
         return;
-      }
-
-      if (item.unidadePaiId !== undefined && item.unidadePaiId !== null) {
-        dadosParaEnviar.unidadePaiId = item.unidadePaiId;
       }
 
       const body = {
@@ -267,7 +277,9 @@ const cadastro = () => {
       } else if (response.data?.error) {
         toast.error(response.data.error.message, { position: "top-left" });
       } else {
-        setDadosPreenchidos(response.data);
+        let dados = response.data;
+        dados.tipoUnidadeAdministrativaId = response.data.tipoUnidadeAdministrativa?.id;
+        setDadosPreenchidos(dados);
       }
     } catch (error) {
       console.error("DEBUG: Erro ao localizar registro:", error);
@@ -395,8 +407,6 @@ const cadastro = () => {
 
   const deletarRegistro = async (item: any) => {
     try {
-      console.log("item recebido:", item);
-
       const result = await Swal.fire({
         title: 'Tem certeza?',
         text: "Você está prestes a remover este gestor da unidade!",

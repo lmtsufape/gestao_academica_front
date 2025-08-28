@@ -19,6 +19,7 @@ interface SidebarMenuItemProps {
   openSubMenus: Record<string, boolean>;
   toggleSubMenu: (key: string) => void;
   activeRole: string; // Role ativa selecionada no header
+  closeMenu: () => void; // Função para fechar o menu em mobile
 }
 
 const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
@@ -27,6 +28,7 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
   openSubMenus,
   toggleSubMenu,
   activeRole,
+  closeMenu
 }) => {
   const router = useRouter();
   const hasSubItems = item.subItems && item.subItems.length > 0;
@@ -46,6 +48,10 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
       toggleSubMenu(item.label);
     } else {
       router.push(item.route);
+      // Fecha o menu no mobile após clicar em um item
+      if (window.innerWidth < 640) {
+        closeMenu();
+      }
     }
   };
 
@@ -53,9 +59,8 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
     <li>
       <div
         onClick={handleClick}
-        className={`flex items-center rounded-md p-2 transition-colors duration-200 cursor-pointer ${
-          isMenuOpen ? "hover:bg-primary-900 justify-start" : "justify-center"
-        }`}
+        className={`flex items-center rounded-md p-2 transition-colors duration-200 cursor-pointer ${isMenuOpen ? "hover:bg-primary-900 justify-start" : "justify-center"
+          }`}
       >
         {item.icon}
         {isMenuOpen && <span className="ml-3 text-white">{item.label}</span>}
@@ -75,6 +80,7 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
               openSubMenus={openSubMenus}
               toggleSubMenu={toggleSubMenu}
               activeRole={activeRole}
+              closeMenu={closeMenu} // Passa a função closeMenu para os subitens
             />
           ))}
         </ul>

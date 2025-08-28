@@ -1,6 +1,6 @@
 import * as TokenService from './auth.token';
 
-const BASE = process.env.NEXT_PUBLIC_BASE_URL!;
+const BASE = 'https://lmtsteste23.ufape.edu.br';
 
 export class AuthService {
   static async login(email: string, password: string): Promise<void> {
@@ -16,8 +16,7 @@ export class AuthService {
       try {
         const errData = await res.json();
         if (errData?.mensagem) errMsg = errData.mensagem;
-      } catch {
-      }
+      } catch {}
       throw new Error(errMsg);
     }
     const data = await res.json();
@@ -53,6 +52,23 @@ export class AuthService {
       credentials: 'include',
     });
     TokenService.stopTokenRefreshSchedule();
+  }
+
+  static async resetPassword(email: string): Promise<any> {
+    const params = new URLSearchParams({ email });
+    const res = await fetch(`${BASE}/auth/reset-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString(),
+    });
+    
+    const data = await res.json().catch(() => ({}));
+    
+    return {
+      status: res.status,
+      ok: res.ok,
+      data
+    };
   }
 
   static redirectToLogin(): void {
