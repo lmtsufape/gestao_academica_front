@@ -1,15 +1,6 @@
 import * as TokenService from './auth.token';
 
-// Define a BASE única dependendo do ambiente
-let BASE = '';
-
-if (typeof window !== 'undefined') {
-  if (window.location.hostname === 'localhost') {
-    BASE = 'http://localhost:8080';
-  } else {
-    BASE = 'https://lmtsteste23.ufape.edu.br';
-  }
-}
+const BASE = 'https://lmtsteste23.ufape.edu.br';
 
 export class AuthService {
   static async login(email: string, password: string): Promise<void> {
