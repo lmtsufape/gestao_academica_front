@@ -142,6 +142,7 @@ const PageLista = () => {
           Swal.fire({
             title: "Curso deletado com sucesso!",
             icon: "success",
+            confirmButtonColor: "#125371", // Cor do botão OK
             customClass: {
               popup: "my-swal-popup",
               title: "my-swal-title",
