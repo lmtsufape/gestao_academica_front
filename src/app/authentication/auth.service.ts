@@ -1,17 +1,14 @@
 import * as TokenService from './auth.token';
 
-// Detecta a URL base dinamicamente
-let BASE = process.env.NEXT_PUBLIC_BASE_URL || '';
+// Define a BASE única dependendo do ambiente
+let BASE = '';
 
-if (!BASE && typeof window !== 'undefined') {
-  // Mapa de hosts do front => backend correspondente
-  const backendMap: Record<string, string> = {
-    'lmtsteste20.ufape.edu.br': 'https://lmtsteste23.ufape.edu.br',
-    'localhost': 'http://localhost:8080',
-    // adicione outros mapeamentos conforme necessário
-  };
-
-  BASE = backendMap[window.location.hostname] || '';
+if (typeof window !== 'undefined') {
+  if (window.location.hostname === 'localhost') {
+    BASE = 'http://localhost:8080';
+  } else {
+    BASE = 'https://lmtsteste23.ufape.edu.br';
+  }
 }
 
 export class AuthService {
