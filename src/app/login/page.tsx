@@ -137,8 +137,7 @@ export default function Login() {
           O sistema de gestão universitária tem como finalidade simplificar e otimizar os processos da unidade acadêmica, oferecendo uma plataforma moderna e intuitiva para apoiar gestores, professores, colaboradores e alunos no acesso e na organização das atividades acadêmicas, promovendo eficiência e transparência.
         </p>
       </section>
-
-      {/* Seção Direita - Formulário */}
+      
       <section className="flex flex-1 items-center justify-center px-6 py-10">
         <div className="bg-white shadow-xl rounded-lg px-8 py-10 w-full max-w-sm sm:max-w-md border border-neutrals-200">
           {showLoginForm ? (
