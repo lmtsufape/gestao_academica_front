@@ -142,7 +142,6 @@ const cadastro = () => {
       const response = await generica(body);
       if (response && response.data) {
         setDadosPreenchidos(response.data);
-        console.log("Dados do usuário atual:", response.data);
       }
     } catch (error) {
       console.error('Erro ao carregar registros:', error);
@@ -182,8 +181,23 @@ const cadastro = () => {
     };
   };
 
+  const checarObrigatorios = () => {
+    let retorno = true;
+    for (const campo of estrutura.cadastro.campos) {
+      if (campo.obrigatorio) {
+        const valor = dadosPreenchidos[campo.chave];
+        if (valor === null || valor === undefined || valor === "") {
+          toast.error(`O campo ${campo.nome} é obrigatório`, { position: "top-left" });
+          retorno = false;
+        }
+      }
+    }
+    return retorno;
+  };
+
   const salvarRegistro = async (item: any) => {
     try {
+      if (!checarObrigatorios()) return;
       const dataToSend = transformarDados(item);
       const body = {
         metodo: `${isEditMode ? "patch" : "post"}`,
