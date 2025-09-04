@@ -27,7 +27,6 @@ const cadastro = () => {
 
   const isEditMode = id && id !== "criar";
 
-  // Callback disparado pela tabela ao filtrar colunas
   const handleFilter = useCallback((field: string, value: string) => {
     const next = { ...filtros, [field]: value };
     setFiltros(next);
@@ -160,10 +159,8 @@ const cadastro = () => {
         adicionarGestor(valor);
         break;
       case 'pesquisar':
-        // 2) table search callback
         await pesquisarTodosColaboradores(id as string, valor);
         break;
-
       case "deletar":
         deletarRegistro(valor);
         break;
@@ -421,9 +418,10 @@ const cadastro = () => {
       if (!result.isConfirmed) return;
 
       const unidadeId = id;
-      const usuarioId = item?.gestor?.id;
 
-      if (!unidadeId || !usuarioId || usuarioId.length < 10) {
+      const usuarioId = item?.gestor?.usuario?.id;
+
+      if (!unidadeId || !usuarioId) {
         toast.error("IDs inválidos para a operação!", { position: "top-left" });
         return;
       }
@@ -437,17 +435,17 @@ const cadastro = () => {
         params: {},
       });
 
-      if (response?.data?.errors) {
+      if (response?.status === 204) {
+        toast.success("Gestor removido da unidade com sucesso!", { position: "top-left" });
+        if (typeof id === 'string') {
+          await pesquisarTodosColaboradores(id);
+        }
+      } else if (response?.data?.errors) {
         Object.keys(response.data.errors).forEach((campoErro) => {
           toast(`Erro em ${campoErro}: ${response.data.errors[campoErro]}`, {
             position: "top-left",
           });
         });
-      } else if (response?.status === 204) {
-        toast.success("Gestor removido da unidade com sucesso!", { position: "top-left" });
-        if (typeof id === 'string') {
-          await pesquisarTodosColaboradores(id);
-        }
       } else if (response?.data?.error) {
         toast(response.data.error.message, { position: "top-left" });
       } else {
@@ -458,8 +456,6 @@ const cadastro = () => {
       toast.error("Erro ao desalocar gestor. Tente novamente!", { position: "top-left" });
     }
   };
-
-
 
   useEffect(() => {
     const carregarDados = async () => {

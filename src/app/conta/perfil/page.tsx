@@ -65,26 +65,6 @@ const PagePerfil = () => {
     }
   };
 
-
-
-
-
-  // Buscar cursos (se necessário)
-  const fetchCursos = async () => {
-    try {
-      const response = await generica({
-        metodo: 'get',
-        uri: 'gestao-acesso/cursos', // Ajuste a URI conforme sua API
-        data: {}
-      });
-      if (response?.data) {
-        setCursos(response.data);
-      }
-    } catch (error) {
-      console.error('Erro ao carregar cursos:', error);
-    }
-  };
-
   const getAcoes = () => {
     if (editando) {
       return [
@@ -326,7 +306,6 @@ const PagePerfil = () => {
 
   useEffect(() => {
     currentUser();
-    fetchCursos(); // Busca cursos se necessário
   }, []);
 
   if (carregando && !dadosPreenchidos.id) {

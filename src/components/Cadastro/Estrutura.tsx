@@ -1,14 +1,13 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 
-
 // === Utilidades que você já usava ===
 import aplicarMascara from "@/utils/mascaras";
 
 import { Campo } from "./campoTypes";
 import { getNestedValue, setNestedValue, updateNestedField, asArray, normalizarLinhas, findCampoByChave, getColSpanValue, flattenCampos } from "./utilsCampo";
 import RenderCampo from "./RenderCampo";
-
+import { useAuthService } from "@/app/authentication/auth.hook";
 
 const Cadastro = ({
   estrutura = null,
@@ -19,6 +18,7 @@ const Cadastro = ({
   const [expandedDocUrl, setExpandedDocUrl] = useState<string | null>(null);
   const [expandedDocType, setExpandedDocType] = useState<string | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string>("");
+  const auth = useAuthService();
 
   // Responsividade
   const [isMobile, setIsMobile] = useState<boolean>(false);
@@ -29,9 +29,8 @@ const Cadastro = ({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Substitua os dois useEffects por este:
+  // Inicialização dos multi-selects e foto
   useEffect(() => {
-    // Inicialização única dos multi-selects
     if (estrutura?.cadastro?.campos && !dadosPreenchidos?._initialized) {
       const flat = flattenCampos(estrutura.cadastro.campos);
       const updates: Record<string, any> = {};
@@ -60,21 +59,68 @@ const Cadastro = ({
         setDadosPreenchidos((prev: any) => ({ ...prev, ...updates }));
       }
     }
-  }, [dadosPreenchidos, estrutura, photoPreview]); // Dependências completas
+  }, [dadosPreenchidos, estrutura, photoPreview]);
 
-  // Perfil atual (para exibir campos condicionais)
-  const perfilAtual = useMemo(
-    () =>
-      (
-        dadosPreenchidos?.perfilSolicitado ||
-        dadosPreenchidos?.tipoUsuario ||
-        dadosPreenchidos?.perfil?.tipo ||
-        ""
-      )
-        .toString()
-        .toUpperCase(),
-    [dadosPreenchidos]
-  );
+  // Função para determinar o perfil atual de forma robusta
+  const getPerfilAtual = useMemo(() => {
+    // Detecta se estamos na página de solicitações (modo criação)
+    const isSolicitacaoPage = estrutura?.uri === "solicitacao";
+    const isCreateMode = !dadosPreenchidos?.id; // Se não tem ID, está criando
+
+    // Na página de solicitações em modo de criação, só usar o valor selecionado pelo usuário
+    if (isSolicitacaoPage && isCreateMode) {
+      const perfilSelecionado = dadosPreenchidos?.tipoUsuario || dadosPreenchidos?.perfilSolicitado || "";
+      return perfilSelecionado.toString().toUpperCase();
+    }
+
+    // Para outras páginas ou modo de edição, usar a lógica completa
+    let perfil = dadosPreenchidos?.perfilSolicitado ||
+      dadosPreenchidos?.tipoUsuario ||
+      dadosPreenchidos?.perfil?.tipo ||
+      "";
+
+    // Se não encontrou nos dados, tenta pegar do contexto de auth
+    if (!perfil && auth) {
+      try {
+        // Tenta os métodos específicos primeiro (mais seguro)
+        if (auth.isAdmin && typeof auth.isAdmin === 'function' && auth.isAdmin()) {
+          perfil = "ADMINISTRADOR";
+        } else if (auth.isGestor && typeof auth.isGestor === 'function' && auth.isGestor()) {
+          perfil = "GESTOR";
+        } else if (auth.isProfessor && typeof auth.isProfessor === 'function' && auth.isProfessor()) {
+          perfil = "PROFESSOR";
+        } else if (auth.isTecnico && typeof auth.isTecnico === 'function' && auth.isTecnico()) {
+          perfil = "TECNICO";
+        } else if (auth.isAluno && typeof auth.isAluno === 'function' && auth.isAluno()) {
+          perfil = "ALUNO";
+        }
+
+        // Se ainda não encontrou, tenta acessar roles (com proteção)
+        if (!perfil && auth && "roles" in auth && auth.roles) {
+          if (typeof (auth as any).roles === "function") {
+            try {
+              const rolesResult = (auth as any).roles();
+              perfil = Array.isArray(rolesResult) ? rolesResult[0] || "" : rolesResult || "";
+            } catch (err) {
+              console.warn("Erro ao executar auth.roles():", err);
+              perfil = "";
+            }
+          } else if (typeof auth.roles === "string") {
+            perfil = auth.roles;
+          } else if (Array.isArray(auth.roles) && auth.roles.length > 0) {
+            perfil = auth.roles[0] || "";
+          } else if (typeof auth.roles === "object" && auth.roles !== null) {
+            perfil = String(auth.roles);
+          }
+        }
+      } catch (error) {
+        console.warn('Erro ao acessar informações de auth:', error);
+        perfil = "";
+      }
+    }
+
+    return perfil ? perfil.toString().toUpperCase() : "";
+  }, [dadosPreenchidos, auth, estrutura]);
 
   // ======= Handlers genéricos =======
   const alterarInput = (
@@ -83,9 +129,13 @@ const Cadastro = ({
     const { name, value } = (event as any).target;
     const campoMeta: Campo | undefined = findCampoByChave(estrutura?.cadastro?.campos, name);
     let finalValue: any = value;
+
     if (campoMeta?.tipo === 'select' && campoMeta.selectOptions?.some(o => typeof o.chave === 'boolean')) {
-      if (value === 'true') finalValue = true; else if (value === 'false') finalValue = false; else finalValue = value;
+      if (value === 'true') finalValue = true;
+      else if (value === 'false') finalValue = false;
+      else finalValue = value;
     }
+
     const masked = campoMeta?.mascara ? aplicarMascara(finalValue, campoMeta.mascara) : finalValue;
     setDadosPreenchidos((prev: any) => updateNestedField(prev ?? {}, name, masked));
   };
@@ -103,7 +153,27 @@ const Cadastro = ({
 
   const linhasNormalizadas = useMemo(() => normalizarLinhas(estrutura?.cadastro?.campos), [estrutura]);
 
-  
+  // Função melhorada para verificar se um campo deve ser exibido
+  const deveMostrarCampo = (campo: Campo): boolean => {
+    if (campo.oculto) return false;
+
+    if (campo.exibirPara && Array.isArray(campo.exibirPara)) {
+      const perfilAtual = getPerfilAtual;
+      const perfilsPermitidos = campo.exibirPara.map(p => p.toUpperCase());
+
+      console.log("=== DEBUG EXIBIÇÃO ===");
+      console.log("Campo:", campo.nome);
+      console.log("Perfil Atual:", perfilAtual);
+      console.log("Perfis Permitidos:", perfilsPermitidos);
+      console.log("Deve Exibir:", perfilsPermitidos.includes(perfilAtual));
+      console.log("==================");
+
+      return perfilsPermitidos.includes(perfilAtual);
+    }
+
+    return true;
+  };
+
   return (
     <div className="rounded-md p-6">
       <form onSubmit={handleSubmit} className="w-full">
@@ -111,12 +181,10 @@ const Cadastro = ({
         <input type="hidden" name="id" value={dadosPreenchidos?.id || ""} />
 
         {linhasNormalizadas.map((linha, idxLinha) => {
-          // Filtra por exibição condicional
-          const camposFiltrados = linha.filter((campo) => {
-            if (campo.oculto) return false;
-            if (campo.exibirPara && !campo.exibirPara.map((v) => v.toUpperCase()).includes(perfilAtual)) return false;
-            return true;
-          });
+          // Filtra campos com a função melhorada
+          const camposFiltrados = linha.filter(deveMostrarCampo);
+
+          if (camposFiltrados.length === 0) return null;
 
           const totalCols = isMobile
             ? 1
@@ -131,8 +199,23 @@ const Cadastro = ({
               className="grid gap-4 mb-6"
               style={{ gridTemplateColumns: gridColumns }}
             >
-              {camposFiltrados.map((e: Campo, idx) => (
-                <RenderCampo key={idx} campo={e} dados={dadosPreenchidos} setDados={setDadosPreenchidos} perfilAtual={perfilAtual} isMobile={isMobile} photoPreview={photoPreview} setPhotoPreview={setPhotoPreview} expandedDocUrl={expandedDocUrl} setExpandedDocUrl={setExpandedDocUrl} expandedDocType={expandedDocType} setExpandedDocType={setExpandedDocType} alterarInput={alterarInput} alterarRatio={alterarRatio} />
+              {camposFiltrados.map((campo: Campo, idx) => (
+                <RenderCampo
+                  key={idx}
+                  campo={campo}
+                  dados={dadosPreenchidos}
+                  setDados={setDadosPreenchidos}
+                  perfilAtual={getPerfilAtual}
+                  isMobile={isMobile}
+                  photoPreview={photoPreview}
+                  setPhotoPreview={setPhotoPreview}
+                  expandedDocUrl={expandedDocUrl}
+                  setExpandedDocUrl={setExpandedDocUrl}
+                  expandedDocType={expandedDocType}
+                  setExpandedDocType={setExpandedDocType}
+                  alterarInput={alterarInput}
+                  alterarRatio={alterarRatio}
+                />
               ))}
             </div>
           );
@@ -145,7 +228,7 @@ const Cadastro = ({
             return (
               <button
                 key={index}
-                type="button" // <- mantém tudo como button
+                type="button"
                 name={botao.chave}
                 className={
                   isSubmit
