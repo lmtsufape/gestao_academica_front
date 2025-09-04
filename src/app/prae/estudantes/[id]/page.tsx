@@ -19,9 +19,7 @@ const cadastro = () => {
   
   // Inicializamos com um objeto contendo 'endereco' para evitar problemas
   const [dadosPreenchidos, setDadosPreenchidos] = useState<any>({ endereco: {} });
-  const [dadosForm, setDadosForm] = useState<any>({ endereco: {} });
   const [dadosBancariosPreenchidos, setDadosBancariosPreenchidos] = useState<any>({});
-  const [cursos, setCursos] = useState<any[]>([]);
   const [isDeficiente, setIsDeficiente] = useState<boolean>(false);
   const isCreateMode = id == "criar";
   const isEditMode = !isCreateMode;
@@ -56,16 +54,6 @@ const cadastro = () => {
     cadastro: {
       campos: [
         {
-          line: 1,
-          colSpan: "md:col-span-1",
-          nome: "Foto Perfil",
-          chave: "perfil.fotoPerfil",
-          tipo: "foto",
-          mensagem: "Anexe os documentos",
-          obrigatorio: false,
-          bloqueado: true,
-        },
-        {
           line: 2,
           colSpan: "md:col-span-auto",
           nome: "Nome",
@@ -92,7 +80,7 @@ const cadastro = () => {
           chave: "email",
           tipo: "text",
           mensagem: "Digite",
-          obrigatorio: isEditMode ? false : true,
+          obrigatorio: true,
           bloqueado: true,
         },
         {
@@ -102,7 +90,7 @@ const cadastro = () => {
           chave: "cpf",
           tipo: "text",
           mensagem: "Digite",
-          obrigatorio: isEditMode ? false : true,
+          obrigatorio: true,
           bloqueado: true,
           mascara: "cpf",
         },
@@ -113,7 +101,7 @@ const cadastro = () => {
           chave: "telefone",
           tipo: "text",
           mensagem: "Digite",
-          obrigatorio: isEditMode ? false : true,
+          obrigatorio:  true,
           bloqueado: true,
           mascara: "celular",
         },
@@ -124,40 +112,38 @@ const cadastro = () => {
           chave: "matricula",
           tipo: "text",
           mensagem: "Digite a matrícula",
-          obrigatorio: !isEditMode || isEditMode,
+          obrigatorio: true,
           bloqueado: true,
         },
         {
           line: 3,
           colSpan: "md:col-span-auto",
           nome: "Curso",
-          chave: "curso.nome",
-          tipo: isEditMode ? "select" : "text",
-          mensagem: "Selecione o curso",
-          obrigatorio: !isEditMode || isEditMode,
-          selectOptions: isEditMode ? null : getOptions(cursos, dadosPreenchidos[0]?.cursoId),
+          chave: "curso",
+          tipo: "text",
+          obrigatorio: true,
           bloqueado: true,
         },
         {
           line: 4,
           colSpan: "md:col-span-1",
-          nome: "Renda Per Capta",
+          nome: "Renda Per Capita",
           chave: "rendaPercapta",
           tipo: "money-brl",
           mode: "decimal",       // ou "cents" se preferir armazenar em centavos
           allowNegative: false,
-          mensagem: "Digite a renda percápita",
-          obrigatorio: isEditMode ? false : true,
+          mensagem: "Digite a renda per capita",
+          obrigatorio: isCreateMode,
           bloqueado: !auth.isAluno(),
         },
         {
           line: 4,
           colSpan: "md:col-span-1",
           nome: "CEP",
-          chave: isEditMode ? "cep" : "cep",
+          chave: "cep",
           tipo: "text",
           mensagem: "Digite o CEP",
-          obrigatorio: isEditMode ? false : true,
+          obrigatorio: true,
           bloqueado: !auth.isAluno(),
           mascara: "CEP",
         },
@@ -165,57 +151,57 @@ const cadastro = () => {
           line: 5,
           colSpan: "md:col-span-1",
           nome: "Rua",
-          chave: isEditMode ? "rua" : "rua",
+          chave: "rua",
           tipo: "text",
           mensagem: "Digite o nome da rua",
-          obrigatorio: isEditMode ? false : true,
+          obrigatorio: true,
           bloqueado: !auth.isAluno(),
         },
         {
           line: 5,
           colSpan: "md:col-span-1",
           nome: "Bairro",
-          chave: isEditMode ? "bairro" : "bairro",
+          chave: "bairro",
           tipo: "text",
           mensagem: "Digite o bairro",
-          obrigatorio: isEditMode ? false : true,
+          obrigatorio: true,
           bloqueado: !auth.isAluno(),
         },
         {
           line: 5,
           colSpan: "md:col-span-1",
           nome: "Cidade",
-          chave: isEditMode ? "cidade" : "cidade",
+          chave: "cidade",
           tipo: "text",
           mensagem: "Digite a cidade",
-          obrigatorio: isEditMode ? false : true,
+          obrigatorio: true,
           bloqueado: !auth.isAluno(),
         },
         {
           line: 6,
           colSpan: "md:col-span-1",
           nome: "Estado",
-          chave: isEditMode ? "estado" : "estado",
+          chave: "estado",
           tipo: "text",
           mensagem: "Digite o estado",
-          obrigatorio: isEditMode ? false : true,
+          obrigatorio: true,
           bloqueado: !auth.isAluno(),
         },
         {
           line: 6,
           colSpan: "md:col-span-1",
           nome: "Número",
-          chave: isEditMode ? "numero" : "numero",
+          chave: "numero",
           tipo: "text",
           mensagem: "Digite o numero",
-          obrigatorio: isEditMode ? false : true,
+          obrigatorio: true,
           bloqueado: !auth.isAluno(),
         },
         {
           line: 6,
           colSpan: "md:col-span-1",
           nome: "Complemento",
-          chave: isEditMode ? "complemento" : "complemento",
+          chave: "complemento",
           tipo: "text",
           mensagem: "Digite o complemento",
           obrigatorio: false,
@@ -225,10 +211,10 @@ const cadastro = () => {
           line: 7,
           colSpan: "md:col-span-1",
           nome: "Contato Familiar",
-          chave: isEditMode ? "contatoFamilia" : "contatoFamilia",
+          chave: "contatoFamilia",
           tipo: "text",
           mensagem: "Digite o contato familiar",
-          obrigatorio: isEditMode ? false : true,
+          obrigatorio: isCreateMode,
           bloqueado: !auth.isAluno(),
           mascara: "celular",
         },
@@ -243,7 +229,7 @@ const cadastro = () => {
             { chave: false, valor: "Não" },
           ],
           mensagem: "Selecione a opção",
-          obrigatorio: isEditMode ? false : true,
+          obrigatorio: isCreateMode,
           bloqueado: !auth.isAluno(),
           mascara: "valor",
         },
@@ -254,22 +240,13 @@ const cadastro = () => {
           chave: "tipoDeficiencia",
           tipo: "text",
           mensagem: "Qual o tipo da deficiência",
-          obrigatorio: isEditMode ? false : true,
+          obrigatorio: isDeficiente,
           bloqueado: !auth.isAluno(),
-        },/*
-        {
-          line: 7,
-          colSpan: "md:col-span-1",
-          nome: "Laudo Médico",
-          chave: "laudo",
-          tipo: "documento",
-          obrigatorio: isEditMode ? false : true,
-          bloqueado: !auth.isAluno(),
-        },*/
+        }
       ],
       acoes: auth.isAluno() ? [
         { nome: "Cancelar", chave: "voltar", tipo: "botao" },
-        { nome: isEditMode ? "Salvar" : "Cadastrar", chave: "salvar", tipo: "submit" }
+        { nome: isEditMode ? "Salvar" : "Cadastrar", chave: "salvar", tipo: "submit" },
       ] :
         [],
     },
@@ -371,8 +348,8 @@ const cadastro = () => {
       };
       const response = await generica(body);
       if (response && response.data) {
+        response.data.curso = response.data.curso.nome;
         setDadosPreenchidos(response.data);
-        console.log("Dados do usuário atual:", response.data);
       }
     } catch (error) {
       console.error('Erro ao carregar registros:', error);
@@ -408,6 +385,20 @@ const cadastro = () => {
     else
       router.push("/prae/estudantes");
   };
+
+  const checarObrigatorios = () => {
+    let retorno = true;
+    for (const campo of estrutura.cadastro.campos) {
+      if (campo.obrigatorio) {
+        const valor = dadosPreenchidos[campo.chave];
+        if (valor === null || valor === undefined || valor === "") {
+          toast.error(`O campo ${campo.nome} é obrigatório`, { position: "top-left" });
+          retorno = false;
+        }
+      }
+    }
+    return retorno;
+  }
 
   const transformarDados = (item: any) => {
     const { cep, rua, complemento, numero, bairro, cidade, estado, rendaPercapta, ...rest } = item;
@@ -457,6 +448,7 @@ const cadastro = () => {
 
   const salvarRegistro = async (item: any) => {
     try {
+      if (!checarObrigatorios()) return;
       const dataToSend = transformarDados(item);
       const body = {
         metodo: `${isEditMode ? "patch" : "post"}`,
@@ -567,6 +559,8 @@ const cadastro = () => {
           nomeSocial: response.data.aluno.nomeSocial,
           email: response.data.aluno.email,
           cpf: response.data.aluno.cpf,
+          matricula: response.data.aluno.matricula,
+          curso: response.data.aluno.curso.nome,
           telefone: response.data.aluno.telefone,
           rendaPercapta: response.data.rendaPercapta,
           cep: response.data.endereco.cep,
