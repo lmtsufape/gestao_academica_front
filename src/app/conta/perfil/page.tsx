@@ -119,6 +119,7 @@ const PagePerfil = () => {
           nome: "Matrícula",
           chave: "perfil.matricula",
           tipo: "text",
+          exibirPara: ["ALUNO"],
           bloqueado: true
         },
         {
@@ -149,15 +150,6 @@ const PagePerfil = () => {
           tipo: "text",
           bloqueado: !editando,
           exibirPara: ["ADMINISTRADOR", "GESTOR", "TECNICO", "PROFESSOR"],
-        },
-        {
-          line: 4,
-          colSpan: "md:col-span-1",
-          nome: "Senha",
-          chave: "senha",
-          tipo: "password",
-          obrigatorio: editando,
-          bloqueado: !editando,
         },
 
       ],
@@ -199,7 +191,7 @@ const PagePerfil = () => {
     try {
       const response = await generica({
         metodo: "patch",
-        uri: `/auth/usuario/${item.id}`,
+        uri: `/auth/usuario`,
         data: payload,
       });
 
