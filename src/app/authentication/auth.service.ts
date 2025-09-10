@@ -1,6 +1,6 @@
 import * as TokenService from './auth.token';
 
-const BASE = `${process.env.NEXT_PUBLIC_BASE_URL}` || "http://localhost:8080";
+const BASE = 'https://lmtsteste23.ufape.edu.br';
 
 export class AuthService {
   static async login(email: string, password: string): Promise<void> {
