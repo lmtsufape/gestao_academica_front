@@ -298,12 +298,16 @@ const cadastro = () => {
       } else if (response && response.data.error != undefined) {
         toast(response.data.error.message, { position: "bottom-left" });
       } else if (response && response.data) {
-        setUnidadesPai(response.data);
+        const ordenados = [...response.data].sort((a, b) =>
+          a.nome.localeCompare(b.nome, "pt-BR", { sensitivity: "base" })
+        );
+        setUnidadesPai(ordenados);
       }
     } catch (error) {
       console.error('Erro ao carregar registros:', error);
     }
   };
+
 
   const pesquisarTipoUnidades = async (params = null) => {
     try {
@@ -320,12 +324,16 @@ const cadastro = () => {
       } else if (response?.data?.error) {
         toast(response.data.error.message, { position: "bottom-left" });
       } else if (response?.data?.content) {
-        setTipoUnidade(response.data.content);
+        const ordenados = [...response.data.content].sort((a, b) =>
+          a.nome.localeCompare(b.nome, "pt-BR", { sensitivity: "base" })
+        );
+        setTipoUnidade(ordenados);
       }
     } catch (error) {
       console.error('Erro ao carregar registros:', error);
     }
   };
+
 
   const pesquisarTodosColaboradores = async (
     unidadeId: string,
