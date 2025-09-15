@@ -97,6 +97,13 @@ export default function HomePage() {
       description: "Acesse o módulo de Editais",
       image: "/assets/brasaoUfapeCol.png",
     },
+    {
+      id: "pdi",
+      name: "PDI",
+      route: "/pdi",
+      description: "Acesse o módulo de PDI",
+      image: "/assets/brasaoUfapeCol.png",
+    },
     // Adicione mais módulos...
   ];
 
