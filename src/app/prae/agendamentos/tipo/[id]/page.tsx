@@ -153,13 +153,6 @@ const CadastroTipoAtendimento = () => {
     const [hora, minuto] = item.tempoAtendimento.split(':').map(Number);
     const totalMinutos = hora * 60 + minuto;
 
-    if (totalMinutos > 60) {
-      toast.error("O tempo de atendimento não pode ser maior que 1 hora", {
-        position: "top-left"
-      });
-      return;
-    }
-
     // Verifica se há horários selecionados
     if (!item.horarios || item.horarios.length === 0) {
       toast.error("Selecione pelo menos um horário", {
@@ -234,7 +227,6 @@ const CadastroTipoAtendimento = () => {
       } else {
         const dados = response.data;
 
-        // Formata os dados para exibição
         const dadosFormatados = {
           ...dados,
           tempoAtendimento: dados.tempoAtendimento?.slice(0, 5) || "",
