@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import * as TokenService from '@/app/authentication/auth.token';
 import { AuthService } from '@/app/authentication/auth.service';
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:8080';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://lmtsteste23.ufape.edu.br';
 const PUBLIC_ROUTES = [
   '/login',
   '/conta/criar-conta',

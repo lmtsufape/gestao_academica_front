@@ -63,7 +63,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           label: "Gerenciar Estudantes",
           route: "/prae/estudantes",
           icon: <School fontSize="small" className="text-white" />,
-          roles: isPraeAccess ? ["gestor", "tecnico"] : [""],
+          roles: isPraeAccess ? ["gestor"] : [""],
         },
         {
           label: "Meu Cadastro",
@@ -138,7 +138,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
               label: "Tipo de Atendimento",
               route: "/prae/agendamentos/tipo",
               icon: <Category fontSize="small" className="text-white" />, // Ícone para categorias/tipos
-              roles: isPraeAccess ? ["gestor", "tecnico", "professor"] : [""],
+              roles: isPraeAccess ? ["tecnico", "professor"] : [""],
             },
             {
               label: "Gerenciar Cronograma",

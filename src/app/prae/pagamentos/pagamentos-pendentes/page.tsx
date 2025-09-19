@@ -65,10 +65,11 @@ const estrutura = {
 
 const PageLista = () => {
   const router = useRouter();
-  const [dados, setDados] = useState<{ content: Pagamento[] }>({ content: [] });
+  const [dados, setDados] = useState<{ content: Pagamento[]; totalElements?: number }>({ content: [], totalElements: 0 });
   const [itensSelecionados, setItensSelecionados] = useState<Set<string>>(new Set());
   const [modalAberto, setModalAberto] = useState(false);
   const [pagamentosSelecionados, setPagamentosSelecionados] = useState<PagamentoSelecionado[]>([]);
+
 
   const chamarFuncao = (nomeFuncao: string, valor: any = null) => {
     switch (nomeFuncao) {
@@ -108,22 +109,28 @@ const PageLista = () => {
         throw new Error(response.data.error.message);
       }
 
+      // response.data já é um array
       const formatarData = (dataISO: string) => {
         if (!dataISO) return '';
         const data = new Date(dataISO);
         return data.toLocaleDateString('pt-BR');
       };
 
-      const processado = response?.data.map((item: Pagamento) => ({
+      const processado = (response?.data || []).map((item: Pagamento) => ({
         ...item,
         periodo: `${formatarData(item.inicioBeneficio)} até ${formatarData(item.fimBeneficio)}`
       }));
 
-      setDados({ content: processado });
+      // agora setamos corretamente o estado no formato esperado pela Tabela
+      setDados({
+        content: processado,
+        totalElements: processado.length // adiciona total para ser usado no rodapé da tabela
+      });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Erro ao carregar registros");
     }
   };
+
 
   const prepararPagamentoLote = () => {
     if (itensSelecionados.size === 0) {
