@@ -52,6 +52,11 @@ const cadastro = () => {
                     tipo: "text",
                     mensagem: "Digite",
                     obrigatorio: true,
+                    maxlength: 50,
+                    validacao: {
+                        tamanhoMaximo: 50,
+                        mensagem: "O nome deve ter no máximo 50 caracteres.",
+                    },
                 },
             ],
             acoes: [
@@ -83,25 +88,30 @@ const cadastro = () => {
 
     const salvarRegistro = async (item: any) => {
         try {
+            // normalizar e validar localmente
+            const nome = String(item.nome ?? "").trim();
+            const MAX = 50; // ou 50 se você alterar o backend
+            if (nome.length < 1 || nome.length > MAX) {
+                toast.error(`O tipo deve ter entre 1 e ${MAX} caracteres (atual: ${nome.length}).`, { position: "top-left" });
+                return;
+            }
+
             const body = {
                 metodo: `${isEditMode ? "patch" : "post"}`,
                 uri: "/auth/" + `${isEditMode ? estrutura.uri + "/" + item.id : estrutura.uri}`,
                 params: {},
-                data: item,
+                data: { ...item, nome }, // envia a versão "trimmed"
             };
+
             const response = await generica(body);
             if (!response || response.status < 200 || response.status >= 300) {
-                if (response) {
-                    console.error("DEBUG: Status de erro:", response.status, 'statusText' in response ? response.statusText : "Sem texto de status");
-                }
+                console.error("DEBUG: Status de erro:", response?.status, response?.statusText);
                 toast.error(`Erro na requisição (HTTP ${response?.status || "desconhecido"})`, { position: "top-left" });
                 return;
             }
             if (response.data?.errors) {
                 Object.keys(response.data.errors).forEach((campoErro) => {
-                    toast.error(`Erro em ${campoErro}: ${response.data.errors[campoErro]}`, {
-                        position: "top-left",
-                    });
+                    toast.error(`Erro em ${campoErro}: ${response.data.errors[campoErro]}`, { position: "top-left" });
                 });
             } else if (response.data?.error) {
                 toast(response.data.error.message, { position: "top-left" });
@@ -110,10 +120,10 @@ const cadastro = () => {
                     title: "Tipo de UA salvo com sucesso!",
                     icon: "success",
                     customClass: {
-                    popup: "my-swal-popup",
-                    title: "my-swal-title",
-                    htmlContainer: "my-swal-html",
-                },
+                        popup: "my-swal-popup",
+                        title: "my-swal-title",
+                        htmlContainer: "my-swal-html",
+                    },
                 }).then((result) => {
                     if (result.isConfirmed) {
                         chamarFuncao("voltar");
@@ -125,6 +135,7 @@ const cadastro = () => {
             toast.error("Erro ao salvar registro. Tente novamente!", { position: "top-left" });
         }
     };
+
 
     const editarRegistro = async (item: any) => {
         try {

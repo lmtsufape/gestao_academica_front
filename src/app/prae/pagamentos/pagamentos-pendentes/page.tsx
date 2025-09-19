@@ -138,18 +138,32 @@ const PageLista = () => {
       return;
     }
 
+    const hoje = new Date();
+
     const selecionados = dados.content
       .filter(item => itensSelecionados.has(item.id))
-      .map(item => ({
-        id: item.id,
-        nome: item.estudantes?.aluno?.nome || 'Nome não disponível',
-        valor: item.valorPagamento || 0,
-        tipo: item.tipoBeneficio?.tipo || 'Tipo não disponível'
-      }));
+      .map(item => {
+        const fim = item.fimBeneficio ? new Date(item.fimBeneficio) : null;
+        return {
+          id: item.id,
+          nome: item.estudantes?.aluno?.nome || 'Nome não disponível',
+          valor: item.valorPagamento || 0,
+          tipo: item.tipoBeneficio?.tipo || 'Tipo não disponível',
+          fimBeneficio: fim
+        };
+      });
+
+    // Bloquear pagamentos vencidos
+    const vencidos = selecionados.filter(p => p.fimBeneficio && p.fimBeneficio < hoje);
+    if (vencidos.length > 0) {
+      toast.error("Não é possível pagar benefícios vencidos.");
+      return;
+    }
 
     setPagamentosSelecionados(selecionados);
     setModalAberto(true);
   };
+
 
   const confirmarPagamentos = async () => {
     try {
