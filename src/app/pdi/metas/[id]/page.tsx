@@ -87,29 +87,28 @@ const VisualizarMeta = () => {
     } catch (error) {
       console.error("Erro ao carregar histórico:", error);
       setHistoricoStatus([]);
+    } finally {
+      setHistoricoStatus([
+        {
+          id: 1,
+          valor: 3,
+          dataAtualizacao: "2024-01-15T10:30:00",
+          usuarioAtualizacao: "João Silva",
+        },
+        {
+          id: 2,
+          valor: 2,
+          dataAtualizacao: "2024-02-10T14:20:00",
+          usuarioAtualizacao: "Maria Santos",
+        },
+        {
+          id: 3,
+          valor: 3,
+          dataAtualizacao: "2024-03-05T09:15:00",
+          usuarioAtualizacao: "João Silva",
+        },
+      ]);
     }
-    // finally {
-    //   setHistoricoStatus([
-    //     {
-    //       id: 1,
-    //       valor: 3,
-    //       dataAtualizacao: "2024-01-15T10:30:00",
-    //       usuarioAtualizacao: "João Silva",
-    //     },
-    //     {
-    //       id: 2,
-    //       valor: 2,
-    //       dataAtualizacao: "2024-02-10T14:20:00",
-    //       usuarioAtualizacao: "Maria Santos",
-    //     },
-    //     {
-    //       id: 3,
-    //       valor: 3,
-    //       dataAtualizacao: "2024-03-05T09:15:00",
-    //       usuarioAtualizacao: "João Silva",
-    //     },
-    //   ]);
-    // }
   };
 
   const carregarUsuarioAtual = async () => {
