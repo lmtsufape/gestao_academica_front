@@ -99,7 +99,7 @@ export default function GestaoAcessoHome() {
       cor: "bg-orange-500",
       corHover: "hover:bg-orange-600",
       disponivel: true,
-      roles: ["administrador", "gestor", "tecnico"],
+      roles: ["administrador", "gestor"],
     },
     {
       id: "tipo-unidade",
