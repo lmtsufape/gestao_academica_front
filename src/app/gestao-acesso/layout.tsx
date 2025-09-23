@@ -100,7 +100,7 @@ export default function EfrotasLayout({ children }: { children: React.ReactNode 
           label: "Tipo de Etnia",
           route: "/gestao-acesso/etnia",
           icon: <Diversity3 fontSize="small" className="text-white" />,
-          roles: ["administrador", "gestor", "tecnico"],
+          roles: ["administrador", "gestor"],
         },
       ],
     },
