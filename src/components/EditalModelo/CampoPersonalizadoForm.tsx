@@ -1,7 +1,7 @@
 "use client";
 import React from 'react';
 import { Controller } from 'react-hook-form';
-import { tipoCampoDisplay } from '@/app/teste/types';
+import { tipoCampoDisplay } from "@/types/editalTypes";
 
 export type CampoPersonalizadoFormProps = {
   control: any;
