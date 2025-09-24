@@ -6,7 +6,6 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
-import { useEnderecoByCep } from "@/utils/brasilianStates";
 import { generica } from "@/utils/api";
 
 const cadastro = () => {
@@ -51,7 +50,6 @@ const cadastro = () => {
     },
     cadastro: {
       campos: [
-        // Linha 1
         {
           line: 1,
           colSpan: "md:col-span-1",
@@ -87,10 +85,6 @@ const cadastro = () => {
     },
   };
 
-
-  /**
-   * Chama funções de acordo com o botão clicado
-   */
   const chamarFuncao = async (nomeFuncao = "", valor: any = null) => {
     switch (nomeFuncao) {
       case "salvar":
@@ -111,23 +105,28 @@ const cadastro = () => {
     router.push("/prae/pagamentos");
   };
 
-  /**
-   * Salva o registro via POST, transformando os dados para que os itens de endereço
-   * fiquem agrupados em um objeto 'endereco'.
-   */
   const salvarRegistro = async (item: any) => {
     try {
+
+      if (!item.auxilioId || String(item.auxilioId).trim() === "") {
+        toast.error("O nome do beneficiário é obrigatório!", { position: "top-left" });
+        return;
+      }
+
       const valorNumerico = parseFloat(
         String(item.valor).replace(/\./g, '').replace(',', '.')
       );
 
-      // Cria uma cópia com o valor convertido
+      if (isNaN(valorNumerico)) {
+        toast.error("O valor do pagamento é inválido!", { position: "top-left" });
+        return;
+      }
+
       const itemCorrigido = {
         ...item,
         valor: valorNumerico,
         auxilioId: Number(item.auxilioId),
       };
-
 
       const body = {
         metodo: `${isEditMode ? "patch" : "post"}`,
@@ -167,9 +166,6 @@ const cadastro = () => {
     }
   };
 
-  /**
-   * Localiza o registro para edição e preenche os dados
-   */
   const editarRegistro = async (item: any) => {
     try {
       const body = {
@@ -197,7 +193,34 @@ const cadastro = () => {
     }
   };
 
-  // Efeito exclusivo para o modo de edição
+
+  useEffect(() => {
+    const atualizarValorDoAuxilio = async () => {
+      if (dadosPreenchidos.auxilioId) {
+        try {
+          const body = {
+            metodo: "get",
+            uri: `/prae/auxilio/${dadosPreenchidos.auxilioId}`,
+            params: {},
+          };
+          const response = await generica(body);
+
+          if (response?.data) {
+            setDadosPreenchidos((prev: any) => ({
+              ...prev,
+              valor: response.data.valorPadrao ?? prev.valor,
+            }));
+          }
+        } catch (err) {
+          console.error("Erro ao buscar valor do auxílio:", err);
+        }
+      }
+    };
+
+    atualizarValorDoAuxilio();
+  }, [dadosPreenchidos.auxilioId]);
+
+
   useEffect(() => {
     if (id && id !== "criar") {
       chamarFuncao("editar", id);

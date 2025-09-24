@@ -21,6 +21,12 @@ interface CronogramaData {
   endereco?: any;
 }
 
+interface CronogramaExistente {
+  id: number;
+  data: string;
+  tipoAtendimentoId: number;
+}
+
 const isValidDate = (dateString: string): boolean => {
   return !isNaN(Date.parse(dateString));
 };
@@ -61,6 +67,8 @@ const cadastro = () => {
     tipoAtendimentoId: 0,
   });
   const [tiposAtendimento, setTiposAtendimento] = useState<TipoAtendimento[]>([]);
+  const [cronogramasExistentes, setCronogramasExistentes] = useState<CronogramaExistente[]>([]);
+  const [cronogramaOriginal, setCronogramaOriginal] = useState<CronogramaData | null>(null);
   const isEditMode = id && id !== "criar";
 
   const fetchTiposAtendimento = async () => {
@@ -83,6 +91,28 @@ const cadastro = () => {
       );
     } catch (error) {
       console.error("Erro ao buscar tipos de atendimento:", error);
+    }
+  };
+
+  const fetchCronogramasExistentes = async () => {
+    try {
+      const response = await generica({
+        metodo: "get",
+        uri: "/prae/cronograma",
+        params: {},
+      });
+
+      const cronogramas = response?.data?.data || response?.data?.content || [];
+
+      const cronogramasFormatados: CronogramaExistente[] = cronogramas.map((cronograma: any) => ({
+        id: cronograma.id,
+        data: formatDateToAPI(cronograma.data), // Converte para YYYY-MM-DD
+        tipoAtendimentoId: cronograma.tipoAtendimento?.id || cronograma.tipoAtendimentoId,
+      }));
+
+      setCronogramasExistentes(cronogramasFormatados);
+    } catch (error) {
+      console.error("Erro ao buscar cronogramas existentes:", error);
     }
   };
 
@@ -110,26 +140,25 @@ const cadastro = () => {
   };
 
   const handleDateChange = (diasSelecionados: string[]) => {
-    // Se não há datas selecionadas, limpa a seleção
-    if (diasSelecionados.length === 0) {
-      setDadosPreenchidos((prev) => ({
-        ...prev,
-        datas: [],
-      }));
-      return;
-    }
-
-    // Pega a última data selecionada
-    const ultimaDataSelecionada = diasSelecionados[diasSelecionados.length - 1];
-
-    // Verifica se é uma data válida
-    if (!isValidDate(ultimaDataSelecionada)) return;
-
-    // Atualiza o estado com apenas a última data selecionada
+    // Permite múltiplas datas selecionadas
     setDadosPreenchidos((prev) => ({
       ...prev,
-      datas: [ultimaDataSelecionada],
+      datas: diasSelecionados,
     }));
+  };
+
+  const verificarCronogramaExistente = (data: string, tipoAtendimentoId: number): boolean => {
+    return cronogramasExistentes.some(cronograma => {
+      // Em modo edição, ignora o próprio registro e outros registros do mesmo cronograma
+      if (isEditMode && cronogramaOriginal) {
+        const isMesmoCronograma = cronogramaOriginal.datas.includes(cronograma.data);
+        if (isMesmoCronograma) return false;
+      }
+
+      return cronograma.data === data &&
+        cronograma.tipoAtendimentoId === tipoAtendimentoId &&
+        (!isEditMode || cronograma.id !== Number(id));
+    });
   };
 
   const chamarFuncao = async (nomeFuncao = "", valor: any = null) => {
@@ -167,30 +196,81 @@ const cadastro = () => {
       return;
     }
 
+    // Validar se já existem cronogramas para as datas selecionadas (excluindo as datas originais em modo edição)
+    const conflitos: string[] = [];
+
+    dadosPreenchidos.datas.forEach(data => {
+      if (verificarCronogramaExistente(data, dadosPreenchidos.tipoAtendimentoId)) {
+        const dataFormatada = parseDateLocal(data).toLocaleDateString("pt-BR");
+        conflitos.push(dataFormatada);
+      }
+    });
+
+    if (conflitos.length > 0) {
+      toast.error(`Já existem cronogramas para as seguintes datas: ${conflitos.join(", ")}`);
+      return;
+    }
+
     try {
-      const metodo = isEditMode ? "patch" : "post";
-      const uri = isEditMode
-        ? `/prae/${estrutura.uri}/${id}`
-        : `/prae/${estrutura.uri}`;
+      if (isEditMode) {
+        // MODO EDIÇÃO: Criar novos registros para as datas adicionadas
+        const datasOriginais = cronogramaOriginal?.datas || [];
+        const novasDatas = dadosPreenchidos.datas.filter(data => !datasOriginais.includes(data));
+        const datasRemovidas = datasOriginais.filter(data => !dadosPreenchidos.datas.includes(data));
 
-      const primeiraData = dadosPreenchidos.datas[0]; // Pega a primeira data
-
-      const dadosParaEnviar = isEditMode
-        ? {
-          data: formatDateToAPI(primeiraData), // string
-          tipoAtendimentoId: Number(dadosPreenchidos.tipoAtendimentoId),
+        // Criar novos registros para as datas adicionadas
+        if (novasDatas.length > 0) {
+          await generica({
+            metodo: "post",
+            uri: `/prae/${estrutura.uri}`,
+            params: {},
+            data: {
+              datas: novasDatas.map(formatDateToAPI),
+              tipoAtendimentoId: Number(dadosPreenchidos.tipoAtendimentoId),
+            },
+          });
         }
-        : {
-          datas: dadosPreenchidos.datas.map(formatDateToAPI), // array
-          tipoAtendimentoId: Number(dadosPreenchidos.tipoAtendimentoId),
-        };
 
-      await generica({
-        metodo,
-        uri,
-        params: {},
-        data: dadosParaEnviar,
-      });
+        // Remover registros para as datas excluídas
+        for (const data of datasRemovidas) {
+          // Buscar o ID do cronograma específico para esta data
+          const cronogramaParaRemover = cronogramasExistentes.find(c =>
+            c.data === data && c.tipoAtendimentoId === dadosPreenchidos.tipoAtendimentoId
+          );
+
+          if (cronogramaParaRemover) {
+            await generica({
+              metodo: "delete",
+              uri: `/prae/${estrutura.uri}/${cronogramaParaRemover.id}`,
+              params: {},
+            });
+          }
+        }
+
+        // Atualizar o registro original (primeira data)
+        if (dadosPreenchidos.datas.length > 0) {
+          await generica({
+            metodo: "patch",
+            uri: `/prae/${estrutura.uri}/${id}`,
+            params: {},
+            data: {
+              data: formatDateToAPI(dadosPreenchidos.datas[0]),
+              tipoAtendimentoId: Number(dadosPreenchidos.tipoAtendimentoId),
+            },
+          });
+        }
+      } else {
+        // MODO CRIAÇÃO: Criar todos os registros de uma vez
+        await generica({
+          metodo: "post",
+          uri: `/prae/${estrutura.uri}`,
+          params: {},
+          data: {
+            datas: dadosPreenchidos.datas.map(formatDateToAPI),
+            tipoAtendimentoId: Number(dadosPreenchidos.tipoAtendimentoId),
+          },
+        });
+      }
 
       Swal.fire({
         title: "Sucesso!",
@@ -204,7 +284,6 @@ const cadastro = () => {
       toast.error("Erro ao salvar o registro.");
     }
   };
-
 
   const editarRegistro = async (item: any) => {
     try {
@@ -229,21 +308,30 @@ const cadastro = () => {
         }
       }
 
-      setDadosPreenchidos({
+      // Buscar todos os cronogramas do mesmo tipo para preencher as datas
+      const cronogramasDoMesmoTipo = cronogramasExistentes.filter(c =>
+        c.tipoAtendimentoId === dados.tipoAtendimento?.id
+      );
+
+      const datasDoCronograma = cronogramasDoMesmoTipo.map(c => c.data);
+
+      const dadosCronograma = {
         tipoAtendimentoId: dados.tipoAtendimento?.id || 0,
-        datas: dataFormatada ? [dataFormatada] : [],
-      });
+        datas: dataFormatada ? [dataFormatada, ...datasDoCronograma.filter(d => d !== dataFormatada)] : datasDoCronograma,
+      };
+
+      setDadosPreenchidos(dadosCronograma);
+      setCronogramaOriginal(dadosCronograma);
+
     } catch (error: any) {
       console.error("Erro ao localizar registro:", error);
       toast.error("Erro ao carregar dados para edição.");
     }
   };
 
-
-
-
   useEffect(() => {
     fetchTiposAtendimento();
+    fetchCronogramasExistentes();
     if (isEditMode && id) {
       chamarFuncao("editar", id);
     }
@@ -276,26 +364,49 @@ const cadastro = () => {
         </div>
 
         <div className="mb-6">
-          <label className="block font-bold mb-2">Datas de Atendimento</label>
+          <label className="block font-bold mb-2">
+            {isEditMode ? "Datas do Cronograma (Editar)" : "Datas de Atendimento"}
+          </label>
+          {isEditMode && (
+            <p className="text-sm text-gray-600 mb-3">
+              <strong>Modo edição:</strong> Você pode adicionar ou remover datas deste cronograma.
+              A data original está marcada e você pode selecionar datas adicionais.
+            </p>
+          )}
+
           <div className="mb-6 border rounded-lg p-4 bg-white shadow-sm">
             <Calendar
-              selectedDates={dadosPreenchidos.datas} // Datas em formato ISO (YYYY-MM-DD)
+              selectedDates={dadosPreenchidos.datas}
               onChange={handleDateChange}
             />
           </div>
 
           {dadosPreenchidos.datas.length > 0 && (
             <div className="mt-4 p-3 bg-gray-50 rounded">
-              <p className="font-medium mb-2">Datas selecionadas:</p>
+              <p className="font-medium mb-2">
+                {isEditMode ? "Datas do cronograma:" : "Datas selecionadas:"}
+              </p>
               <div className="flex flex-wrap gap-2">
-                {dadosPreenchidos.datas.map((date, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
-                  >
-                    {parseDateLocal(date).toLocaleDateString("pt-BR")}
-                  </span>
-                ))}
+                {dadosPreenchidos.datas.map((date, index) => {
+                  const isDataOriginal = cronogramaOriginal?.datas.includes(date);
+                  const existeConflito = verificarCronogramaExistente(date, dadosPreenchidos.tipoAtendimentoId);
+
+                  return (
+                    <span
+                      key={index}
+                      className={`px-3 py-1 rounded-full text-sm ${existeConflito
+                          ? "bg-red-100 text-red-800 border border-red-300"
+                          : isDataOriginal
+                            ? "bg-green-100 text-green-800 border border-green-300"
+                            : "bg-blue-100 text-blue-800"
+                        }`}
+                    >
+                      {parseDateLocal(date).toLocaleDateString("pt-BR")}
+                      {isDataOriginal && " (Original)"}
+                      {existeConflito && " (Conflito)"}
+                    </span>
+                  );
+                })}
               </div>
             </div>
           )}
