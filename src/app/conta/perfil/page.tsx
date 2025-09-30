@@ -36,6 +36,14 @@ const PagePerfil = () => {
     return options;
   };
 
+  const formatarCursos = (cursos: any[]) => {
+    if (!cursos || !Array.isArray(cursos) || cursos.length === 0) {
+      return "Nenhum curso vinculado";
+    }
+    // Para mobile, coloca cada curso em uma linha
+    return cursos.map(c => c.nome).join("\n");
+  };
+
   const currentUser = async () => {
     try {
       setCarregando(true);
@@ -53,9 +61,26 @@ const PagePerfil = () => {
 
       const base = baseResponse.data || {};
 
+      // Inicializa perfil se não existir
+      if (!base.perfil) base.perfil = {};
+
+      // Inicializa cursos e curso
+      base.perfil.cursos = base.perfil.cursos || base.cursos || [];
+      base.perfil.curso = base.perfil.curso || null;
+
+      // Se não for admin, busca dados adicionais do tipo de usuário
       let merged = base;
-      if (!auth.isAdmin())
-        merged = await pesquisarUsuario(merged);
+      if (!auth.isAdmin()) merged = await pesquisarUsuario(merged);
+
+      // Garante que cursos esteja em perfil.cursos (pode vir na raiz)
+      if (merged.cursos && !merged.perfil.cursos?.length) {
+        merged.perfil.cursos = merged.cursos;
+      }
+
+      // Formatar cursos para exibição
+      merged.cursosFormatados = formatarCursos(merged.perfil?.cursos);
+
+      console.log("Dados finais merged:", merged);
 
       setDadosPreenchidos(merged);
     } catch (error) {
@@ -64,6 +89,7 @@ const PagePerfil = () => {
       setCarregando(false);
     }
   };
+
 
   const getAcoes = () => {
     if (editando) {
@@ -181,22 +207,23 @@ const PagePerfil = () => {
         },
         {
           line: 4,
-          colSpan: "md:col-span-1",
-          nome: "Cursos",
-          chave: "perfil.cursos",
-          tipo: "multi-select",
+          colSpan: "col-span-1 md:col-span-2",
+          nome: "Cursos Vinculados",
+          chave: "cursosFormatados",
+          tipo: "textarea",
           bloqueado: true,
+          somenteLeitura: true,
           exibirPara: ["PROFESSOR"],
-          multiple: true,
+          linhas: 3,
         },
         {
           line: 4,
           colSpan: "md:col-span-1",
           nome: "SIAPE",
-          chave: "perfil.siape",
+          chave: "siape",
           tipo: "text",
           bloqueado: true,
-          exibirPara: ["GESTOR", "TECNICO", "PROFESSOR"],
+          exibirPara: ["TECNICO", "PROFESSOR"],
         },
 
       ],
@@ -245,6 +272,8 @@ const PagePerfil = () => {
         perfil: {
           ...(base.perfil || {}),
           ...(response.data.perfil || {}),
+          // Se cursos vier direto na raiz, mova para perfil.cursos
+          cursos: response.data.cursos || response.data.perfil?.cursos || base.perfil?.cursos || [],
         },
       };
     }
@@ -288,6 +317,17 @@ const PagePerfil = () => {
           let merged = response.data || item;
           if (!auth.isAdmin())
             merged = await pesquisarUsuario(merged);
+
+          // Garante que cursos esteja em perfil.cursos (pode vir na raiz)
+          if (merged.cursos && !merged.perfil?.cursos?.length) {
+            if (!merged.perfil) merged.perfil = {};
+            merged.perfil.cursos = merged.cursos;
+          }
+
+          // Formatar cursos após salvar
+          merged.cursosFormatados = formatarCursos(merged.perfil?.cursos);
+
+          console.log("Dados após salvar:", merged);
 
           setDadosPreenchidos(merged);
 
