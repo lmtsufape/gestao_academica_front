@@ -120,44 +120,53 @@ const PageLista = () => {
 
         const response = await generica(body);
 
-        if (response && response.data && response.data.errors) {
-          toast.error("Erro. Tente novamente!", { position: "top-left" });
-        } else if (response && response.data && response.data.error) {
-          const mensagemErro = response.data.error.message;
-
-          if (
-            response.status === 409 ||
-            mensagemErro?.toLowerCase().includes("atendimento")
-          ) {
-            toast.error("Não é possível excluir este tipo de atendimento, pois existem atendimentos associados a ele.", {
-              position: "top-left",
-            });
-          } else {
-            toast.error(mensagemErro, { position: "top-left" });
-          }
-        } else {
+        if (response?.status && response.status >= 200 && response.status < 300) {
           pesquisarRegistro();
           Swal.fire({
             title: "Tipo de atendimento deletado com sucesso!",
             icon: "success"
           });
+          return;
         }
+
+        const mensagemErro = response?.data?.error?.message?.toLowerCase();
+
+        if (
+          response?.status === 409 ||
+          response?.status === 500 || 
+          mensagemErro?.includes("atendimento") ||
+          mensagemErro?.includes("associad")
+        ) {
+          toast.error(
+            "Não é possível excluir este tipo de atendimento, pois existem atendimentos associados a ele.",
+            { position: "top-left" }
+          );
+        } else {
+          toast.error("Erro ao deletar registro. Tente novamente!", { position: "top-left" });
+        }
+
       } catch (error: any) {
         console.error('Erro ao deletar registro:', error);
 
+        const mensagemErro = error?.response?.data?.error?.message?.toLowerCase();
+
         if (
           error?.response?.status === 409 ||
-          error?.response?.data?.error?.message?.toLowerCase().includes("atendimento")
+          error?.response?.status === 500 || 
+          mensagemErro?.includes("atendimento") ||
+          mensagemErro?.includes("associad")
         ) {
-          toast.error("Não é possível excluir este tipo de atendimento, pois existem atendimentos associados a ele.", {
-            position: "top-left",
-          });
+          toast.error(
+            "Não é possível excluir este tipo de atendimento, pois existem atendimentos associados a ele.",
+            { position: "top-left" }
+          );
         } else {
           toast.error("Erro ao deletar registro. Tente novamente!", { position: "top-left" });
         }
       }
     }
   };
+
 
   useEffect(() => {
     chamarFuncao('pesquisar', null);

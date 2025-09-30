@@ -158,17 +158,17 @@ const Cadastro = ({
     if (campo.oculto) return false;
 
     if (campo.exibirPara && Array.isArray(campo.exibirPara)) {
-      const perfilAtual = getPerfilAtual;
-      const perfilsPermitidos = campo.exibirPara.map(p => p.toUpperCase());
+      const perfilAtual = getPerfilAtual?.toUpperCase() || "";
+      const perfisPermitidos = campo.exibirPara.map(p => p.toUpperCase());
 
       console.log("=== DEBUG EXIBIÇÃO ===");
       console.log("Campo:", campo.nome);
       console.log("Perfil Atual:", perfilAtual);
-      console.log("Perfis Permitidos:", perfilsPermitidos);
-      console.log("Deve Exibir:", perfilsPermitidos.includes(perfilAtual));
+      console.log("Perfis Permitidos:", perfisPermitidos);
+      console.log("Deve Exibir:", perfisPermitidos.includes(perfilAtual));
       console.log("==================");
 
-      return perfilsPermitidos.includes(perfilAtual);
+      return perfilAtual !== "" && perfisPermitidos.includes(perfilAtual);
     }
 
     return true;
