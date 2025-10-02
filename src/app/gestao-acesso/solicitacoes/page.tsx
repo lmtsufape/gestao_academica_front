@@ -9,11 +9,13 @@ import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
 import { AccountCircleOutlined } from '@mui/icons-material';
 import { useRole } from '@/context/roleContext';
+import { useAuthService } from '@/app/authentication/auth.hook';
 
 const PageLista = () => {
   const router = useRouter();
   const [dados, setDados] = useState({ content: [] });
   const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const auth = useAuthService();
 
   // Obtenha activeRole e userRoles do contexto
   const { activeRole, userRoles } = useRole();
@@ -37,9 +39,10 @@ const PageLista = () => {
         cabecalho: true,
         rodape: true,
       },
-      botoes: [
+      botoes: auth.isAdmin() ? [
         { nome: 'Solicitar Novo Perfil', chave: 'adicionar', bloqueado: false },
-      ],
+        { nome: 'Histórico de Solicitações', chave: 'historico', bloqueado: false },
+      ] : [{ nome: 'Solicitar Novo Perfil', chave: 'adicionar', bloqueado: false }],
       colunas: [
         { nome: "Nome do Solicitante", chave: "solicitante.nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
         { nome: "CPF", chave: "solicitante.cpf", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
@@ -78,9 +81,16 @@ const PageLista = () => {
       case 'deletar':
         deletarRegistro(valor);
         break;
+      case 'historico':
+        irParaHistorico();
+        break;
       default:
         break;
     }
+  };
+
+  const irParaHistorico = () => {
+    router.push('/gestao-acesso/historico-solicitacoes');
   };
 
   const pesquisarRegistro = async (params?: any, routeOverride?: string) => {
