@@ -84,6 +84,9 @@ const PageLista = () => {
       case 'historico':
         irParaHistorico();
         break;
+      case 'historico':
+        irParaHistorico();
+        break;
       default:
         break;
     }
@@ -195,7 +198,6 @@ const PageLista = () => {
     }
   };
 
-  // Refazer a pesquisa sempre que activeRole ou userRoles mudarem
   useEffect(() => {
     if (activeRole && userRoles.length > 0) {
       const routeToFetch = isPrivileged ? "pendentes" : "usuario";
@@ -203,7 +205,6 @@ const PageLista = () => {
     }
   }, [activeRole, userRoles, isPrivileged]);
 
-  // Crie uma versão atualizada da estrutura removendo o botão "Adicionar" se a role ativa for "administrador"
   const updatedEstrutura = {
     ...estrutura,
     tabela: {
