@@ -32,11 +32,11 @@ const cadastro = () => {
       tipo: '',
       matricula: '',
       curso: { id: '', nome: '' },
-      cursos: [],      
+      cursos: [],
       siape: '',
 
     },
-    perfilSolicitado: '',    
+    perfilSolicitado: '',
     tipoUsuario: '',
     matricula: '',
     cursoId: '',
@@ -70,6 +70,16 @@ const cadastro = () => {
       if (file.size > maxSize) {
         return false;
       }
+    }
+    return true;
+  };
+
+  const validarParecer = (parecer: string) => {
+    if (isPrivileged && (!parecer || parecer.trim() === '')) {
+      toast.error("O campo parecer é obrigatório para avaliar a solicitação", {
+        position: "top-left"
+      });
+      return false;
     }
     return true;
   };
@@ -210,17 +220,16 @@ const cadastro = () => {
           bloqueado: isEditMode,
 
         },
-        ...(id !== "criar" ? [{
+        ...(isEditMode && isPrivileged ? [{
           line: 5,
           colSpan: "md:col-span-1",
           nome: "Parecer",
           chave: "parecer",
-          tipo: "text", // ou outro tipo apropriado
-          mensagem: "Parecer da avaliação da solicitação",
-          obrigatorio: isPrivileged ? true : false,
-          bloqueado: isEditMode && isPrivileged ? false : true,
+          tipo: "text",
+          mensagem: "Digite o parecer da avaliação",
+          obrigatorio: true,
+          bloqueado: false,
         }] : []),
-
         {
           line: 6,
           colSpan: "md:col-span-1",
@@ -236,7 +245,7 @@ const cadastro = () => {
 
       ],
       acoes: isEditMode
-        ? isPrivileged && !dadosPreenchidos?.solicitadoPorProprioUsuario 
+        ? isPrivileged && !dadosPreenchidos?.solicitadoPorProprioUsuario
           ? [
             { nome: "Rejeitar", chave: "rejeitar", tipo: "submit" },
             { nome: "Aprovar", chave: "aprovar", tipo: "submit" },
@@ -302,9 +311,14 @@ const cadastro = () => {
   };
 
   const rejeitarRegistro = async (item: any) => {
+    // Validação do parecer apenas para usuários privilegiados
+    if (isPrivileged && !validarParecer(item.parecer)) {
+      return;
+    }
+
     try {
       const formData = {
-        parecer: item.parecer,
+        parecer: item.parecer ? item.parecer.trim() : '',
       }
       const body = {
         metodo: "post",
@@ -348,13 +362,19 @@ const cadastro = () => {
       toast.error("Erro ao salvar registro. Tente novamente!", { position: "top-left" });
     }
   };
+
   const aprovarRegistro = async (item: any) => {
+    // Validação do parecer apenas para usuários privilegiados
+    if (isPrivileged && !validarParecer(item.parecer)) {
+      return;
+    }
+
     try {
       const body = {
         metodo: "post",
         uri: `/auth/${estrutura.uri}/${item.id}/aprovar`,
         params: {},
-        data: { parecer: item.parecer }, 
+        data: { parecer: item.parecer ? item.parecer.trim() : '' },
       };
 
       const response = await generica(body);
@@ -455,234 +475,233 @@ const cadastro = () => {
 
 
   const salvarRegistro = async (item: any) => {
-  try {
+    try {
 
-    if (!item.documentos || !Array.isArray(item.documentos) || item.documentos.length === 0) {
-      toast.error("É obrigatório anexar pelo menos um documento para solicitar o perfil.", {
-        position: "top-left",
-        autoClose: 5000
-      });
-      return;
-    }
-
-    if (!item.tipoUsuario) {
-      toast.error("É obrigatório selecionar o tipo de perfil desejado.", {
-        position: "top-left"
-      });
-      return;
-    }
-
-    const tipoUsuario = item.tipoUsuario.toUpperCase();
-    
-    switch (tipoUsuario) {
-      case 'ALUNO':
-        if (!item.matricula || item.matricula.trim() === '') {
-          toast.error("É obrigatório informar a matrícula para perfil de Aluno.", {
-            position: "top-left"
-          });
-          return;
-        }
-        if (!item.cursoId) {
-          toast.error("É obrigatório selecionar um curso para perfil de Aluno.", {
-            position: "top-left"
-          });
-          return;
-        }
-        break;
-        
-      case 'PROFESSOR':
-        if (!item.siape || item.siape.trim() === '') {
-          toast.error("É obrigatório informar o SIAPE para perfil de Professor.", {
-            position: "top-left"
-          });
-          return;
-        }
-        if (!item.cursoIds || !Array.isArray(item.cursoIds) || item.cursoIds.length === 0) {
-          toast.error("É obrigatório selecionar pelo menos um curso para perfil de Professor.", {
-            position: "top-left"
-          });
-          return;
-        }
-        break;
-        
-      case 'TECNICO':
-      case 'GESTOR':
-        if (!item.siape || item.siape.trim() === '') {
-          toast.error(`É obrigatório informar o SIAPE para perfil de ${tipoUsuario}.`, {
-            position: "top-left"
-          });
-          return;
-        }
-        break;
-    }
-
-    if (item.documentos && item.documentos.length > 0) {
-      const maxSize = 2 * 1024 * 1024; // 2MB
-      const validation = validateFiles(item.documentos, maxSize);
-
-      if (!validation.valid) {
-        toast.error(validation.message, {
+      if (!item.documentos || !Array.isArray(item.documentos) || item.documentos.length === 0) {
+        toast.error("É obrigatório anexar pelo menos um documento para solicitar o perfil.", {
           position: "top-left",
           autoClose: 5000
         });
         return;
       }
-    }
 
-    const formData = buildSolicitacaoFormData(item);
+      if (!item.tipoUsuario) {
+        toast.error("É obrigatório selecionar o tipo de perfil desejado.", {
+          position: "top-left"
+        });
+        return;
+      }
 
-    const response = await genericaMultiForm({
-      metodo: 'post',
-      uri: `/auth/solicitacao/${item.tipoUsuario.toLowerCase()}`,
-      params: {},
-      data: formData,
-    });
+      const tipoUsuario = item.tipoUsuario.toUpperCase();
 
-    if (!response) {
-      toast.error('Erro de conexão com o servidor. Verifique sua internet e tente novamente.', {
-        position: "top-left",
-        autoClose: 5000
-      });
-      return;
-    }
+      switch (tipoUsuario) {
+        case 'ALUNO':
+          if (!item.matricula || item.matricula.trim() === '') {
+            toast.error("É obrigatório informar a matrícula para perfil de Aluno.", {
+              position: "top-left"
+            });
+            return;
+          }
+          if (!item.cursoId) {
+            toast.error("É obrigatório selecionar um curso para perfil de Aluno.", {
+              position: "top-left"
+            });
+            return;
+          }
+          break;
 
-    if (response.status < 200 || response.status >= 300) {
-      let mensagemErro = `Erro HTTP ${response.status}`;
-      
-      switch (response.status) {
-        case 400:
-          mensagemErro = "Dados inválidos ou incompletos. Verifique se todos os campos obrigatórios foram preenchidos corretamente.";
+        case 'PROFESSOR':
+          if (!item.siape || item.siape.trim() === '') {
+            toast.error("É obrigatório informar o SIAPE para perfil de Professor.", {
+              position: "top-left"
+            });
+            return;
+          }
+          if (!item.cursoIds || !Array.isArray(item.cursoIds) || item.cursoIds.length === 0) {
+            toast.error("É obrigatório selecionar pelo menos um curso para perfil de Professor.", {
+              position: "top-left"
+            });
+            return;
+          }
           break;
-        case 401:
-          mensagemErro = "Sessão expirada. Faça login novamente.";
-          break;
-        case 403:
-          mensagemErro = "Você não tem permissão para realizar esta ação.";
-          break;
-        case 409:
-          mensagemErro = "Já existe uma solicitação pendente ou um usuário com esses dados.";
-          break;
-        case 413:
-          mensagemErro = "Um ou mais arquivos excedem o tamanho máximo permitido (2MB).";
-          break;
-        case 415:
-          mensagemErro = "Formato de arquivo não suportado. Utilize apenas arquivos PDF.";
-          break;
-        case 500:
-          mensagemErro = "Erro interno do servidor. Tente novamente em alguns minutos.";
+
+        case 'TECNICO':
+        case 'GESTOR':
+          if (!item.siape || item.siape.trim() === '') {
+            toast.error(`É obrigatório informar o SIAPE para perfil de ${tipoUsuario}.`, {
+              position: "top-left"
+            });
+            return;
+          }
           break;
       }
-      
+
+      if (item.documentos && item.documentos.length > 0) {
+        const maxSize = 2 * 1024 * 1024; // 2MB
+        const validation = validateFiles(item.documentos, maxSize);
+
+        if (!validation.valid) {
+          toast.error(validation.message, {
+            position: "top-left",
+            autoClose: 5000
+          });
+          return;
+        }
+      }
+
+      const formData = buildSolicitacaoFormData(item);
+
+      const response = await genericaMultiForm({
+        metodo: 'post',
+        uri: `/auth/solicitacao/${item.tipoUsuario.toLowerCase()}`,
+        params: {},
+        data: formData,
+      });
+
+      if (!response) {
+        toast.error('Erro de conexão com o servidor. Verifique sua internet e tente novamente.', {
+          position: "top-left",
+          autoClose: 5000
+        });
+        return;
+      }
+
+      if (response.status < 200 || response.status >= 300) {
+        let mensagemErro = `Erro HTTP ${response.status}`;
+
+        switch (response.status) {
+          case 400:
+            mensagemErro = "Dados inválidos ou incompletos. Verifique se todos os campos obrigatórios foram preenchidos corretamente.";
+            break;
+          case 401:
+            mensagemErro = "Sessão expirada. Faça login novamente.";
+            break;
+          case 403:
+            mensagemErro = "Você não tem permissão para realizar esta ação.";
+            break;
+          case 409:
+            mensagemErro = "Já existe uma solicitação pendente ou um usuário com esses dados.";
+            break;
+          case 413:
+            mensagemErro = "Um ou mais arquivos excedem o tamanho máximo permitido (2MB).";
+            break;
+          case 415:
+            mensagemErro = "Formato de arquivo não suportado. Utilize apenas arquivos PDF.";
+            break;
+          case 500:
+            mensagemErro = "Erro interno do servidor. Tente novamente em alguns minutos.";
+            break;
+        }
+
+        toast.error(mensagemErro, {
+          position: "top-left",
+          autoClose: 7000
+        });
+        return;
+      }
+
+      if (response.data?.errors) {
+        const erros = response.data.errors;
+
+        if (typeof erros === 'object') {
+          Object.entries(erros).forEach(([campo, mensagem]: [string, any]) => {
+            let mensagemFormatada = mensagem;
+
+            switch (campo.toLowerCase()) {
+              case 'matricula':
+                mensagemFormatada = `Matrícula: ${mensagem}`;
+                break;
+              case 'siape':
+                mensagemFormatada = `SIAPE: ${mensagem}`;
+                break;
+              case 'cursoid':
+              case 'curso':
+                mensagemFormatada = `Curso: ${mensagem}`;
+                break;
+              case 'cursoIds':
+              case 'cursos':
+                mensagemFormatada = `Cursos: ${mensagem}`;
+                break;
+              case 'documentos':
+                mensagemFormatada = `Documentos: ${mensagem}`;
+                break;
+              default:
+                mensagemFormatada = `${campo}: ${mensagem}`;
+            }
+
+            toast.error(mensagemFormatada, {
+              position: "top-left",
+              autoClose: 6000
+            });
+          });
+        } else {
+          toast.error(`Erro: ${erros}`, {
+            position: "top-left",
+            autoClose: 5000
+          });
+        }
+        return;
+      }
+
+
+      if (response.data?.error) {
+        let mensagemErro = response.data.error.message || response.data.error;
+
+        if (mensagemErro.includes('documento')) {
+          mensagemErro = "Erro com os documentos anexados. Verifique si são arquivos PDF válidos e não excedem 2MB cada.";
+        } else if (mensagemErro.includes('matricula')) {
+          mensagemErro = "Matrícula inválida ou já cadastrada no sistema.";
+        } else if (mensagemErro.includes('siape')) {
+          mensagemErro = "SIAPE inválido ou já cadastrado no sistema.";
+        }
+
+        toast.error(mensagemErro, {
+          position: "top-left",
+          autoClose: 6000
+        });
+        return;
+      }
+
+      await Swal.fire({
+        title: "Solicitação enviada com sucesso!",
+        text: "Sua solicitação será analisada pela administração. Você receberá uma notificação sobre o resultado.",
+        icon: "success",
+        customClass: {
+          popup: "my-swal-popup",
+          title: "my-swal-title",
+          htmlContainer: "my-swal-html",
+        },
+        timer: 3000,
+        timerProgressBar: true
+      });
+
+      router.push('/gestao-acesso/solicitacoes');
+
+    } catch (err: any) {
+      console.error('=== ERRO NO CATCH ===', err);
+
+      let mensagemErro = 'Erro inesperado ao enviar solicitação. Tente novamente.';
+
+      if (err.response?.data?.message) {
+        mensagemErro = err.response.data.message;
+      } else if (err.response?.data?.error) {
+        mensagemErro = err.response.data.error;
+      } else if (err.message) {
+        mensagemErro = `Erro técnico: ${err.message}`;
+      }
+
       toast.error(mensagemErro, {
         position: "top-left",
         autoClose: 7000
       });
-      return;
     }
-
-    if (response.data?.errors) {
-      const erros = response.data.errors;
-      
-      if (typeof erros === 'object') {
-        Object.entries(erros).forEach(([campo, mensagem]: [string, any]) => {
-          let mensagemFormatada = mensagem;
-          
-          switch (campo.toLowerCase()) {
-            case 'matricula':
-              mensagemFormatada = `Matrícula: ${mensagem}`;
-              break;
-            case 'siape':
-              mensagemFormatada = `SIAPE: ${mensagem}`;
-              break;
-            case 'cursoid':
-            case 'curso':
-              mensagemFormatada = `Curso: ${mensagem}`;
-              break;
-            case 'cursoIds':
-            case 'cursos':
-              mensagemFormatada = `Cursos: ${mensagem}`;
-              break;
-            case 'documentos':
-              mensagemFormatada = `Documentos: ${mensagem}`;
-              break;
-            default:
-              mensagemFormatada = `${campo}: ${mensagem}`;
-          }
-          
-          toast.error(mensagemFormatada, {
-            position: "top-left",
-            autoClose: 6000
-          });
-        });
-      } else {
-        toast.error(`Erro: ${erros}`, {
-          position: "top-left",
-          autoClose: 5000
-        });
-      }
-      return;
-    }
-
-
-    if (response.data?.error) {
-      let mensagemErro = response.data.error.message || response.data.error;  
-
-      if (mensagemErro.includes('documento')) {
-        mensagemErro = "Erro com os documentos anexados. Verifique se são arquivos PDF válidos e não excedem 2MB cada.";
-      } else if (mensagemErro.includes('matricula')) {
-        mensagemErro = "Matrícula inválida ou já cadastrada no sistema.";
-      } else if (mensagemErro.includes('siape')) {
-        mensagemErro = "SIAPE inválido ou já cadastrado no sistema.";
-      }
-      
-      toast.error(mensagemErro, {
-        position: "top-left",
-        autoClose: 6000
-      });
-      return;
-    }
-
-    await Swal.fire({
-      title: "Solicitação enviada com sucesso!",
-      text: "Sua solicitação será analisada pela administração. Você receberá uma notificação sobre o resultado.",
-      icon: "success",
-      customClass: {
-        popup: "my-swal-popup",
-        title: "my-swal-title",
-        htmlContainer: "my-swal-html",
-      },
-      timer: 3000,
-      timerProgressBar: true
-    });
-    
-    router.push('/gestao-acesso/solicitacoes');
-
-  } catch (err: any) {
-    console.error('=== ERRO NO CATCH ===', err);
-    
-    let mensagemErro = 'Erro inesperado ao enviar solicitação. Tente novamente.';
-    
-    if (err.response?.data?.message) {
-      mensagemErro = err.response.data.message;
-    } else if (err.response?.data?.error) {
-      mensagemErro = err.response.data.error;
-    } else if (err.message) {
-      mensagemErro = `Erro técnico: ${err.message}`;
-    }
-    
-    toast.error(mensagemErro, {
-      position: "top-left",
-      autoClose: 7000
-    });
-  }
-};
+  };
 
 
 
   /**
    * Localiza o registro para edição e preenche os dados
    */
-  // Exemplo assumindo que "campo.chave" === "documentos"
   const editarRegistro = async (item: any) => {
     try {
       // 1) Carrega a solicitação principal
@@ -831,7 +850,7 @@ const cadastro = () => {
 
         },
         perfilSolicitado: upperProfile,  // ← aqui
-        // para os campos que não estão dentro de “perfil”
+        // para os campos que não estão dentro de "perfil"
         tipoUsuario: user.tipoUsuario || '',
         matricula: user.perfil?.matricula || '',
         cursoId: user.perfil?.curso?.id || '',

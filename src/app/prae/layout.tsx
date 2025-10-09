@@ -104,7 +104,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           subItems: [
             {
               label: "Pagamentos Pendentes",
-              route: "/prae/pagamentos/pagamentos-pendentes",
+              route: "/prae/pagamentos-pendentes",
               icon: <PendingActions fontSize="small" className="text-white" />,
               roles: isPraeAccess ? ["gestor"] : [""],
             },
@@ -132,7 +132,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           label: isAluno ? "Agendamentos" : "Gerenciar Agendamentos",
           route: "/prae/agendamentos",
           icon: <EventNote fontSize="small" className="text-white" />,
-          roles: isPraeAccess ? ["gestor", "Tecnico", "Professor"]  : ["aluno"],
+          roles: isPraeAccess ? ["gestor", "Tecnico", "Professor"] : ["aluno"],
           subItems: [
             {
               label: "Tipo de Atendimento",
