@@ -12,6 +12,7 @@ import TabelaEstudantes from "@/components/Tabela/Estudantes/TabelaEstudante";
 import { set } from "zod";
 import Tabela from "@/components/Tabela/Estrutura";
 import { PagamentosBeneficio } from "@/types/pagamentoBeneficio.interface";
+import { all } from "axios";
 
 const cadastro = () => {
   const router = useRouter();
@@ -37,7 +38,6 @@ const cadastro = () => {
   useEffect(() => {
     if (dadosPreenchidos.tipoBeneficioId) {
       let valor = tipoBeneficio?.filter((tipo) => tipo.id == dadosPreenchidos?.tipoBeneficioId)[0]?.valorBeneficio;
-      valor = aplicarMascara(valor, "valor");
       setDadosPreenchidos((prev: any) => ({ ...prev, valorBeneficio: valor }));
     } else {
       setDadosPreenchidos((prev: any) => ({
@@ -99,7 +99,7 @@ const cadastro = () => {
           nome: "Remover Estudante",
           tipo: "button",
           funcao: "desselecionarEstudante",
-          visivel: estudanteSelecionado && !isEditMode,
+          visivel: estudanteSelecionado,
         },
         {
           chave: "estudanteId",
@@ -117,21 +117,20 @@ const cadastro = () => {
             dadosPreenchidos?.tipoBeneficioId
           ),
           mensagem: "Selecione",
-          obrigatorio: false, // Alterado para não obrigatório inicialmente
+          obrigatorio: true, // Alterado para não obrigatório inicialmente
           bloqueado: isEditMode,
           //visivel: tipoBeneficioSelecionado === "beneficio" // Mostrar apenas quando for auxílio
         },
         {
           line: 2,
           colSpan: "md:col-span-1",
-          nome: "Valor da Benefício",
+          nome: "Valor do Benefício",
           chave: "valorBeneficio",
           tipo: "money-brl",
-          mensagem: "Digite o valor",
-          obrigatorio: true,
-          bloqueado: false,
-          mode: "decimal",       // ou "cents" se preferir armazenar em centavos
-          allowNegative: false,
+          visivel: tipoBeneficioSelecionado !== null,
+          obrigatorio: false,
+          bloqueado: true,
+          mode: "decimal",
         },
         {
           line: 3,
@@ -173,11 +172,11 @@ const cadastro = () => {
         {
           line: 5,
           colSpan: "md:col-span-1",
-          nome: "Documentos",
-          chave: "documentos",
+          nome: "Termo",
+          chave: "termo",
           tipo: "documento", // ou outro tipo apropriado
-          mensagem: "Anexe os documentos",
-          obrigatorio: false,
+          mensagem: "Anexe o documento",
+          obrigatorio: true,
           multiple: false,
           bloqueado: isEditMode,
         },
@@ -235,10 +234,25 @@ const cadastro = () => {
     },
   };
 
+  const verificarCamposObrigatorios = (): boolean => {
+    let camposValidos = true;
+    Object.keys(dadosPreenchidos).forEach((key) => {
+      if (estrutura.campos[key]?.obrigatorio && !dadosPreenchidos[key]) {
+        toast.error(`Campo obrigatório não preenchido: ${estrutura.campos[key].nome}`, {
+          position: "top-right",
+        });
+        camposValidos = false;
+      }
+    });
+    return camposValidos;
+  };
+
   const chamarFuncao = async (nomeFuncao = "", valor: any = null) => {
     switch (nomeFuncao) {
       case "salvar":
-        await salvarRegistro(valor);
+        if (!verificarCamposObrigatorios()) {
+          await salvarRegistro(valor);
+        }
         break;
       case "voltar":
         voltarRegistro();
@@ -566,7 +580,7 @@ const cadastro = () => {
 
   // Filtra os campos com base na visibilidade
   const camposFiltrados = estrutura.cadastro.campos.filter((campo: any) => {
-    return campo.visivel === undefined || campo.visivel;
+    return campo.visivel || campo.visivel === undefined;
   });
 
   return (
@@ -584,8 +598,12 @@ const cadastro = () => {
             />
           </>
         )}
-
-        <Tabela dados={pagamentosEfetuados} estrutura={estrutura} />
+        {pagamentosEfetuados.length > 0 && isEditMode && (
+          <>
+            <h2 className="text-3xl mt-10 mb-4">Pagamentos Efetuados</h2>
+            <Tabela dados={pagamentosEfetuados} estrutura={estrutura} />
+          </>
+        )}
         <Cadastro
           estrutura={{
             ...estrutura,
