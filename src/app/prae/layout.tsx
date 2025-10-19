@@ -104,7 +104,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           subItems: [
             {
               label: "Pagamentos Pendentes",
-              route: "/prae/pagamentos-pendentes",
+              route: "/prae/pagamentos/pagamentos-pendentes",
               icon: <PendingActions fontSize="small" className="text-white" />,
               roles: isPraeAccess ? ["gestor"] : [""],
             },
