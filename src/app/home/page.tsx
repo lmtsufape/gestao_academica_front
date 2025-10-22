@@ -18,6 +18,7 @@ export default function HomePage() {
     content: string;
     level: "success" | "error" | "warning" | "info";
   }>({ title: "", content: "", level: "warning" });
+  const [activeTab, setActiveTab] = useState<"all" | "favorites">("all");
 
   useEffect(() => {
     // Update isAluno when auth state changes
@@ -41,21 +42,6 @@ export default function HomePage() {
    */
   const buscarEstudanteAtual = async () => {
     return; // Desativado temporariamente
-    // try {
-    //   const body = {
-    //     metodo: "get",
-    //     uri: "/prae/estudantes/current",
-    //     params: {},
-    //   };
-    //   const response = await generica(body);
-    //   if (!response) throw new Error("Resposta inválida do servidor.");
-    //   if (response.status === 404) {
-    //     handleNoitify();
-    //     return;
-    //   }
-    // } catch (error) {
-    //   console.error("DEBUG: Erro ao localizar registro:", error);
-    // }
   };
 
   // Inicializa o estado lendo do localStorage (se disponível)
@@ -97,14 +83,6 @@ export default function HomePage() {
       description: "Acesse o módulo de Editais",
       image: "/assets/brasaoUfapeCol.png",
     },
-    // {
-    //   id: "pdi",
-    //   name: "PDI",
-    //   route: "/pdi",
-    //   description: "Acesse o módulo de PDI",
-    //   image: "/assets/brasaoUfapeCol.png",
-    // },
-    // Adicione mais módulos...
   ];
 
   // Favoritar/Desfavoritar
@@ -133,6 +111,9 @@ export default function HomePage() {
     (mod) => !pinnedModules.includes(mod.id)
   );
 
+  // Módulos a serem exibidos baseado na aba ativa
+  const displayedModules = activeTab === "favorites" ? favoriteModules : filteredModules;
+
   const handleCloseModal = () => setIsModalOpen(false);
 
   const handleNoitify = () => {
@@ -146,7 +127,8 @@ export default function HomePage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-16 xl:px-20 py-8">
+
       <Modal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
@@ -154,29 +136,43 @@ export default function HomePage() {
         content={notification.content}
         level={notification.level}
       />
-      <p className="text-[20px] font-semibold text-primary-500">
-        Escolha um módulo para acessar:
-      </p>
-
-      {/* Barra de busca (100% de largura) */}
-      <div className="mt-4">
-        <input
-          type="text"
-          className="border border-neutrals-300 rounded-md p-2 w-full focus:ring-2 focus:ring-primary-500 outline-none"
-          placeholder="Buscar módulo..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+      
+      {/* Cabeçalho com título e abas */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+        <p className="text-[30px] font-bold text-extra-50 mb-4 md:mb-0">
+          Inicio
+        </p>
+        
+        {/* Abas "Todos os módulos" e "Favoritos" */}
+        <div className="flex border-b border-neutrals-300">
+          <button
+            className={`px-4 py-2 font-medium text-sm transition-colors ${
+              activeTab === "all"
+                ? "text-extra-50 border-b-2 border-extra-50"
+                : "text-neutrals-500 hover:text-extra-50"
+            }`}
+            onClick={() => setActiveTab("all")}
+          >
+            Todos os módulos
+          </button>
+          <button
+            className={`px-4 py-2 font-medium text-sm transition-colors ${
+              activeTab === "favorites"
+                ? "text-extra-50 border-b-2 border-extra-50"
+                : "text-neutrals-500 hover:text-extra-50"
+            }`}
+            onClick={() => setActiveTab("favorites")}
+          >
+            Favoritos
+          </button>
+        </div>
       </div>
 
-      {/* Seção de Favoritos */}
-      {favoriteModules.length > 0 && (
-        <section className="mt-8">
-          <h2 className="text-[24px] font-semibold text-secondary-500">
-            Módulos Favoritos
-          </h2>
-          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {favoriteModules.map((module) => {
+      {/* Seção de Módulos - Exibe apenas os módulos da aba ativa */}
+      <section className="mt-4">
+        {displayedModules.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {displayedModules.map((module) => {
               const isPinned = pinnedModules.includes(module.id);
               return (
                 <div
@@ -194,9 +190,9 @@ export default function HomePage() {
                       size="small"
                     >
                       {isPinned ? (
-                        <Star className="text-secondary-500" />
+                        <Star className="text-extra-50" />
                       ) : (
-                        <StarBorder className="text-secondary-500" />
+                        <StarBorder className="text-extra-50" />
                       )}
                     </IconButton>
                     {module.image && (
@@ -212,20 +208,20 @@ export default function HomePage() {
                   {/* Conteúdo do Card: Título, Descrição e Botão */}
                   <div className="px-4 pb-4 flex flex-col flex-1">
                     <h3
-                      className="text-[20px] font-semibold text-primary-700 cursor-pointer"
+                      className="text-[20px] font-semibold text-extra-50 cursor-pointer"
                       onClick={() => router.push(module.route)}
                     >
                       {module.name}
                     </h3>
                     <p
-                      className="mt-2 text-[14px] text-neutrals-500 cursor-pointer"
+                      className="mt-2 text-[14px] text-extra-100 cursor-pointer"
                       onClick={() => router.push(module.route)}
                     >
                       {module.description}
                     </p>
                     <button
                       onClick={() => router.push(module.route)}
-                      className="mt-auto w-full px-4 py-2 bg-primary-500 text-white rounded hover:bg-primary-700 transition"
+                      className="mt-auto w-full px-4 py-2 bg-extra-50 text-white rounded hover:bg-extra-150 transition"
                     >
                       Acessar
                     </button>
@@ -234,70 +230,13 @@ export default function HomePage() {
               );
             })}
           </div>
-        </section>
-      )}
-
-      {/* Seção de Outros Módulos */}
-      <section className="mt-8">
-        <h2 className="text-[24px] font-semibold text-secondary-500">
-          Outros Módulos
-        </h2>
-        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {otherModules.map((module) => {
-            const isPinned = pinnedModules.includes(module.id);
-            return (
-              <div
-                key={module.id}
-                className="bg-white border border-neutrals-300 rounded-lg shadow hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex flex-col h-full"
-              >
-                <div className="relative p-1">
-                  <IconButton
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      togglePin(module.id);
-                    }}
-                    className="absolute top-1 right-1"
-                    size="small"
-                  >
-                    {isPinned ? (
-                      <Star className="text-secondary-500" />
-                    ) : (
-                      <StarBorder className="text-secondary-500" />
-                    )}
-                  </IconButton>
-                  {module.image && (
-                    <img
-                      src={module.image}
-                      alt={module.name}
-                      onClick={() => router.push(module.route)}
-                      className="w-20 h-20 object-contain mx-auto cursor-pointer"
-                    />
-                  )}
-                </div>
-                <div className="px-4 pb-4 flex flex-col flex-1">
-                  <h3
-                    className="text-[20px] font-semibold text-primary-700 cursor-pointer"
-                    onClick={() => router.push(module.route)}
-                  >
-                    {module.name}
-                  </h3>
-                  <p
-                    className="mt-2 text-[14px] text-neutrals-500 cursor-pointer"
-                    onClick={() => router.push(module.route)}
-                  >
-                    {module.description}
-                  </p>
-                  <button
-                    onClick={() => router.push(module.route)}
-                    className="mt-auto w-full px-4 py-2 bg-primary-500 text-white rounded hover:bg-primary-700 transition"
-                  >
-                    Acessar
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        ) : (
+          <div className="text-center py-8 text-neutrals-500">
+            {activeTab === "favorites" 
+              ? "Nenhum módulo favoritado encontrado." 
+              : "Nenhum módulo encontrado."}
+          </div>
+        )}
       </section>
     </div>
   );

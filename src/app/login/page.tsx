@@ -130,21 +130,30 @@ export default function Login() {
       />
       {/* Seção Esquerda - Descrição */}
       <section className="hidden md:flex flex-col justify-center px-16 bg-white w-1/2">
-        <h1 className="text-primary-700 text-display-small font-bold mb-4">
+        <h1 className="text-extra-50 text-display-small font-bold mb-4">
           Sistema de Gestão
         </h1>
         <p className="text-neutrals-600 text-body-large leading-relaxed text-left">
           O sistema de gestão universitária tem como finalidade simplificar e otimizar os processos da unidade acadêmica, oferecendo uma plataforma moderna e intuitiva para apoiar gestores, professores, colaboradores e alunos no acesso e na organização das atividades acadêmicas, promovendo eficiência e transparência.
         </p>
       </section>
-      
-      <section className="flex flex-1 items-center justify-center px-6 py-10">
-        <div className="bg-white shadow-xl rounded-lg px-8 py-10 w-full max-w-sm sm:max-w-md border border-neutrals-200">
+
+      <section className="flex flex-1 items-center justify-center px-4 sm:px-6 py-8 sm:py-10 w-full">
+        <div className="bg-white rounded-lg px-6 sm:px-8 py-8 sm:py-10 w-full max-w-xs sm:max-w-sm md:max-w-md mx-auto">
           {showLoginForm ? (
             <>
-              <h2 className="text-2xl font-bold text-center text-primary-500 mb-6">
-                Entrar
-              </h2>
+              <div className="flex justify-center items-center pb-3">
+                <Image
+                  src="/assets/SGU.png"
+                  alt="logo SGU"
+                  width={60}
+                  height={60}
+                  priority
+                />
+              </div>
+              <p className="flex justify-center pb-3 text-center text-sm sm:text-base whitespace-nowrap">
+                Sistema de Gestão Universitária
+              </p>
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
                   <label
@@ -159,7 +168,7 @@ export default function Login() {
                     id="email"
                     value={email}
                     onChange={handleEmailChange}
-                    className="w-full border border-neutrals-300 rounded-md p-3 focus:ring-2 focus:ring-primary-500 outline-none"
+                    className="w-full border border-neutrals-300 rounded-full px-4 py-3 text-sm sm:text-base focus:ring-2 focus:ring-primary-500 outline-none"
                     placeholder="email@ufape.edu.br"
                     required
                   />
@@ -180,7 +189,7 @@ export default function Login() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full border border-neutrals-300 rounded-md p-3 focus:ring-2 focus:ring-primary-500 outline-none pr-10"
+                      className="w-full border border-neutrals-300 rounded-full px-4 py-3 text-sm sm:text-base focus:ring-2 focus:ring-primary-500 outline-none pr-10"
                       required
                     />
                     <button
@@ -191,24 +200,25 @@ export default function Login() {
                       {mostrarSenha ? (
                         <Image
                           src="/assets/icons/eyeOff.svg"
-                          alt="Facebook Icon"
-                          width={24}
-                          height={24}
+                          alt="Ocultar senha"
+                          width={20}
+                          height={20}
+                          className="w-5 h-5"
                         />
                       ) : (
                         <Image
                           src="/assets/icons/eyeOn.svg"
-                          className="text-purple-900"
-                          alt="Facebook Icon"
-                          width={25}
-                          height={25}
+                          alt="Mostrar senha"
+                          width={20}
+                          height={20}
+                          className="w-5 h-5"
                         />
                       )}
                     </button>
                   </div>
                 </div>
 
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="flex items-start">
                     <div className="flex items-center h-5">
                       <input
@@ -221,7 +231,7 @@ export default function Login() {
                         onChange={(e) => setRemember(e.target.checked)}
                       />
                     </div>
-                    <div className="ml-3 text-sm">
+                    <div className="ml-2 text-sm">
                       <label htmlFor="remember" className="text-gray-500">
                         Lembrar
                       </label>
@@ -230,7 +240,7 @@ export default function Login() {
                   <div>
                     <Link
                       href="/conta/recuperar-senha"
-                      className="text-primary-500 hover:underline text-sm"
+                      className="text-extra-50 font-bold hover:underline text-sm"
                     >
                       Esqueceu a senha?
                     </Link>
@@ -245,7 +255,7 @@ export default function Login() {
 
                 <button
                   type="submit"
-                  className="w-full bg-primary-500 text-white py-3 rounded-md font-semibold hover:bg-primary-700 transition"
+                  className="w-full bg-gray-700 text-white py-3 rounded-full font-semibold hover:bg-gray-600 transition text-sm sm:text-base"
                 >
                   Entrar
                 </button>
@@ -253,7 +263,7 @@ export default function Login() {
                 <div className="text-center mt-4">
                   <Link
                     href="/conta/criar-conta"
-                    className="text-primary-500 font-semibold hover:underline text-sm"
+                    className="text-extra-50 font-semibold hover:underline text-sm"
                   >
                     Não possui conta? Faça o cadastro
                   </Link>
@@ -262,37 +272,38 @@ export default function Login() {
             </>
           ) : (
             <>
-              <h2 className="text-2xl font-bold text-center text-primary-500 mb-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-center text-extra-50 mb-4 px-2">
                 Selecione um e-mail para login
               </h2>
               {savedEmails.length > 0 ? (
-                <ul className="bg-white border border-gray-300 rounded-lg mt-2">
+                <ul className="bg-white border border-gray-300 rounded-lg mt-2 max-h-60 overflow-y-auto">
                   {savedEmails.map((email) => (
                     <li
                       key={email}
-                      className="p-2 flex justify-between items-center hover:bg-gray-200"
+                      className="p-3 flex justify-between items-center hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
                     >
                       <span
-                        className="cursor-pointer"
+                        className="cursor-pointer text-sm sm:text-base truncate flex-1"
                         onClick={() => handleEmailSelect(email)}
                       >
                         {email}
                       </span>
                       <button
-                        className="text-red-500 ml-2"
+                        className="text-red-500 ml-3 text-sm font-bold hover:text-red-700 transition-colors"
                         onClick={() => handleRemoveEmail(email)}
+                        aria-label={`Remover ${email}`}
                       >
-                        X
+                        ×
                       </button>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p className="text-gray-500">Nenhum e-mail salvo encontrado.</p>
+                <p className="text-gray-500 text-center text-sm sm:text-base">Nenhum e-mail salvo encontrado.</p>
               )}
               <button
                 onClick={handleOtherLogin}
-                className="w-full py-3 px-4 text-sm tracking-wide rounded-lg text-white bg-primary-500 hover:bg-primary-700 focus:outline-none mt-4"
+                className="w-full py-3 px-4 text-sm sm:text-base tracking-wide rounded-full text-white bg-extra-50 hover:bg-extra-150 focus:outline-none mt-4 transition-colors"
               >
                 Outra Conta
               </button>

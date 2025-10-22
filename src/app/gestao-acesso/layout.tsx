@@ -21,9 +21,9 @@ export default function EfrotasLayout({ children }: { children: React.ReactNode 
   const authLayoutConfig: InternalLayoutConfig = {
     header: {
       logo: {
-        url: "/assets/logo-auth.png",
-        width: 40,
-        height: 40,
+        url: "/assets/SGU.png",
+        width: 30,
+        height: 30,
         alt: "Logo Auth",
       },
       title: "Gestão de Acesso",
@@ -42,9 +42,9 @@ export default function EfrotasLayout({ children }: { children: React.ReactNode 
     },
     sidebar: {
       logo: {
-        url: "/assets/logo-sidebar.png",
-        width: 32,
-        height: 32,
+        url: "/assets/LogoUfape.svg",
+        width: 35,
+        height: 35,
         text: "SGU",
       },
       menuItems: [
