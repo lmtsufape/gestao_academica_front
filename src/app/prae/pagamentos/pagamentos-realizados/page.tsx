@@ -30,6 +30,7 @@ const estrutura: any = {
         botoes: [
         ],
         colunas: [
+            { nome: "Nome do Estudante", chave: "beneficio.estudantes.aluno.nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
             { nome: "CPF", chave: "beneficio.estudantes.aluno.cpf", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
             { nome: "Tipo Pagamento", chave: "beneficio.tipoBeneficio.tipo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
             { nome: "Valor Pago", chave: "valor", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },

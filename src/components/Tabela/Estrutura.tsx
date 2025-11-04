@@ -8,6 +8,7 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
   const [bodyParams, setBodyParams] = useState<any>({ size: 10 });
   const [showFilters, setShowFilters] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Função auxiliar para gerar keys únicas
   const generateUniqueKey = (base: string, suffix?: string) => {
