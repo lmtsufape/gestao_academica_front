@@ -1,51 +1,71 @@
 const Pagination = ({ dados = null, paramsColuna = null }: any) => {
-    return (
-      <div className="p-3 flex justify-end  border-t-neutrals-100">
-        <div className="flex justify-between w-full">
-          <div>
-            <h6 className="text-neutrals-700 mt-3 text-sm">
-              Nº total de registros: {dados?.totalElements ?? 0}
-            </h6>
-          </div>
-          <div className="flex">
-            <select
-              name=""
-              id=""
-              className="mr-2 bg-neutrals-100 text-primary-500 border border-primary-500  rounded hover:bg-primary-700 hover:text-white hover:border-primary-700 transition-colors duration-200"
-              onChange={(e) => paramsColuna && paramsColuna("size", e.target.value)}
-            >
-              <option value="10">10</option>
-              <option value="15">15</option>
-              <option value="30">30</option>
-            </select>
+  const totalElements = dados?.totalElements ?? 0;
+  const totalPages = dados?.totalPages ?? 1;
+  const currentPage = (dados?.number ?? 0) + 1;
+  const isFirst = dados?.first || currentPage === 1;
+  const isLast = dados?.last || currentPage >= totalPages;
+  const isSinglePage = totalPages <= 1 || totalElements <= 1;
+
+  return (
+    <div className="p-3 border-t border-neutrals-100">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 w-full text-center sm:text-left">
+        {/* Total de registros */}
+        <h6 className="text-neutrals-700 text-sm">
+          Nº total de registros: {totalElements}
+        </h6>
+
+        {/* Controles */}
+        <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-end gap-3">
+          {/* Select de tamanho */}
+          <select
+            className="py-1.5 text-sm border-2 border-extra-50 text-extra-50 rounded-full bg-transparent hover:bg-extra-50 hover:text-white transition-colors duration-200 cursor-pointer w-12 text-center"
+            onChange={(e) =>
+              paramsColuna && paramsColuna("size", e.target.value)
+            }
+            defaultValue="10"
+          >
+            <option value="10">10</option>
+            <option value="15">15</option>
+            <option value="30">30</option>
+          </select>
+
+          {/* Linha de botões e info */}
+          <div className="flex items-center justify-center gap-2">
+            {/* Voltar */}
             <button
-              className="block px-4 py-2 text-sm text-primary-500 bg-neutrals-100 text-left border border-primary-500 rounded hover:shadow-sm mr-1 hover:bg-primary-700 hover:text-white hover:border-primary-700 transition-colors duration-200"
-              role="menuitem"
-              onClick={() => paramsColuna && paramsColuna("page", dados?.number - 1)}
-              disabled={dados?.first}
+              className={`px-4 py-1.5 text-sm font-medium border-2 border-extra-50 text-extra-50 rounded-full bg-transparent hover:bg-extra-50 hover:text-white transition-colors duration-200 ${
+                isFirst || isSinglePage ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              onClick={() =>
+                !isFirst && !isSinglePage && paramsColuna("page", dados?.number - 1)
+              }
+              disabled={isFirst || isSinglePage}
             >
               Voltar
             </button>
-            <h6 className="text-sm text-neutrals-700 mt-2 ml-2 mr-2">
-              {" "}
-              Página {(dados?.number ?? 0) + 1} de{" "}
-              {dados?.totalPages
-                ? dados.totalPages === 0
-                  ? 1
-                  : dados.totalPages
-                : 1}
+
+            {/* Info página */}
+            <h6 className="text-sm text-extra-50 font-medium whitespace-nowrap">
+              Página {currentPage} de {totalPages || 1}
             </h6>
+
+            {/* Próximo */}
             <button
-              className="block px-4 py-2 text-sm text-primary-500 bg-neutrals-100 text-left border border-primary-500 rounded hover:shadow-sm mr-1 hover:bg-primary-700 hover:text-white hover:border-primary-700 transition-colors duration-200"
-              role="menuitem"
-              onClick={() => paramsColuna && paramsColuna("page", dados?.number + 1)}
-              disabled={dados?.last}
+              className={`px-4 py-1.5 text-sm font-medium border-2 border-extra-50 text-extra-50 rounded-full bg-transparent hover:bg-extra-50 hover:text-white transition-colors duration-200 ${
+                isLast || isSinglePage ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              onClick={() =>
+                !isLast && !isSinglePage && paramsColuna("page", dados?.number + 1)
+              }
+              disabled={isLast || isSinglePage}
             >
               Próximo
             </button>
           </div>
         </div>
       </div>
-    );
-  };
-  export default Pagination;  
+    </div>
+  );
+};
+
+export default Pagination;

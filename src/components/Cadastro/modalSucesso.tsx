@@ -81,7 +81,7 @@ function ModalTipo() {
                         {/* CTA Button */}
                         <Link
                             href="/login"
-                            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-white bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 transition-all shadow-md hover:shadow-lg"
+                            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-white bg-gradient-to-r from-extra-150 to-extra-150 hover:from-extra-150 hover:to-extra-50 transition-all shadow-md hover:shadow-lg"
                         >
                             Ir para a tela de login
                             <ArrowForward className="h-5 w-5" />
