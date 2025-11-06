@@ -15,9 +15,9 @@ const Cabecalho = ({ dados }: any) => {
         width={60}
         height={60}
       />
-      <nav className="flex gap-6 text-primary-500 font-semibold">
+      <nav className="flex gap-6 text-extra-50 font-semibol">
         {pathname !== "/login" && (
-          <Link href="/login" className="hover:text-primary-700 transition">Login</Link>
+          <Link href="/login" className="hover:text-extra-150 transition border-2 p-2 rounded-3xl border-extra-50 hover:border-extra-150">Login</Link>
         )}
       </nav>
     </header>
