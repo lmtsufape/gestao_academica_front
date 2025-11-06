@@ -112,7 +112,8 @@ export default function HomePage() {
   );
 
   // Módulos a serem exibidos baseado na aba ativa
-  const displayedModules = activeTab === "favorites" ? favoriteModules : filteredModules;
+  const displayedModules =
+    activeTab === "favorites" ? favoriteModules : filteredModules;
 
   const handleCloseModal = () => setIsModalOpen(false);
 
@@ -128,7 +129,6 @@ export default function HomePage() {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-16 xl:px-20 py-8">
-
       <Modal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
@@ -136,13 +136,13 @@ export default function HomePage() {
         content={notification.content}
         level={notification.level}
       />
-      
+
       {/* Cabeçalho com título e abas */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
         <p className="text-[30px] font-bold text-extra-50 mb-4 md:mb-0">
           Inicio
         </p>
-        
+
         {/* Abas "Todos os módulos" e "Favoritos" */}
         <div className="flex border-b border-neutrals-300">
           <button
@@ -179,7 +179,7 @@ export default function HomePage() {
                   key={module.id}
                   className="bg-white border border-neutrals-300 rounded-lg shadow hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex flex-col h-full"
                 >
-                  {/* Topo do Card: Imagem centralizada com estrela no canto superior direito */}
+                  {/* Topo do Card */}
                   <div className="relative p-1">
                     <IconButton
                       onClick={(e) => {
@@ -195,6 +195,7 @@ export default function HomePage() {
                         <StarBorder className="text-extra-50" />
                       )}
                     </IconButton>
+
                     {module.image && (
                       <img
                         src={module.image}
@@ -205,23 +206,25 @@ export default function HomePage() {
                     )}
                   </div>
 
-                  {/* Conteúdo do Card: Título, Descrição e Botão */}
-                  <div className="px-4 pb-4 flex flex-col flex-1">
-                    <h3
-                      className="text-[20px] font-semibold text-extra-50 cursor-pointer"
+                  {/* Conteúdo do Card */}
+                  <div className="px-4 pb-4 flex flex-col justify-between flex-1">
+                    {/* Texto (titulo + descrição) */}
+                    <div
                       onClick={() => router.push(module.route)}
+                      className="cursor-pointer"
                     >
-                      {module.name}
-                    </h3>
-                    <p
-                      className="mt-2 text-[14px] text-extra-100 cursor-pointer"
-                      onClick={() => router.push(module.route)}
-                    >
-                      {module.description}
-                    </p>
+                      <h3 className="text-[20px] font-semibold text-extra-50">
+                        {module.name}
+                      </h3>
+                      <p className="mt-2 text-[14px] text-extra-100">
+                        {module.description}
+                      </p>
+                    </div>
+
+                    {/* Botão sempre no fim */}
                     <button
                       onClick={() => router.push(module.route)}
-                      className="mt-auto w-full px-4 py-2 bg-extra-50 text-white rounded hover:bg-extra-150 transition"
+                      className="mt-4 w-full px-4 py-2 bg-extra-50 text-white rounded hover:bg-extra-150 transition"
                     >
                       Acessar
                     </button>
@@ -232,8 +235,8 @@ export default function HomePage() {
           </div>
         ) : (
           <div className="text-center py-8 text-neutrals-500">
-            {activeTab === "favorites" 
-              ? "Nenhum módulo favoritado encontrado." 
+            {activeTab === "favorites"
+              ? "Nenhum módulo favoritado encontrado."
               : "Nenhum módulo encontrado."}
           </div>
         )}
