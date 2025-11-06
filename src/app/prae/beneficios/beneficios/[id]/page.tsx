@@ -173,7 +173,7 @@ const cadastro = () => {
           line: 5,
           colSpan: "md:col-span-1",
           nome: "Termo",
-          chave: "termo",
+          chave: "documentos",
           tipo: "documento", // ou outro tipo apropriado
           mensagem: "Anexe o documento",
           obrigatorio: true,
@@ -236,23 +236,42 @@ const cadastro = () => {
 
   const verificarCamposObrigatorios = (): boolean => {
     let camposValidos = true;
-    Object.keys(dadosPreenchidos).forEach((key) => {
-      if (estrutura.campos[key]?.obrigatorio && !dadosPreenchidos[key]) {
-        toast.error(`Campo obrigatório não preenchido: ${estrutura.campos[key].nome}`, {
-          position: "top-right",
-        });
-        camposValidos = false;
+    estrutura.cadastro.campos.forEach((campo: any) => {
+      if (campo?.obrigatorio) {
+        const valorCampo = dadosPreenchidos[campo.chave];
+        if (
+          valorCampo === undefined ||
+          valorCampo === null ||
+          (typeof valorCampo === "string" && valorCampo.trim() === "") ||
+          (Array.isArray(valorCampo) && valorCampo.length === 0)
+        ) {
+          toast.error(`O campo "${campo.nome}" é obrigatório.`, {
+            position: "top-right",
+          });
+          camposValidos = false;
+        }
       }
     });
+    if (dadosPreenchidos.fimBeneficio && dadosPreenchidos.inicioBeneficio) {
+      const dataInicio = new Date(dadosPreenchidos.inicioBeneficio);
+      const dataFim = new Date(dadosPreenchidos.fimBeneficio);
+      if (dataFim < dataInicio) {
+        toast.error(
+          `A data de fim do benefício não pode ser anterior à data de início.`,
+          {
+            position: "top-right",
+          }
+        );
+        camposValidos = false;
+      }
+    }
     return camposValidos;
   };
 
   const chamarFuncao = async (nomeFuncao = "", valor: any = null) => {
     switch (nomeFuncao) {
       case "salvar":
-        if (!verificarCamposObrigatorios()) {
           await salvarRegistro(valor);
-        }
         break;
       case "voltar":
         voltarRegistro();
@@ -288,35 +307,39 @@ const cadastro = () => {
   };
 
   function buildFormData(): any {
-    const fd = new FormData();
-    if (!dadosPreenchidos.estudanteId) {
-      toast.error("Selecione um estudante antes de salvar o benefício.", {
-        position: "top-right",
-      });
-      return undefined;
-    }
-    fd.append("estudanteId", dadosPreenchidos.estudanteId.toString());
-    if (Array.isArray(dadosPreenchidos.documentos)) {
-      dadosPreenchidos.documentos.forEach((file: string | Blob) =>
-        fd.append("termo", file)
+    if (verificarCamposObrigatorios()) {
+      const fd = new FormData();
+      if (!dadosPreenchidos.estudanteId) {
+        toast.error("Selecione um estudante antes de salvar o benefício.", {
+          position: "top-right",
+        });
+        return undefined;
+      }
+      fd.append("estudanteId", dadosPreenchidos.estudanteId.toString());
+      if (Array.isArray(dadosPreenchidos.documentos)) {
+        dadosPreenchidos.documentos.forEach((file: string | Blob) =>
+          fd.append("termo", file)
+        );
+      }
+      fd.append(
+        "tipoBeneficioId",
+        dadosPreenchidos.tipoBeneficioId?.toString() || ""
       );
-    }
-    fd.append(
-      "tipoBeneficioId",
-      dadosPreenchidos.tipoBeneficioId?.toString() || ""
-    );
-    fd.append("parecerTermino", dadosPreenchidos.parecerTermino || "");
-    fd.append(
-      "horasBeneficio",
-      dadosPreenchidos.horasBeneficio?.toString() || ""
-    );
-    fd.append("inicioBeneficio", dadosPreenchidos.inicioBeneficio || "");
-    fd.append("fimBeneficio", dadosPreenchidos.fimBeneficio || "");
-    fd.append(
-      "valorPagamento",
-      tipoBeneficioSelecionado?.valorBeneficio || "1"
-    );
-    return fd;
+      fd.append("parecerTermino", dadosPreenchidos.parecerTermino || "");
+      fd.append(
+        "horasBeneficio",
+        dadosPreenchidos.horasBeneficio?.toString() || ""
+      );
+      fd.append("inicioBeneficio", dadosPreenchidos.inicioBeneficio || "");
+      fd.append("fimBeneficio", dadosPreenchidos.fimBeneficio || "");
+      fd.append(
+        "valorPagamento",
+        tipoBeneficioSelecionado?.valorBeneficio || "1"
+      );
+      return fd;
+
+    } else 
+      return undefined
   }
 
   const voltarRegistro = () => {
@@ -332,7 +355,6 @@ const cadastro = () => {
         data: {},
       };
       const response = await generica(body);
-      console.log(response?.data);
       if (response && response.data.errors != undefined) {
         toast("Erro. Tente novamente!", { position: "bottom-left" });
       } else if (response && response.data.error != undefined) {
@@ -402,7 +424,7 @@ const cadastro = () => {
                 ),
               },
             },
-            data: new Date(item.data).toJSON().split("T")[0],
+            data: aplicarMascara(item.data, "dataIsoBr"),
           }));
         setPagamentosEfetuados(filteredData);
       }
@@ -492,6 +514,7 @@ const cadastro = () => {
         position: "top-left",
       });
     }
+    
   };
 
   const editarRegistro = async (item: any) => {
