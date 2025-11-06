@@ -151,14 +151,14 @@ export default function Login() {
                   priority
                 />
               </div>
-              <p className="flex justify-center pb-3 text-center text-sm sm:text-base whitespace-nowrap">
+              <p className="flex justify-center pb-3 text-center text-sm sm:text-base whitespace-nowrap text-extra-50">
                 Sistema de Gestão Universitária
               </p>
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
                   <label
                     htmlFor="email"
-                    className="block mb-2 text-sm font-medium text-gray-900"
+                    className="block mb-2 text-sm font-medium text-extra-50"
                   >
                     E-mail
                   </label>
@@ -177,7 +177,7 @@ export default function Login() {
                 <div>
                   <label
                     htmlFor="password"
-                    className="block mb-2 text-sm font-medium text-gray-900"
+                    className="block mb-2 text-sm font-medium text-extra-50"
                   >
                     Senha
                   </label>
