@@ -25,7 +25,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
   const layoutConfig: InternalLayoutConfig = {
     header: {
       logo: {
-        url: "/assets/logo-auth.png",
+        url: "/assets/SGU.png",
         width: 40,
         height: 40,
         alt: "Logo Auth",
@@ -47,10 +47,10 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
     },
     sidebar: {
       logo: {
-        url: "/assets/logo-sidebar.png",
+        url: "",
         width: 32,
         height: 32,
-        text: "SGU",
+        text: "",
       },
       menuItems: [
         {

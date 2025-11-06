@@ -59,7 +59,7 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({
     <li>
       <div
         onClick={handleClick}
-        className={`flex items-center rounded-md p-2 transition-colors duration-200 cursor-pointer ${isMenuOpen ? "hover:bg-primary-900 justify-start" : "justify-center"
+        className={`flex items-center rounded-md p-2 transition-colors duration-200 cursor-pointer ${isMenuOpen ? "hover:bg-extra-150 justify-start" : "justify-center"
           }`}
       >
         {item.icon}

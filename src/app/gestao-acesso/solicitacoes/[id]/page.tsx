@@ -364,7 +364,6 @@ const cadastro = () => {
   };
 
   const aprovarRegistro = async (item: any) => {
-    // Validação do parecer apenas para usuários privilegiados
     if (isPrivileged && !validarParecer(item.parecer)) {
       return;
     }

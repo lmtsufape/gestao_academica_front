@@ -156,7 +156,7 @@ const Calendar: React.FC<CalendarProps> = ({
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={() => changeMonth('prev')}
-          className="px-4 py-2 bg-neutrals-100 text-primary-500 rounded-md border"
+          className="px-4 py-2 bg-extra-100 text-white rounded-md border"
         >
           Anterior
         </button>
@@ -165,7 +165,7 @@ const Calendar: React.FC<CalendarProps> = ({
         </h2>
         <button
           onClick={() => changeMonth('next')}
-          className="px-4 py-2 bg-neutrals-100 text-primary-500 rounded-md border"
+          className="px-4 py-2 bg-extra-100 text-white rounded-md border"
         >
           Próximo
         </button>
@@ -190,7 +190,7 @@ const Calendar: React.FC<CalendarProps> = ({
               key={index}
               className={
                 "border p-2 rounded-md flex flex-col items-center " +
-                (isCurrentDay ? "border-blue-500 ring-2 ring-blue-300 " : "")
+                (isCurrentDay ? "border-extra-50 ring-2 ring-extra-150 " : "")
               }
             >
               <div

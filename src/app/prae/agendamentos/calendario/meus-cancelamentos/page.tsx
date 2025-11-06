@@ -1,7 +1,7 @@
 "use client"
 import withAuthorization from '@/components/AuthProvider/withAuthorization';
 import Cabecalho from '@/components/Layout/Interno/Cabecalho';
-import Tabela from './tabela/tabela';
+import Tabela from '../../../../../components/Tabela/Estrutura';
 import { generica } from '@/utils/api';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
