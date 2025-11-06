@@ -59,6 +59,11 @@ module.exports = {
           700: '#711E12',
           900: '#43120B',
         },
+        extra: {
+          50: '#972E3F',
+          100: '#393C47',
+          150: '#AB3447',
+        },
       },
       fontSize: {
         // Tipografia baseada no style guide

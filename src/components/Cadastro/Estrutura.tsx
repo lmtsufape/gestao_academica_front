@@ -233,8 +233,8 @@ const Cadastro = ({
                 name={botao.chave}
                 className={
                   isSubmit
-                    ? "bg-primary-500 hover:bg-primary-700 text-white px-4 py-2 rounded text-body-medium"
-                    : "bg-neutrals-200 hover:bg-neutrals-300 text-neutrals-700 px-4 py-2 rounded text-body-medium"
+                    ? "bg-extra-150 hover:bg-extra-50 text-white px-4 py-2 rounded text-body-medium"
+                    : "bg-extra-100 hover:bg-gray-600 text-white px-4 py-2 rounded text-body-medium"
                 }
                 onClick={() => chamarFuncao?.(botao.chave, dadosPreenchidos)}
               >

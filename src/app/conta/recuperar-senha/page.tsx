@@ -77,7 +77,7 @@ export default function PageLogin() {
     return (
         <div className="min-h-[78vh] flex flex-col items-center justify-center px-6 pt-50 mx-auto bg-gray-100">
             <div className="max-w-md w-full p-6 space-y-8 sm:p-8 bg-white rounded-xl shadow-xl">
-                <h2 className="text-2xl font-bold custom-text-color">Recuperar Senha</h2>
+                <h2 className="text-2xl font-bold text-extra-50">Recuperar Senha</h2>
                 <form onSubmit={handleSubmit} className="space-y-6" style={{ marginTop: '9px' }}>
                     <div>
                         <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900">
@@ -100,9 +100,9 @@ export default function PageLogin() {
                     </div>
                     <button
                         type="submit"
-                        className="w-full py-3 px-4 text-sm tracking-wide rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none"
+                        className="w-full py-3 px-4 text-sm tracking-wide rounded-lg text-white bg-extra-50 hover:bg-extra-150 focus:outline-none"
                     >
-                        Recuperar senha
+                        Enviar
                     </button>
                 </form>
             </div>

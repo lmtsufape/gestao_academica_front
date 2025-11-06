@@ -34,12 +34,11 @@ export default function PageRegister() {
         senha: "",
         repetirSenha: "",
         termosUso: false,
-        etniaId: "" // Adicionado campo para armazenar a etnia selecionada
+        etniaId: ""
     });
     const [mostrarSenha, setMostrarSenha] = useState<boolean>(false);
 
     useEffect(() => {
-        // Carrega as etnias da API quando o componente montar
         const carregarEtnias = async (params = null) => {
             try {
                 const response = await genericaApiAuth({
@@ -50,7 +49,7 @@ export default function PageRegister() {
                 });
 
                 if (response.data && response.data.content && Array.isArray(response.data.content)) {
-                    setEtnias(response.data.content); // Agora pegamos response.data.content
+                    setEtnias(response.data.content);
                 }
             } catch (error) {
                 console.error("Erro ao carregar etnias:", error);
@@ -121,7 +120,7 @@ export default function PageRegister() {
     }
 
     const validarCPF = (cpf: string) => {
-        cpf = cpf.replace(/\D/g, ''); // Remove caracteres não numéricos
+        cpf = cpf.replace(/\D/g, '');
         if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
 
         let soma = 0;
@@ -148,7 +147,6 @@ export default function PageRegister() {
         setErrorMessageEmail(null);
         setErrorMessageSenha(null);
 
-        // Cria o toast de carregamento
         const toastId = toast.loading("Processando...", {
             position: "top-right",
             closeButton: false,
@@ -157,7 +155,6 @@ export default function PageRegister() {
         });
 
         try {
-            // Validações iniciais
             if (!validarCPF(formData.cpf)) {
                 toast.dismiss(toastId);
                 toast.error("CPF inválido!", { position: "top-right" });
@@ -207,8 +204,6 @@ export default function PageRegister() {
             };
 
             const response = await genericaApiAuth(body);
-
-            // Remove o toast de carregamento antes de processar a resposta
             toast.dismiss(toastId);
 
             console.log("response: " + JSON.stringify(response));
@@ -260,7 +255,6 @@ export default function PageRegister() {
                     console.log(`${response.data.detail}`);
             }
         } catch (error) {
-            // Garante que o toast de loading seja removido em caso de erro não tratado
             toast.dismiss(toastId);
             toast.error("Ocorreu um erro inesperado", { position: "top-right" });
             console.error("Erro não tratado:", error);
@@ -268,127 +262,258 @@ export default function PageRegister() {
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center px-6 pt-4 bg-gray-100 mt-10 mb-11">
-            <div className="max-w-[110em] w-full p-10 space-y-8 sm:p-12 bg-white rounded-lg shadow">
-                {/* <Link href="/">
-                    <img src="/logo/logo_1.png" className='mb-4 mx-auto block' alt="smartApSUS" width={120} />
-                </Link>
-                <h1 className="text-gray-400 text-center text font-normal">Descubra informações essenciais sobre sua região, incluindo unidades de Atenção Primária à Saúde, profissionais de saúde e muito mais.</h1> */}
-                <h2 className="text-2xl font-bold custom-text-color">
-                    Nova conta
-                </h2>
-                <form onSubmit={handleSubmit} className=" mt-2 space-y-2" style={{ marginTop: '9px' }}>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div>
-                            <label htmlFor="nome" className="block mb-2 text-sm font-medium text-gray-900">Nome <span className="text-red-500">*</span></label>
-                            <input type="text" name="nome" id="nome" value={formData.nome} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
-                        </div>
-                        <div>
-                            <label htmlFor="nomeSocial" className="block mb-2 text-sm font-medium text-gray-900">Nome Social</label>
-                            <input type="text" name="nomeSocial" id="nomeSocial" value={formData.nomeSocial} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" />
-                        </div>
-                        <div>
-                            <label htmlFor="cpf" className="block mb-2 text-sm font-medium text-gray-900">CPF <span className="text-red-500">*</span></label>
-                            <input type="text" name="cpf" id="cpf" value={formData.cpf} onChange={handleMask} maxLength={14} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
-                        </div>
-                        <div>
-                            <label htmlFor="telefone" className="block mb-2 text-sm font-medium text-gray-900">Telefone <span className="text-red-500">*</span></label>
-                            <input type="text" name="telefone" id="telefone" value={formData.telefone} onChange={handleMask} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" placeholder="(00) 00000-0000" maxLength={15} required />
-                        </div>
-                        <div className="relative">
-                            <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900">E-mail <span className="text-red-500">*</span></label>
-                            <input type="email" name="email" id="email" placeholder="email@ufape.edu.br" value={formData.email} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
-                            {errorMessageEmail && <p className="text-red-500 text-sm mt-2">{errorMessageEmail}</p>}
-
-                        </div>
-                        <div>
-                            <label htmlFor="repetirEmail" className="block mb-2 text-sm font-medium text-gray-900">Repetir E-mail <span className="text-red-500">*</span></label>
-                            <input type="email" name="repetirEmail" id="repetirEmail" value={formData.repetirEmail} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
-                        </div>
-                        <div>
-                            <label htmlFor="tipoEtniaId" className="block mb-2 text-sm font-medium text-gray-900">Etnia <span className="text-red-500">*</span></label>
-                            <select
-                                name="tipoEtniaId"
-                                id="tipoEtniaId"
-                                value={formData.tipoEtniaId}
-                                onChange={handleChange}
-                                className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5"
-                                required
-                                disabled={loadingEtnias}
-                            >
-                                <option value="">Selecione uma etnia</option>
-                                {etnias.map((etnia) => (
-                                    <option key={etnia.id} value={etnia.id}>
-                                        {etnia.tipo}
-                                    </option>
-                                ))}
-                            </select>
-                            {loadingEtnias && <p className="text-sm text-gray-500">Carregando opções...</p>}
-                        </div>
-                        <div className="relative">
-                            <label htmlFor="senha" className="block mb-2 text-sm font-medium text-gray-900">Senha <span className="text-red-500">*</span></label>
-                            <input type={mostrarSenha ? "text" : "password"} name="senha" id="senha" value={formData.senha} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
-                            <button type="button" className="absolute right-2 top-9 text-sm text-gray-700" onClick={() => setMostrarSenha(!mostrarSenha)}>
-                                {mostrarSenha ? (
-                                    <Image
-                                        src="/assets/icons/eyeOff.svg"
-                                        alt="Facebook Icon"
-                                        width={24}
-                                        height={24}
-                                    />
-                                ) : (
-                                    <Image
-                                        src="/assets/icons/eyeOn.svg"
-                                        className="text-purple-900"
-                                        alt="Facebook Icon"
-                                        width={25}
-                                        height={25}
-                                    />
-                                )}
-                            </button>
-                            {errorMessageSenha && <p className="text-red-500 text-sm mt-2">{errorMessageSenha}</p>}
-                        </div>
-                        {!mostrarSenha && (
-                            <div>
-                                <label htmlFor="repetirSenha" className="block mb-2 text-sm font-medium text-gray-900">Repetir senha <span className="text-red-500">*</span></label>
-                                <input type="password" name="repetirSenha" id="repetirSenha" value={formData.repetirSenha} onChange={handleChange} className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" required />
-                            </div>
-                        )}
+        <div className="min-h-screen flex flex-col items-center justify-center px-6 bg-gray-50">
+            <div className="w-full max-w-4xl m-12 bg-white rounded-lg shadow-md">
+                {/* Conteúdo principal */}
+                <div className="p-8">
+                    <div className="text-center mb-8">
+                        <h2 className="text-3xl font-bold text-extra-50">Cadastro</h2>
+                        <p className="text-extra-100 mt-2">Sistema de Gestão Universitária</p>
                     </div>
-                    <div className="mt-4">
-                        <div className="flex items-start">
-                            <div className="flex items-center h-5">
+
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Nome */}
+                            <div>
+                                <label htmlFor="nome" className="block mb-2 text-sm font-medium text-gray-700">
+                                    Nome <span className="text-red-500">*</span>
+                                </label>
+                                <input 
+                                    type="text" 
+                                    name="nome" 
+                                    id="nome" 
+                                    value={formData.nome} 
+                                    onChange={handleChange} 
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                    required 
+                                />
+                            </div>
+
+                            {/* Nome Social */}
+                            <div>
+                                <label htmlFor="nomeSocial" className="block mb-2 text-sm font-medium text-gray-700">
+                                    Nome Social
+                                </label>
+                                <input 
+                                    type="text" 
+                                    name="nomeSocial" 
+                                    id="nomeSocial" 
+                                    value={formData.nomeSocial} 
+                                    onChange={handleChange} 
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                />
+                            </div>
+
+                            {/* CPF */}
+                            <div>
+                                <label htmlFor="cpf" className="block mb-2 text-sm font-medium text-gray-700">
+                                    CPF <span className="text-red-500">*</span>
+                                </label>
+                                <input 
+                                    type="text" 
+                                    name="cpf" 
+                                    id="cpf" 
+                                    value={formData.cpf} 
+                                    onChange={handleMask} 
+                                    maxLength={14} 
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                    required 
+                                />
+                            </div>
+
+                            {/* Telefone */}
+                            <div>
+                                <label htmlFor="telefone" className="block mb-2 text-sm font-medium text-gray-700">
+                                    Telefone <span className="text-red-500">*</span>
+                                </label>
+                                <input 
+                                    type="text" 
+                                    name="telefone" 
+                                    id="telefone" 
+                                    value={formData.telefone} 
+                                    onChange={handleMask} 
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" 
+                                    placeholder="(00) 00000-0000" 
+                                    maxLength={15} 
+                                    required 
+                                />
+                            </div>
+
+                            {/* E-mail */}
+                            <div>
+                                <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-700">
+                                    E-mail <span className="text-red-500">*</span>
+                                </label>
+                                <input 
+                                    type="email" 
+                                    name="email" 
+                                    id="email" 
+                                    placeholder="email@ufape.edu.br" 
+                                    value={formData.email} 
+                                    onChange={handleChange} 
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                    required 
+                                />
+                                {errorMessageEmail && <p className="text-red-500 text-sm mt-2">{errorMessageEmail}</p>}
+                            </div>
+
+                            {/* Repetir E-mail */}
+                            <div>
+                                <label htmlFor="repetirEmail" className="block mb-2 text-sm font-medium text-gray-700">
+                                    Repetir E-mail <span className="text-red-500">*</span>
+                                </label>
+                                <input 
+                                    type="email" 
+                                    name="repetirEmail" 
+                                    id="repetirEmail" 
+                                    value={formData.repetirEmail} 
+                                    onChange={handleChange} 
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                    required 
+                                />
+                            </div>
+
+                            {/* Etnia */}
+                            <div>
+                                <label htmlFor="tipoEtniaId" className="block mb-2 text-sm font-medium text-gray-700">
+                                    Etnia <span className="text-red-500">*</span>
+                                </label>
+                                <select
+                                    name="tipoEtniaId"
+                                    id="tipoEtniaId"
+                                    value={formData.tipoEtniaId}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                    required
+                                    disabled={loadingEtnias}
+                                >
+                                    <option value="">Selecione uma etnia</option>
+                                    {etnias.map((etnia) => (
+                                        <option key={etnia.id} value={etnia.id}>
+                                            {etnia.tipo}
+                                        </option>
+                                    ))}
+                                </select>
+                                {loadingEtnias && <p className="text-sm text-gray-500 mt-2">Carregando opções...</p>}
+                            </div>
+
+                            {/* Senha */}
+                            <div className="relative">
+                                <label htmlFor="senha" className="block mb-2 text-sm font-medium text-gray-700">
+                                    Senha <span className="text-red-500">*</span>
+                                </label>
+                                <input 
+                                    type={mostrarSenha ? "text" : "password"} 
+                                    name="senha" 
+                                    id="senha" 
+                                    value={formData.senha} 
+                                    onChange={handleChange} 
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors pr-12"
+                                    required 
+                                />
+                                <button 
+                                    type="button" 
+                                    className="absolute right-3 top-11 text-gray-500 hover:text-gray-700 transition-colors"
+                                    onClick={() => setMostrarSenha(!mostrarSenha)}
+                                >
+                                    {mostrarSenha ? (
+                                        <Image
+                                            src="/assets/icons/eyeOff.svg"
+                                            alt="Ocultar senha"
+                                            width={20}
+                                            height={20}
+                                        />
+                                    ) : (
+                                        <Image
+                                            src="/assets/icons/eyeOn.svg"
+                                            alt="Mostrar senha"
+                                            width={20}
+                                            height={20}
+                                        />
+                                    )}
+                                </button>
+                                {errorMessageSenha && <p className="text-red-500 text-sm mt-2">{errorMessageSenha}</p>}
+                            </div>
+
+                            {/* Repetir Senha */}
+                            {!mostrarSenha && (
+                                <div>
+                                    <label htmlFor="repetirSenha" className="block mb-2 text-sm font-medium text-gray-700">
+                                        Repetir senha <span className="text-red-500">*</span>
+                                    </label>
+                                    <input 
+                                        type="password" 
+                                        name="repetirSenha" 
+                                        id="repetirSenha" 
+                                        value={formData.repetirSenha} 
+                                        onChange={handleChange} 
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                        required 
+                                    />
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Termos de Uso */}
+                        <div className="flex items-start space-x-3">
+                            <div className="flex items-center h-5 mt-1">
                                 <input
                                     type="checkbox"
                                     name="termosUso"
                                     id="termosUso"
                                     checked={formData.termosUso}
                                     onChange={handleChange}
-                                    className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300"
+                                    className="w-4 h-4 text-extra-50 border-gray-300 rounded focus:ring-extra-50"
                                     required
                                 />
                             </div>
-                            <label htmlFor="termosUso" className="ml-2 text-sm font-medium text-gray-900">
-                                Concordo com os <Link href="/conta/criar-conta/termos-de-uso" className="text-blue-600 hover:underline">Termos de Uso</Link> e <Link href="/conta/criar-conta/termos-de-uso#aviso-de-privacidade" className="text-blue-600 hover:underline">Política de Privacidade</Link>
+                            <label htmlFor="termosUso" className="text-sm text-gray-700">
+                                Concordo com os <Link href="/conta/criar-conta/termos-de-uso" className="text-extra-50 hover:underline font-medium">Termos de Uso</Link> e <Link href="/conta/criar-conta/termos-de-uso#aviso-de-privacidade" className="text-extra-50 hover:underline font-medium">Política de Privacidade</Link>
                             </label>
                         </div>
-                    </div>
-                    <div className="mx-auto  pt:mt-0">
-                        {/* <Link href="/conta/criar-conta/termos-de-uso" className="custom-text-color underline text-sm">Termos de Uso</Link> */}
-                        <Link href="/conta/criar-conta/termos-de-uso" target="_blank" rel="noopener noreferrer" className="custom-text-color underline text-sm">
-                            Os termos estão disponíveis acima, mas você pode acessá-los também clicando aqui.
-                        </Link>
 
-                    </div>
-                    <div className="flex justify-center mt-6">
-                        <button type="submit"
-                            className="py-3 px-16 text-sm mt-4 tracking-wide rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none">
-                            Criar Conta</button>
-                        {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
-                        {successMessage && <p className="text-green-500 text-sm">{successMessage}</p>}
-                    </div>
+                        {/* Link para termos */}
+                        <div className="text-center">
+                            <Link 
+                                href="/conta/criar-conta/termos-de-uso" 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                className="text-extra-50 hover:underline text-sm font-medium"
+                            >
+                                Os termos estão disponíveis acima, mas você pode acessá-los também clicando aqui.
+                            </Link>
+                        </div>
+
+                        {/* Mensagens de erro */}
+                        {errorMessage && (
+                            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                                <p className="text-red-600 text-sm text-center">{errorMessage}</p>
+                            </div>
+                        )}
+
+                        {/* Botão de criar conta */}
+                        <div className="flex justify-center">
+                            <button 
+                                type="submit"
+                                className="w-full max-w-xs py-3 px-6 text-base font-medium rounded-lg text-white bg-extra-150 hover:bg-extra-50 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-colors shadow-sm"
+                            >
+                                Criar Conta
+                            </button>
+                        </div>
+
+                        {/* Link para login */}
+                        <div className="text-center">
+                            <p className="text-gray-600 text-sm">
+                                Já possui uma conta?{" "}
+                                <Link href="/login" className="text-extra-50 hover:underline font-medium">
+                                    Faça login
+                                </Link>
+                            </p>
+                        </div>
+                    </form>
+
                     {showModal && <SuccessModal />}
-                </form>
+                </div>
             </div>
         </div>
     );

@@ -124,7 +124,7 @@ const RenderCampo: React.FC<RenderCampoProps> = ({ campo: e, dados, setDados, ph
 
       {e.tipo === 'foto' && (
         <div className="flex flex-col">
-          <label className="block mb-1 text-label-medium text-primary-500">{e.nome}{e.obrigatorio && <span className="text-danger-500 ml-1">*</span>}</label>
+          <label className="block mb-1 text-label-medium text-extra-50">{e.nome}{e.obrigatorio && <span className="text-danger-500 ml-1">*</span>}</label>
           <div className="relative w-24 h-24">
             <div className="absolute inset-0 border-2 border-gray-300 rounded-full overflow-hidden flex items-center justify-center">
               {photoPreview ? (
@@ -136,7 +136,7 @@ const RenderCampo: React.FC<RenderCampoProps> = ({ campo: e, dados, setDados, ph
             {!e.bloqueado && (
               <>
                 <label htmlFor={`fotoInput-${e.chave}`} className="absolute bottom-0 right-0 mb-1 mr-1 bg-white p-1 rounded-full cursor-pointer shadow-sm z-10">
-                  <Edit fontSize="small" className="text-primary-500" />
+                  <Edit fontSize="small" className="text-extra-50" />
                 </label>
                 <input id={`fotoInput-${e.chave}`} type="file" accept="image/*" className="hidden" onChange={(ev) => handleFileChangeFoto(ev, e.chave)} disabled={!!e.bloqueado} required={!!e.obrigatorio} />
               </>
@@ -147,10 +147,10 @@ const RenderCampo: React.FC<RenderCampoProps> = ({ campo: e, dados, setDados, ph
 
       {e.tipo === 'documento' && (
         <div className="flex flex-col">
-          <label className="block mb-1 text-label-medium text-primary-500">{e.nome}{e.obrigatorio && <span className="text-danger-500 ml-1">*</span>}</label>
+          <label className="block mb-1 text-label-medium text-extra-50">{e.nome}{e.obrigatorio && <span className="text-danger-500 ml-1">*</span>}</label>
           {!e.bloqueado && (
             <>
-              <label htmlFor={`docInput-${e.chave}`} className="bg-white p-2 rounded cursor-pointer shadow-sm inline-block text-sm text-primary-500 mt-2">Adicionar Documento(s)</label>
+              <label htmlFor={`docInput-${e.chave}`} className="bg-white p-2 rounded cursor-pointer shadow-sm inline-block text-sm text-extra-50 mt-2">Adicionar Documento(s)</label>
               <input id={`docInput-${e.chave}`} type="file" accept=".pdf,.png,.jpeg,.jpg" className="hidden" multiple={!!e.multiple} onChange={(ev) => {
                 const files = (ev.target as HTMLInputElement).files;
                 if (files && files.length > 0) {
@@ -199,8 +199,8 @@ const RenderCampo: React.FC<RenderCampoProps> = ({ campo: e, dados, setDados, ph
                 <div className="flex items-center justify-between p-4 border-b">
                   <button onClick={closeModal} className="text-danger-500 font-bold">Fechar</button>
                   <div className="flex space-x-2">
-                    <a href={expandedDocUrl} download className="px-2 py-1 bg-primary-500 text-white text-sm rounded hover:bg-primary-700">Baixar</a>
-                    <a href={expandedDocUrl} target="_blank" rel="noopener noreferrer" className="px-2 py-1 bg-primary-500 text-white text-sm rounded hover:bg-primary-700">Visualizar</a>
+                    <a href={expandedDocUrl} download className="px-2 py-1 bg-extra-150 text-white text-sm rounded hover:bg-extra-50">Baixar</a>
+                    <a href={expandedDocUrl} target="_blank" rel="noopener noreferrer" className="px-2 py-1 bg-extra-150 text-white text-sm rounded hover:bg-extra-50">Visualizar</a>
                   </div>
                 </div>
                 <div className="flex-1 overflow-auto flex items-center justify-center p-2">
@@ -220,7 +220,7 @@ const RenderCampo: React.FC<RenderCampoProps> = ({ campo: e, dados, setDados, ph
 
       {e.tipo === 'radio-group' && (
         <div className={`flex flex-col ${e.colSpan ?? ''}`}>
-          <label className="block mb-1 text-label-medium text-primary-500">{e.nome}{e.obrigatorio && <span className="text-danger-500 ml-1">*</span>}</label>
+          <label className="block mb-1 text-label-medium text-extra-50">{e.nome}{e.obrigatorio && <span className="text-danger-500 ml-1">*</span>}</label>
           <div className="flex gap-4">
             {e.selectOptions?.map((option, oIdx) => (
               <label key={oIdx} className="flex items-center gap-1">
@@ -234,7 +234,7 @@ const RenderCampo: React.FC<RenderCampoProps> = ({ campo: e, dados, setDados, ph
 
       {e.tipo === 'date-multiple' && (
         <div className="flex flex-col">
-          <label className="block mb-1 text-label-medium text-primary-500">{e.nome}{e.obrigatorio && <span className="text-danger-500 ml-1">*</span>}</label>
+          <label className="block mb-1 text-label-medium text-extra-50">{e.nome}{e.obrigatorio && <span className="text-danger-500 ml-1">*</span>}</label>
           {(Array.isArray(valor(e.chave)) ? valor(e.chave) : ['']).map((data: string, idData: number) => (
             <div key={idData} className="flex items-center gap-2 mb-1">
               <input type="date" name={e.chave} value={data} onChange={(evt) => { const arr = asArray<string>(valor(e.chave)); arr[idData] = (evt.target as HTMLInputElement).value; setDados((prev: any) => setNestedValue(prev ?? {}, e.chave, arr)); }} className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-300 text-body-medium text-neutrals-900" required={!!e.obrigatorio} disabled={!!e.bloqueado} />
@@ -243,13 +243,13 @@ const RenderCampo: React.FC<RenderCampoProps> = ({ campo: e, dados, setDados, ph
               )}
             </div>
           ))}
-          <button type="button" className="bg-primary-500 hover:bg-primary-700 text-white px-2 py-1 rounded text-sm mt-1" onClick={() => { const arr = asArray<string>(valor(e.chave)); arr.push(''); setDados((prev: any) => setNestedValue(prev ?? {}, e.chave, arr)); }}>Adicionar data</button>
+          <button type="button" className="bg-extra-150 hover:bg-extra-50 text-white px-2 py-1 rounded text-sm mt-1" onClick={() => { const arr = asArray<string>(valor(e.chave)); arr.push(''); setDados((prev: any) => setNestedValue(prev ?? {}, e.chave, arr)); }}>Adicionar data</button>
         </div>
       )}
 
       {e.tipo === 'ratio' && (
         <div className="flex flex-col">
-          <label className="block mb-1 text-label-medium text-primary-500">{e.nome}{e.obrigatorio && <span className="text-danger-500 ml-1">*</span>}</label>
+          <label className="block mb-1 text-label-medium text-extra-50">{e.nome}{e.obrigatorio && <span className="text-danger-500 ml-1">*</span>}</label>
           <input type="number" name={e.chave} placeholder={e.mensagem} className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-primary-300 text-body-medium text-neutrals-900" value={(() => { const v = valor(e.chave); return v != null ? Number(v) * 100 : ''; })()} onChange={alterarRatio} disabled={!!e.bloqueado} required={!!e.obrigatorio} min={0} max={e.max ?? 100} step={e.step ?? 1} />
           <span className="text-sm text-neutrals-500 mt-1">Máximo: {e.max ?? 100}%</span>
         </div>

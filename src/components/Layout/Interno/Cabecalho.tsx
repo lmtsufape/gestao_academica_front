@@ -5,8 +5,8 @@ import theme from "@/theme/theme";
 const Cabecalho = ({ dados }: any) => {
   return (
     <div className="pb-0.5">
-      <h1 className='text-4xl' style={{ color: theme.palette.grey[900] }}>{dados.titulo}</h1>
-      <div className='flex' style={{ color: '#909090' }}>
+      <h1 className='text-4xl text-extra-50'>{dados.titulo}</h1>
+      <div className='flex text-gray-500'>
         {dados.migalha.map((item:any, index:any) => (
           <React.Fragment key={index}>
             {item.link != null && (
