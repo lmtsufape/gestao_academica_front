@@ -108,7 +108,7 @@ const Calendar: React.FC<CalendarProps> = ({ selectedDates = [], onChange }: Cal
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={() => changeMonth('prev')}
-          className="px-4 py-2 bg-neutrals-100 text-primary-500 rounded-md border"
+          className="px-4 py-2 bg-extra-100 text-white rounded-md border"
         >
           Anterior
         </button>
@@ -117,7 +117,7 @@ const Calendar: React.FC<CalendarProps> = ({ selectedDates = [], onChange }: Cal
         </h2>
         <button
           onClick={() => changeMonth('next')}
-          className="px-4 py-2 bg-neutrals-100 text-primary-500 rounded-md border"
+          className="px-4 py-2 bg-extra-100 text-white rounded-md border"
         >
           Próximo
         </button>
@@ -133,7 +133,7 @@ const Calendar: React.FC<CalendarProps> = ({ selectedDates = [], onChange }: Cal
           const containerClasses = `flex flex-col items-center border p-2 rounded-md ${pastDay
               ? 'bg-gray-100 border-gray-300 cursor-not-allowed'
               : today
-                ? 'border-blue-500 ring-2 ring-blue-300 cursor-pointer'
+                ? 'border-extra-50 ring-2 ring-extra-50 cursor-pointer'
                 : 'border-gray-300 cursor-pointer'
             }`;
 
@@ -166,7 +166,7 @@ const Calendar: React.FC<CalendarProps> = ({ selectedDates = [], onChange }: Cal
         })}
       </div>
 
-      {/* Mostra quantas datas estão selecionadas (opcional, para debug) */}
+      {/* Mostra quantas datas estão selecionadas*/}
       <div className="mt-4 text-sm text-gray-600">
         {selectedDays.length} data(s) selecionada(s)
       </div>
