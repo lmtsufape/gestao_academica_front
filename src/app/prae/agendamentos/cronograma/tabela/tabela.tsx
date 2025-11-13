@@ -75,49 +75,96 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
   }, []);
 
   const renderFiltros = () => {
-    const filters = estrutura.tabela.colunas.filter((col: any) => col.pesquisar);
+    // Função para abreviar textos longos no placeholder, priorizando a primeira palavra
+    const abreviarTexto = (texto: string, maxLength: number = 15) => {
+      if (!texto) return '';
+      if (texto.length <= maxLength) return texto;
+      
+      const palavras = texto.split(' ');
+      
+      // Se tiver apenas uma palavra, usa a lógica original
+      if (palavras.length === 1) {
+        return texto.substring(0, maxLength - 3) + '...';
+      }
+      
+      // Abrevia a primeira palavra mantendo as demais
+      const primeiraPalavra = palavras[0];
+      const palavrasRestantes = palavras.slice(1).join(' ');
+      
+      // Verifica se a primeira palavra já é muito longa
+      if (primeiraPalavra.length > 3) {
+        const primeiraAbreviada = primeiraPalavra.substring(0, 1) + '.';
+        const resultado = `${primeiraAbreviada} ${palavrasRestantes}`;
+        
+        return resultado.length <= maxLength 
+          ? resultado 
+          : resultado.substring(0, maxLength - 3) + '...';
+      }
+      
+      return texto.substring(0, maxLength - 3) + '...';
+    };
+
+    const filters = estrutura.tabela.colunas.filter(
+      (col: any) => col.pesquisar
+    );
     return (
-      <div className={`${isDesktop ? 'flex gap-4 items-end' : 'flex flex-col gap-4'} w-full pt-2`}>
+      <div
+        className={`${
+          isDesktop ? "flex gap-4 items-end" : "flex flex-col gap-4"
+        } w-full pt-2`}
+      >
         {filters?.map((item: any) => (
           <div
-            key={generateUniqueKey('filtro', item.chave)}
-            className={`${isDesktop ? 'flex-1' : 'w-full'} flex flex-col`}
+            key={generateUniqueKey("filtro", item.chave)}
+            className="flex flex-col max-w-xs"
           >
             <label
               htmlFor={`filtro_${item.chave}`}
-              className="mb-2 text-sm font-bold text-gray-700"
+              className="mb-2 text-sm font-bold text-gray-700 truncate overflow-hidden whitespace-nowrap"
+              title={item.nome}
             >
               {item.nome}
             </label>
 
-            {(item.tipo === 'texto' || item.tipo === 'json') &&
+            {(item.tipo === "texto" || item.tipo === "json") &&
               !(item.selectOptions && item.selectOptions.length > 0) && (
                 <input
                   type="text"
                   id={`filtro_${item.chave}`}
-                  className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder=""
+                  className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-extra-50 focus:border-transparent w-full max-w-xs placeholder-gray-400 placeholder:truncate placeholder:overflow-hidden placeholder:whitespace-nowrap"
+                  placeholder={`Filtrar por ${abreviarTexto(item.nome)}`}
                   onChange={(e) => paramsColuna(item.chave, e.target.value)}
                 />
               )}
 
-            {(item.tipo === 'booleano' || item.tipo === 'status' ||
+            {(item.tipo === "booleano" ||
+              item.tipo === "status" ||
               (item.selectOptions && item.selectOptions.length > 0)) && (
-                <select
-                  id={`filtro_${item.chave}`}
-                  className="px-3 py-2 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  onChange={(e) => paramsColuna(item.chave, e.target.value)}
-                >
-                  {!item.selectOptions?.some((option: any) => option.valor === "Todos") && (
-                    <option value="">Selecionar</option>
-                  )}
-                  {item.selectOptions.map((option: { chave: any; valor: any }) => (
-                    <option key={generateUniqueKey(option.chave, 'option')} value={option.chave}>
+              <select
+                id={`filtro_${item.chave}`}
+                className="min-w-[0px] px-3 py-2 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-extra-50 focus:border-transparent text-gray-500 truncate"
+                onChange={(e) => paramsColuna(item.chave, e.target.value)}
+              >
+                {!item.selectOptions?.some(
+                  (option: any) => option.valor === "Todos"
+                ) && (
+                  <option value="" className="truncate">
+                    {abreviarTexto(item.nome)}
+                  </option>
+                )}
+                {item.selectOptions.map(
+                  (option: { chave: any; valor: any }) => (
+                    <option
+                      key={generateUniqueKey(option.chave, "option")}
+                      value={option.chave}
+                      className="truncate"
+                    >
                       {option.valor}
                     </option>
-                  ))}
-                </select>
-              )}
+                  )
+                )}
+              </select>
+            )}
           </div>
         ))}
       </div>
