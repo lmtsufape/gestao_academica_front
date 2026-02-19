@@ -151,7 +151,7 @@ const RenderCampo: React.FC<RenderCampoProps> = ({ campo: e, dados, setDados, ph
           {!e.bloqueado && (
             <>
               <label htmlFor={`docInput-${e.chave}`} className="bg-white p-2 rounded cursor-pointer shadow-sm inline-block text-sm text-extra-50 mt-2">Adicionar Documento(s)</label>
-              <input id={`docInput-${e.chave}`} type="file" accept=".pdf,.png,.jpeg,.jpg" className="hidden" multiple={!!e.multiple} onChange={(ev) => {
+              <input id={`docInput-${e.chave}`} type="file" accept={e.accept || ".pdf,.png,.jpeg,.jpg"} className="hidden" multiple={!!e.multiple} onChange={(ev) => {
                 const files = (ev.target as HTMLInputElement).files;
                 if (files && files.length > 0) {
                   const fileArray = Array.from(files);
@@ -256,7 +256,7 @@ const RenderCampo: React.FC<RenderCampoProps> = ({ campo: e, dados, setDados, ph
       )}
 
       {e.tipo === 'file' && (
-        <FileInput dir="importacao" name={e.chave} onChange={alterarInput} label={e.nome} required={!!e.obrigatorio} message={e.mensagem ?? ''} disabled={!!e.bloqueado} />
+        <FileInput dir={e.dir ?? "importacao"} name={e.chave} onChange={alterarInput} label={e.nome} required={!!e.obrigatorio} message={e.mensagem ?? ''} disabled={!!e.bloqueado} localMode={!!e.localMode} accept={e.accept} />
       )}
 
       {e.tipo === 'button' && (

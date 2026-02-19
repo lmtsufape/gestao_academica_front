@@ -108,3 +108,24 @@ export interface CampoPersonalizadoResponse {
   tipoEditalModeloId?: number | null;
   etapaModeloId?: number | null;
 }
+
+export interface EditalExtraSisuResponse {
+  id: number;
+  titulo: string;
+  descricao: string;
+  pdf: string;
+  dataInscricao: string;      
+  dataFinalizacao: string;    
+}
+
+// export interface InscricaoExtrasisuResponse {
+//   id: number;
+//   idUsuario: string; 
+//   dataInscricao: string; 
+  
+//   statusAtual: {
+//       id: number;
+//       nome: string;
+//       tipoStatus: string;
+//   }; 
+// }
