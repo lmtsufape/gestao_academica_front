@@ -83,6 +83,13 @@ export default function HomePage() {
       description: "Acesse o módulo de Editais",
       image: "/assets/brasaoUfapeCol.png",
     },
+    {
+      id: "gestao-extra-sisu",
+      name: "Extra Sisu",
+      route: "/gestao-extra-sisu",
+      description: "Acesse o módulo Extra Sisu",
+      image: "/assets/brasaoUfapeCol.png",
+    },
   ];
 
   // Favoritar/Desfavoritar
