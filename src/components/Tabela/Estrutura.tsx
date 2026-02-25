@@ -21,7 +21,7 @@ const Tabela = ({
   };
 
   // NORMALIZA os dados recebidos:
-  const linhas = Array.isArray(dados) ? dados : dados?.content ?? [];
+  const linhas = Array.isArray(dados) ? dados : (dados?.content ?? []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -83,35 +83,35 @@ const Tabela = ({
   const renderFiltros = () => {
     // Função para abreviar textos longos no placeholder, priorizando a primeira palavra
     const abreviarTexto = (texto: string, maxLength: number = 15) => {
-      if (!texto) return '';
+      if (!texto) return "";
       if (texto.length <= maxLength) return texto;
-      
-      const palavras = texto.split(' ');
-      
+
+      const palavras = texto.split(" ");
+
       // Se tiver apenas uma palavra, usa a lógica original
       if (palavras.length === 1) {
-        return texto.substring(0, maxLength - 3) + '...';
+        return texto.substring(0, maxLength - 3) + "...";
       }
-      
+
       // Abrevia a primeira palavra mantendo as demais
       const primeiraPalavra = palavras[0];
-      const palavrasRestantes = palavras.slice(1).join(' ');
-      
+      const palavrasRestantes = palavras.slice(1).join(" ");
+
       // Verifica se a primeira palavra já é muito longa
       if (primeiraPalavra.length > 3) {
-        const primeiraAbreviada = primeiraPalavra.substring(0, 1) + '.';
+        const primeiraAbreviada = primeiraPalavra.substring(0, 1) + ".";
         const resultado = `${primeiraAbreviada} ${palavrasRestantes}`;
-        
-        return resultado.length <= maxLength 
-          ? resultado 
-          : resultado.substring(0, maxLength - 3) + '...';
+
+        return resultado.length <= maxLength
+          ? resultado
+          : resultado.substring(0, maxLength - 3) + "...";
       }
-      
-      return texto.substring(0, maxLength - 3) + '...';
+
+      return texto.substring(0, maxLength - 3) + "...";
     };
 
     const filters = estrutura.tabela.colunas.filter(
-      (col: any) => col.pesquisar
+      (col: any) => col.pesquisar,
     );
     return (
       <div
@@ -152,7 +152,7 @@ const Tabela = ({
                 onChange={(e) => paramsColuna(item.chave, e.target.value)}
               >
                 {!item.selectOptions?.some(
-                  (option: any) => option.valor === "Todos"
+                  (option: any) => option.valor === "Todos",
                 ) && (
                   <option value="" className="truncate">
                     {abreviarTexto(item.nome)}
@@ -167,7 +167,7 @@ const Tabela = ({
                     >
                       {option.valor}
                     </option>
-                  )
+                  ),
                 )}
               </select>
             )}
@@ -272,8 +272,8 @@ const Tabela = ({
                       isColunaAcoes(item.nome)
                         ? "w-40"
                         : item.nome.toUpperCase() === "STATUS"
-                        ? "w-32"
-                        : ""
+                          ? "w-32"
+                          : ""
                     }`}
                   >
                     <div
@@ -305,7 +305,7 @@ const Tabela = ({
                             bodyParams.sort != null &&
                               bodyParams.sort.split(",")[1] === "asc"
                               ? `${item.chave},desc`
-                              : `${item.chave},asc`
+                              : `${item.chave},asc`,
                           )
                         }
                         hidden={!item.sort}
@@ -346,7 +346,7 @@ const Tabela = ({
                                       <button
                                         key={generateUniqueKey(
                                           cellKey,
-                                          acao.chave
+                                          acao.chave,
                                         )}
                                         className="inline-flex items-center justify-center p-1.5 text-gray-600 hover:text-blue-600 transition-colors duration-150"
                                         title={acao.nome}
@@ -355,7 +355,9 @@ const Tabela = ({
                                         }
                                       >
                                         {acao.nome === "Editar" && (
-                                          <Edit className="w-5 h-5" />
+                                          <p className="cursor-pointer font-bold inline-block px-3 py-1 bg-gray-100 text-extra-150 rounded hover:bg-gray-200 text-sm">
+                                            Editar
+                                          </p>
                                         )}
                                         {acao.nome === "Visualizar" && (
                                           <Visibility className="w-5 h-5" />
@@ -389,7 +391,7 @@ const Tabela = ({
                                           </span>
                                         )}
                                       </button>
-                                    )
+                                    ),
                                   )}
                                 </div>
                               </td>
@@ -399,7 +401,7 @@ const Tabela = ({
                             tipo === "status"
                           ) {
                             const selectOption = selectOptions.find(
-                              (option: any) => option.chave === item[chave]
+                              (option: any) => option.chave === item[chave],
                             );
                             if (selectOption) {
                               let element;
@@ -447,7 +449,7 @@ const Tabela = ({
                             (tipo === "booleano" || selectOptions)
                           ) {
                             const selectOption = selectOptions.find(
-                              (option: any) => option.chave === item[chave]
+                              (option: any) => option.chave === item[chave],
                             );
                             if (selectOption) {
                               return (
@@ -461,8 +463,8 @@ const Tabela = ({
                                       selectOption.chave === "APROVADA"
                                         ? "text-green-600"
                                         : selectOption.chave === "PENDENTE"
-                                        ? "text-yellow-600"
-                                        : "text-red-600"
+                                          ? "text-yellow-600"
+                                          : "text-red-600"
                                     }`}
                                   >
                                     {selectOption.valor}
@@ -556,7 +558,7 @@ const Tabela = ({
                             }
                           }
                           return null;
-                        }
+                        },
                       )}
                     </tr>
                   );
@@ -631,7 +633,7 @@ const Tabela = ({
                       }
                       if (col.tipo === "status" && col.selectOptions) {
                         const selectOption = col.selectOptions.find(
-                          (option: any) => option.chave === item[col.chave]
+                          (option: any) => option.chave === item[col.chave],
                         );
                         if (selectOption) {
                           value = (
@@ -641,8 +643,8 @@ const Tabela = ({
                                   selectOption.valor === "Finalizado"
                                     ? "px-3 py-1 inline-flex text-xs font-medium rounded-full bg-green-100 text-green-800"
                                     : selectOption.valor === "Erro"
-                                    ? "px-3 py-1 inline-flex text-xs font-medium rounded-full bg-red-100 text-red-800"
-                                    : "px-3 py-1 inline-flex text-xs font-medium rounded-full bg-gray-100 text-gray-800"
+                                      ? "px-3 py-1 inline-flex text-xs font-medium rounded-full bg-red-100 text-red-800"
+                                      : "px-3 py-1 inline-flex text-xs font-medium rounded-full bg-gray-100 text-gray-800"
                                 }
                               >
                                 {selectOption.valor}
@@ -655,7 +657,7 @@ const Tabela = ({
                         (col.tipo === "booleano" || col.selectOptions)
                       ) {
                         const selectOption = col.selectOptions.find(
-                          (option: any) => option.chave === item[col.chave]
+                          (option: any) => option.chave === item[col.chave],
                         );
                         if (selectOption) {
                           value = (

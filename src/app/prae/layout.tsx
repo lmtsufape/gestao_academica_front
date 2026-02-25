@@ -94,6 +94,11 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
               route: "/prae/beneficios/beneficios",
               icon: <VolunteerActivism fontSize="small" className="text-white" />,
             },
+            {
+              label: "Benefícios Inativos",
+              route: "/prae/beneficios/beneficios-inativos",
+              icon: <VolunteerActivism fontSize="small" className="text-white" />,
+            }
           ],
         },
         {
@@ -104,13 +109,13 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           subItems: [
             {
               label: "Folha de pagamento",
-              route: "/prae/pagamentos/folha-de-pagamento",
+              route: "/prae/pagamentos/folha-pagamento",
               icon: <PendingActions fontSize="small" className="text-white" />,
               roles: isPraeAccess ? ["gestor"] : [""],
             },
             {
               label: "Pagamentos Realizados",
-              route: "/prae/pagamentos/pagamentos-realizados",
+              route: "/prae/pagamentos/beneficiarios-pagos",
               icon: <DoneAll fontSize="small" className="text-white" />,
               roles: isPraeAccess ? ["gestor"] : [""],
             },
@@ -124,7 +129,6 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
               label: "Relatório Financeiro",
               route: "/prae/pagamentos/relatorio-financeiro",
               icon: <Assessment fontSize="small" className="text-white" />,
-              roles: isPraeAccess ? ["gestor"] : [""],
             }, 
           ],
         },

@@ -73,15 +73,15 @@ const EnvioDocumentos = () => {
 
       const formData = new FormData();
 
-      Object.entries(documentos).forEach(([chave, arquivo]: any) => {
-        if (arquivo) {
-          formData.append(`documentos[${chave}]`, arquivo);
-        }
+      Object.keys(documentos).forEach((tipoDocumento) => {
+        const file = documentos[tipoDocumento];
+
+        formData.append("arquivos", file, `${tipoDocumento}-${file.name}`);
       });
 
       const body = {
         metodo: "post",
-        uri: "/prae/estudantes/documentos",
+        uri: "/upload/documento",
         params: {},
         data: formData,
       };
