@@ -90,7 +90,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
               icon: <VolunteerActivism fontSize="small" className="text-white" />,
             },
             {
-              label: "Benefícios",
+              label: "Beneficiários",
               route: "/prae/beneficios/beneficios",
               icon: <VolunteerActivism fontSize="small" className="text-white" />,
             },

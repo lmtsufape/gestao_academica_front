@@ -14,11 +14,11 @@ const estrutura: any = {
   uri: "beneficio", //caminho base
 
   cabecalho: { //cabecalho da pagina
-    titulo: "Benefícios",
+    titulo: "Beneficiários",
     migalha: [
       { nome: 'Home', link: '/home' },
       { nome: 'Prae', link: '/prae' },
-      { nome: 'Benefícios', link: '/prae/beneficios/beneficios' },
+      { nome: 'Beneficiários', link: '/prae/beneficios/beneficios' },
     ]
   },
 
@@ -32,6 +32,8 @@ const estrutura: any = {
       { nome: 'Adicionar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
     ],
     colunas: [ //colunas da tabela
+      { nome: "Beneficiário", chave:"estudantes.aluno.nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "CPF", chave:"estudantes.aluno.cpf", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "Tipo", chave: "tipoBeneficio.tipo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "Valor", chave: "tipoBeneficio.valorBeneficio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "Natureza", chave: "tipoBeneficio.naturezaBeneficio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
@@ -80,7 +82,7 @@ const PageLista = () => {
     try {
       let body = {
         metodo: 'get',
-        uri: '/prae/beneficio/pendentes',
+        uri: '/prae/beneficio',
         //+ '/page',
         params: params != null ? params : { size: 10, page: 0 },
         data: {}
