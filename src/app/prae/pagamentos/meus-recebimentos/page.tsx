@@ -26,9 +26,6 @@ const estrutura: any = {
             cabecalho: true,//cabecalho da tabela (booleano)
             rodape: true,//rodape da tabela (booleano)
         },
-        botoes: [ //links
-            { nome: 'Adicionar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
-        ],
         colunas: [ //colunas da tabela
             { nome: "Tipo de Benefício", chave: "beneficio.tipoBeneficio.tipo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome
             { nome: "Valor Pago", chave: "valor", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
