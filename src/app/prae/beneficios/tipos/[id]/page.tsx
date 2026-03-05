@@ -85,10 +85,9 @@ const cadastro = () => {
           nome: "Valor da Benefício",
           chave: "valorBeneficio",
           tipo: "money-brl",
-          mensagem: "Digite o valor",
           obrigatorio: true,
           bloqueado: false,
-          mode: "decimal",       // ou "cents" se preferir armazenar em centavos
+          mode: "decimal",      
           allowNegative: false,
         },
       ],
@@ -99,10 +98,6 @@ const cadastro = () => {
     },
   };
 
-
-  /**
-   * Chama funções de acordo com o botão clicado
-   */
   const chamarFuncao = async (nomeFuncao = "", valor: any = null) => {
     switch (nomeFuncao) {
       case "salvar":

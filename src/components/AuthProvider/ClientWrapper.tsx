@@ -22,7 +22,8 @@ export default function ClientWrapper({ children, layoutConfig, activeRole = "",
     setIsLogin(
       pathname === "/login" ||
       pathname === "/conta/criar-conta" ||
-      pathname === "/conta/recuperar-senha" 
+      pathname === "/conta/recuperar-senha" ||
+      pathname === "/relatorio-financeiro"
     );
   }, [pathname]);
 

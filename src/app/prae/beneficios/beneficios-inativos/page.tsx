@@ -11,9 +11,9 @@ import Swal from 'sweetalert2';
 
 const estrutura: any = {
 
-  uri: "", //caminho base
+  uri: "", 
 
-  cabecalho: { //cabecalho da pagina
+  cabecalho: { 
     titulo: "Benefícios Inativos",
     migalha: [
       { nome: 'Home', link: '/home' },
@@ -24,21 +24,20 @@ const estrutura: any = {
 
   tabela: {
     configuracoes: {
-      pesquisar: true,//campo pesquisar nas colunas (booleano)
-      cabecalho: true,//cabecalho da tabela (booleano)
-      rodape: true,//rodape da tabela (booleano)
+      pesquisar: true,
+      cabecalho: true,
+      rodape: true,
     },
-    botoes: [ //links
-      { nome: 'Adicionar', chave: 'adicionar', bloqueado: false }, //nome(string),chave(string),bloqueado(booleano)
+    botoes: [ 
     ],
-    colunas: [ //colunas da tabela
+    colunas: [ 
       { nome: "Tipo", chave: "tipoBeneficio.tipo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "Valor", chave: "tipoBeneficio.valorBeneficio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "Natureza", chave: "tipoBeneficio.naturezaBeneficio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "Início do Benefício", chave: "inicioBeneficio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "Final do Benefício", chave: "fimBeneficio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
     ],
-    acoes_dropdown: [ //botão de acoes de cada registro
+    acoes_dropdown: [ 
     ]
   }
 

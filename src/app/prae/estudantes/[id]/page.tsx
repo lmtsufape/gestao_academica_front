@@ -556,7 +556,7 @@ const cadastro = () => {
         data: dataToSend,
       };
 
-      const response = await genericaMultiForm(body);
+      const response = await generica(body);
 
       if (!response || response.status < 200 || response.status >= 300) {
         toast.error("Erro ao salvar cadastro");
