@@ -565,10 +565,6 @@ const cadastro = () => {
               : "Sem texto de status"
           );
         }
-        toast.error(
-          `Erro na requisição (HTTP ${response?.status || "desconhecido"})`,
-          { position: "top-left" }
-        );
         return;
       }
       if (response.data?.errors) {

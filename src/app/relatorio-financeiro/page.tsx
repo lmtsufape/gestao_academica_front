@@ -1,5 +1,4 @@
 "use client";
-import withAuthorization from "@/components/AuthProvider/withAuthorization";
 import Cabecalho from "@/components/Layout/Interno/Cabecalho";
 import { generica } from "@/utils/api";
 import { useEffect, useState } from "react";
@@ -307,11 +306,14 @@ const PageLista = () => {
     }
 
     // Preparar dados de recurso por tipo
+    console.log("Relatório recebido:", relatorio);
+    alert("aqui desgraça")
     const recursoPorTipo = relatorio.valorTotalPorTipoBeneficio.map(item => ({
       tipo: item.tipoBeneficioNome,
       valor: item.valorTotal
     })).sort((a, b) => b.valor - a.valor);
-
+    
+    alert(relatorio.quantidadeBeneficiadosPorCurso);
     // Preparar dados de percentual por curso
     const totalBeneficiados = relatorio.quantidadePessoasAtendidas;
     const percentualPorCurso = relatorio.quantidadeBeneficiadosPorCurso.map(item => ({
@@ -440,10 +442,13 @@ const PageLista = () => {
         uri: "/prae/beneficio/relatorio/financeiro",
         params,
         data: {},
+        withCredentials: false
       };
 
       const responseRelatorio = await generica(relatorioBody);
-
+      console.log("Resposta da API - Relatório Financeiro:", responseRelatorio);
+      alert("Resposta da API recebida. Ver console para detalhes.");
+      
       if (responseRelatorio?.data?.errors || responseRelatorio?.data?.error) {
         toast.error("Erro ao carregar relatório financeiro. Tente novamente!", {
           position: "bottom-left",
@@ -889,4 +894,4 @@ const PageLista = () => {
   );
 };
 
-export default withAuthorization(PageLista);
+export default (PageLista);

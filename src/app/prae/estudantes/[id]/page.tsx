@@ -427,12 +427,26 @@ const cadastro = () => {
       documentos,
       ...rest
     } = item;
-    return {
+    let formData = new FormData();
+
+    let dadosFormatado = {
       ...rest,
       endereco: { cep, rua, complemento, numero, bairro, cidade, estado },
-      rendaPercapta: Number(rendaPercapta),
-      documentos: documentos,
+      rendaPercapta: Number(rendaPercapta)
     };
+    
+    formData.append("dados", new Blob([JSON.stringify(dadosFormatado)], { type: "application/json" }));
+
+    if (documentos) {
+      Object.keys(documentos).forEach((tipoDocumento) => {
+        const file = documentos[tipoDocumento];
+        if (file) {
+          formData.append("arquivos", file, `${tipoDocumento}-${file.name}`);
+        }
+      });
+    }
+
+    return formData;
   };
 
   const endereco = useEnderecoByCep(cepParaBusca);
@@ -542,7 +556,7 @@ const cadastro = () => {
         data: dataToSend,
       };
 
-      const response = await generica(body);
+      const response = await genericaMultiForm(body);
 
       if (!response || response.status < 200 || response.status >= 300) {
         toast.error("Erro ao salvar cadastro");

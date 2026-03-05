@@ -22,7 +22,7 @@ export default function Login() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    if (isAuthenticated) router.push('/home');
+    if (isAuthenticated) router.push("/home");
     const emails = JSON.parse(localStorage.getItem("sgu_saved_emails") || "[]");
     setSavedEmails(emails);
     if (emails.length === 0) {
@@ -46,7 +46,9 @@ export default function Login() {
   };
 
   const handleRemoveEmail = (emailToRemove: string) => {
-    const updatedEmails = savedEmails.filter(email => email !== emailToRemove);
+    const updatedEmails = savedEmails.filter(
+      (email) => email !== emailToRemove,
+    );
     setSavedEmails(updatedEmails);
     localStorage.setItem("sgu_saved_emails", JSON.stringify(updatedEmails));
   };
@@ -55,11 +57,11 @@ export default function Login() {
     event.preventDefault();
     setErrorMessage("");
     const dataForm = new FormData(event.currentTarget);
-    const userEmail = dataForm.get('email') as string;
-    const userPassword = dataForm.get('password') as string;
+    const userEmail = dataForm.get("email") as string;
+    const userPassword = dataForm.get("password") as string;
 
     // Basic client-side validation
-    if (!userEmail || !userEmail.includes('@')) {
+    if (!userEmail || !userEmail.includes("@")) {
       setErrorMessage("Por favor, informe um e-mail válido.");
       return;
     }
@@ -80,7 +82,9 @@ export default function Login() {
       await login(userEmail, userPassword);
 
       if (remember) {
-        const updatedEmails = savedEmails.filter(email => email !== userEmail);
+        const updatedEmails = savedEmails.filter(
+          (email) => email !== userEmail,
+        );
         updatedEmails.push(userEmail);
         localStorage.setItem("sgu_saved_emails", JSON.stringify(updatedEmails));
       }
@@ -94,14 +98,15 @@ export default function Login() {
         hideProgressBar: false,
       });
 
-      router.push('/home');
+      router.push("/home");
     } catch (error: any) {
-      console.error('Erro ao fazer o login:', error);
+      console.error("Erro ao fazer o login:", error);
 
       let errorMsg = "Erro ao fazer o login.";
 
-      if (error.message?.includes('400') || error.response?.status === 400) {
-        errorMsg = "Conta não confirmada. Verifique seu e-mail para confirmar sua conta antes de fazer login.";
+      if (error.message?.includes("400") || error.response?.status === 400) {
+        errorMsg =
+          "Conta não confirmada. Verifique seu e-mail para confirmar sua conta antes de fazer login.";
       } else if (error.message) {
         errorMsg = error.message;
       }
@@ -134,8 +139,18 @@ export default function Login() {
           Sistema de Gestão
         </h1>
         <p className="text-neutrals-600 text-body-large leading-relaxed text-left">
-          O sistema de gestão universitária tem como finalidade simplificar e otimizar os processos da unidade acadêmica, oferecendo uma plataforma moderna e intuitiva para apoiar gestores, professores, colaboradores e alunos no acesso e na organização das atividades acadêmicas, promovendo eficiência e transparência.
+          O sistema de gestão universitária tem como finalidade simplificar e
+          otimizar os processos da unidade acadêmica, oferecendo uma plataforma
+          moderna e intuitiva para apoiar gestores, professores, colaboradores e
+          alunos no acesso e na organização das atividades acadêmicas,
+          promovendo eficiência e transparência.
         </p>
+        <button
+          onClick={() => router.push("/relatorio-financeiro")}
+          className="mt-6 bg-extra-50 text-white px-6 py-3 rounded-full font-semibold hover:bg-extra-150 transition"
+        >
+          Ver Relatório Financeiro Público
+        </button>
       </section>
 
       <section className="flex flex-1 items-center justify-center px-4 sm:px-6 py-8 sm:py-10 w-full">
@@ -225,8 +240,9 @@ export default function Login() {
                         id="remember"
                         aria-describedby="remember"
                         type="checkbox"
-                        className={`w-4 h-4 ${errorMessage ? "border-red-500" : "border-gray-300"
-                          } rounded bg-gray-50 focus:ring-3 focus:ring-primary-300`}
+                        className={`w-4 h-4 ${
+                          errorMessage ? "border-red-500" : "border-gray-300"
+                        } rounded bg-gray-50 focus:ring-3 focus:ring-primary-300`}
                         checked={remember}
                         onChange={(e) => setRemember(e.target.checked)}
                       />
@@ -299,7 +315,9 @@ export default function Login() {
                   ))}
                 </ul>
               ) : (
-                <p className="text-gray-500 text-center text-sm sm:text-base">Nenhum e-mail salvo encontrado.</p>
+                <p className="text-gray-500 text-center text-sm sm:text-base">
+                  Nenhum e-mail salvo encontrado.
+                </p>
               )}
               <button
                 onClick={handleOtherLogin}
