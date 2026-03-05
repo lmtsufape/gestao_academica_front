@@ -1,7 +1,7 @@
 "use client"
 import withAuthorization from '@/components/AuthProvider/withAuthorization';
 import Cabecalho from '@/components/Layout/Interno/Cabecalho';
-import Tabela from '../../../../../components/Tabela/Estrutura';
+import Tabela from '../meus-agendamentos/tabela/tabela';
 import { generica } from '@/utils/api';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -134,13 +134,13 @@ const PageLista = () => {
       cancelButtonColor: '#9F2A1A',
       customClass: {
         container: 'swal-container',
-        popup: 'rounded-xl shadow-2xl border border-gray-100',
+        popup: 'rounded-xl shadow-2xl border border-gray-100 px-6 pb-6 pt-4',
         title: 'text-2xl font-bold text-gray-800',
         icon: 'swal-question-red',
-        htmlContainer: 'text-gray-600',
+        htmlContainer: 'text-gray-800',
         confirmButton: 'px-6 py-2 rounded-lg font-medium',
         cancelButton: 'px-6 py-2 rounded-lg font-medium mr-2',
-        input: 'mt-2 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+        input: 'mt-2 px-3 py-2 border border-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'
       }
     };
 
