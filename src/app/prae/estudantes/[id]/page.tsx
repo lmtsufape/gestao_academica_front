@@ -434,7 +434,7 @@ const cadastro = () => {
       endereco: { cep, rua, complemento, numero, bairro, cidade, estado },
       rendaPercapta: Number(rendaPercapta)
     };
-    
+    /*
     formData.append("dados", new Blob([JSON.stringify(dadosFormatado)], { type: "application/json" }));
 
     if (documentos) {
@@ -445,8 +445,8 @@ const cadastro = () => {
         }
       });
     }
-
-    return formData;
+    */
+    return dadosFormatado;
   };
 
   const endereco = useEnderecoByCep(cepParaBusca);
@@ -548,7 +548,7 @@ const cadastro = () => {
       if (!checarObrigatorios()) return;
 
       const dataToSend = transformarDados(item);
-
+      console.log(dataToSend)
       const body = {
         metodo: isEditMode ? "patch" : "post",
         uri: "/prae/" + estrutura.uri,
