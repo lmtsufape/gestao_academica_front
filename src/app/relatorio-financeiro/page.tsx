@@ -113,14 +113,16 @@ type RelatorioFinanceiroResponse = {
   quantidadePessoasAtendidas: number;
   quantidadeTiposBeneficio: number;
   quantidadeCursosDistintos: number;
+
   valorTotalPorTipoBeneficio: Array<{
-    tipoBeneficioNome: string;
     tipoBeneficioId: number;
+    descricao: string;
     valorTotal: number;
   }>;
+
   quantidadeBeneficiadosPorCurso: Array<{
-    cursoNome: string;
     cursoId: number;
+    cursoNome: string;
     quantidadeBeneficiados: number;
   }>;
 };
@@ -291,52 +293,52 @@ const PageLista = () => {
 
   // Processar dados da API
   const processarDados = (relatorio: RelatorioFinanceiroResponse) => {
-    if (!relatorio) {
-      setDadosCalculados({
-        totalRecurso: 0,
-        pessoasAtendidas: 0,
-        tiposBeneficio: 0,
-        cursosDistintos: 0,
-        recursoPorTipo: [],
-        percentualPorCurso: [],
-        tiposUnicos: [],
-        cursosUnicos: [],
-      });
-      return;
-    }
-
-    // Preparar dados de recurso por tipo
-    console.log("Relatório recebido:", relatorio);
-    alert("aqui desgraça")
-    const recursoPorTipo = relatorio.valorTotalPorTipoBeneficio.map(item => ({
-      tipo: item.tipoBeneficioNome,
-      valor: item.valorTotal
-    })).sort((a, b) => b.valor - a.valor);
-    
-    alert(relatorio.quantidadeBeneficiadosPorCurso);
-    // Preparar dados de percentual por curso
-    const totalBeneficiados = relatorio.quantidadePessoasAtendidas;
-    const percentualPorCurso = relatorio.quantidadeBeneficiadosPorCurso.map(item => ({
-      curso: item.cursoNome,
-      quantidade: item.quantidadeBeneficiados,
-      percentual: totalBeneficiados > 0 ? (item.quantidadeBeneficiados / totalBeneficiados) * 100 : 0
-    })).sort((a, b) => b.quantidade - a.quantidade);
-
-    // Extrair tipos e cursos únicos
-    const tiposUnicos = relatorio.valorTotalPorTipoBeneficio.map(item => item.tipoBeneficioNome);
-    const cursosUnicos = relatorio.quantidadeBeneficiadosPorCurso.map(item => item.cursoNome);
-
+  if (!relatorio) {
     setDadosCalculados({
-      totalRecurso: relatorio.totalGeral,
-      pessoasAtendidas: relatorio.quantidadePessoasAtendidas,
-      tiposBeneficio: relatorio.quantidadeTiposBeneficio,
-      cursosDistintos: relatorio.quantidadeCursosDistintos,
-      recursoPorTipo,
-      percentualPorCurso,
-      tiposUnicos,
-      cursosUnicos,
+      totalRecurso: 0,
+      pessoasAtendidas: 0,
+      tiposBeneficio: 0,
+      cursosDistintos: 0,
+      recursoPorTipo: [],
+      percentualPorCurso: [],
+      tiposUnicos: [],
+      cursosUnicos: [],
     });
-  };
+    return;
+  }
+
+  const valorTotalPorTipo = relatorio.valorTotalPorTipoBeneficio ?? [];
+  const beneficiadosPorCurso = relatorio.quantidadeBeneficiadosPorCurso ?? [];
+
+  // 🔵 GRAFICO 1 - RECURSO POR TIPO DE BENEFÍCIO
+  const recursoPorTipo = valorTotalPorTipo.map((item) => ({
+    tipo: item.descricao,   // aqui estava o erro
+    valor: item.valorTotal
+  }));
+
+  // 🔵 GRAFICO 2 - DISTRIBUIÇÃO POR CURSO
+  const totalBeneficiados = relatorio.quantidadePessoasAtendidas ?? 0;
+
+  const percentualPorCurso = beneficiadosPorCurso.map((item) => ({
+    curso: item.cursoNome,
+    quantidade: item.quantidadeBeneficiados,
+    percentual:
+      totalBeneficiados > 0
+        ? (item.quantidadeBeneficiados / totalBeneficiados) * 100
+        : 0
+  }));
+
+  setDadosCalculados({
+    totalRecurso: relatorio.totalGeral ?? 0,
+    pessoasAtendidas: relatorio.quantidadePessoasAtendidas ?? 0,
+    tiposBeneficio: relatorio.quantidadeTiposBeneficio ?? 0,
+    cursosDistintos: relatorio.quantidadeCursosDistintos ?? 0,
+    recursoPorTipo,
+    percentualPorCurso,
+    tiposUnicos: valorTotalPorTipo.map((i) => i.descricao),
+    cursosUnicos: beneficiadosPorCurso.map((i) => i.cursoNome),
+  });
+};
 
   // Dados para gráfico de barras (Recurso por tipo de benefício)
   const dadosGraficoBarra = {
@@ -446,9 +448,7 @@ const PageLista = () => {
       };
 
       const responseRelatorio = await generica(relatorioBody);
-      console.log("Resposta da API - Relatório Financeiro:", responseRelatorio);
-      alert("Resposta da API recebida. Ver console para detalhes.");
-      
+    
       if (responseRelatorio?.data?.errors || responseRelatorio?.data?.error) {
         toast.error("Erro ao carregar relatório financeiro. Tente novamente!", {
           position: "bottom-left",
@@ -488,7 +488,7 @@ const PageLista = () => {
           position: "bottom-left",
         });
       } else {
-        setTiposDisponiveis(response.data.content);
+        setTiposDisponiveis(response?.data?.content ?? []);
       }
     } catch (error) {
       console.error("Erro ao carregar tipos de benefício:", error);
@@ -657,7 +657,7 @@ const PageLista = () => {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 appearance-none bg-white transition-all duration-200"
                 >
                   <option value="todos">Todos os tipos de benefício</option>
-                  {tiposDisponiveis.map((tipo, index) => (
+                  {(tiposDisponiveis ?? []).map((tipo, index) => (
                     <option key={index} value={tipo.tipo}>
                       {tipo.tipo}
                     </option>
