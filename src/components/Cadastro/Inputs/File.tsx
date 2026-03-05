@@ -4,13 +4,15 @@ import { generica } from "@/utils/api";
 import { toast } from 'react-toastify';
 
 interface FileProps {
-  onChange: (event: { target: { name: string; value: string } }) => void;
+  onChange: (event: { target: { name: string; value: any } }) => void;
   name: string;
   message: string;
   label: string;
   required: boolean;
   disabled: boolean;
-  dir: string;
+  dir?: string;
+  localMode?: boolean; // Se true, não faz upload, apenas retorna o File
+  accept?: string; // Tipos de arquivo aceitos (ex: ".pdf,.csv")
 }
 
 export default function File({
@@ -20,7 +22,9 @@ export default function File({
   label,
   required,
   disabled,
-  dir
+  dir,
+  localMode = false,
+  accept = ".csv",
 }: FileProps) {
 	const [loading, setLoading] = useState<boolean>(false);
 	const [uploadComplete, setUploadComplete] = useState<boolean>(false);
@@ -29,13 +33,19 @@ export default function File({
     	const { name, files } = event.target;
 
     	if (files?.length === 0) return;
+
+    	// Modo local: apenas retorna o arquivo sem fazer upload
+    	if (localMode) {
+    		onChange({ target: { name, value: files![0] } });
+    		return;
+    	}
     	
     	setLoading(true);
     	setUploadComplete(false);
 
     	const formData = new FormData();
     	formData.append('file', files![0]);
-    	formData.append('dir', dir);
+    	formData.append('dir', dir || '');
 
     	const body = {
       		metodo: 'post',
@@ -81,7 +91,7 @@ export default function File({
         onChange={handleFileChange}
         disabled={disabled}
         required={required}
-        accept=".csv"
+        accept={accept}
       />
       {loading && (<div className="ml-2  animate-spin  w-8 h-8 border-4 rounded-full border-t-gray-900 border-gray-500"></div>)}
     </>

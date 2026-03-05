@@ -21,6 +21,9 @@ export type Campo = {
   maxFileSizeMessage?: string;
   mode?: string;
   allowNegative?: boolean; // opcional para campos como money-brl
+  dir?: string; // diretório para upload de arquivos
+  localMode?: boolean; // se true, não faz upload automático, apenas retorna o File
+  accept?: string; // tipos de arquivo aceitos (ex: ".pdf,.csv")
 };
 
 export type ChamarFuncao = (acao: string, dados?: any) => void;
