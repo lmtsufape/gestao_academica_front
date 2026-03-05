@@ -183,7 +183,7 @@ const PageConfirmarPagamento = () => {
 
         // Limpar sessionStorage e voltar para a página anterior
         sessionStorage.removeItem("pagamentosSelecionados");
-        router.push("/prae/pagamentos/pagamentos-realizados");
+        router.push("/prae/pagamentos/beneficiarios-pagos");
       }
 
      

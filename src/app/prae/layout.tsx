@@ -127,7 +127,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
             },
              {
               label: "Relatório Financeiro",
-              route: "/prae/pagamentos/relatorio-financeiro",
+              route: "/relatorio-financeiro",
               icon: <Assessment fontSize="small" className="text-white" />,
             }, 
           ],
