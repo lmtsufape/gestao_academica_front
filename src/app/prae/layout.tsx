@@ -148,7 +148,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
               label: "Gerenciar Cronograma",
               route: "/prae/agendamentos/cronograma",
               icon: <Schedule fontSize="small" className="text-white" />, // Ícone de cronograma
-              roles: isPraeAccess ? ["gestor", "tecnico", "professor"] : [""],
+              roles: isPraeAccess ? ["tecnico", "professor"] : [""],
             },
             {
               label: "Calendário de Agendamentos",

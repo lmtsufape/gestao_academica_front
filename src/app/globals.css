@@ -134,3 +134,12 @@
 option {
   text-align: center;
 }
+
+.swal-question-red.swal2-icon.swal2-question {
+  border-color: #9F2A1A !important;
+  color: #9F2A1A !important;
+}
+
+.swal-question-red .swal2-icon-content {
+  color: #9F2A1A !important;
+}

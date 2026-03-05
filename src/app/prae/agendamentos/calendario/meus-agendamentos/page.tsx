@@ -130,12 +130,13 @@ const PageLista = () => {
     // Estilo personalizado para os alerts
     const swalDesign = {
       background: '#f8fafc',
-      confirmButtonColor: '#1A759F',
+      confirmButtonColor: '#393C47',
       cancelButtonColor: '#9F2A1A',
       customClass: {
         container: 'swal-container',
         popup: 'rounded-xl shadow-2xl border border-gray-100',
         title: 'text-2xl font-bold text-gray-800',
+        icon: 'swal-question-red',
         htmlContainer: 'text-gray-600',
         confirmButton: 'px-6 py-2 rounded-lg font-medium',
         cancelButton: 'px-6 py-2 rounded-lg font-medium mr-2',
@@ -158,7 +159,7 @@ const PageLista = () => {
     `,
       icon: 'question',
       showCancelButton: true,
-      confirmButtonText: 'Continuar',
+      confirmButtonText: 'Continuar', 
       cancelButtonText: 'Manter agendamento',
       ...swalDesign
     });
