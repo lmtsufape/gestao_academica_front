@@ -14,6 +14,7 @@ const estrutura: any = {
         migalha: [
             { nome: 'Início', link: '/home' },
             { nome: 'Extra Sisu', link: '/gestao-extra-sisu' },
+            { nome: 'Editais', link: '/gestao-extra-sisu/editais' },
         ]
     },
 
@@ -34,6 +35,7 @@ const estrutura: any = {
             { nome: "Ações", chave: "acoes", tipo: "button", sort: false, pesquisar: false },
         ],
         acoes_dropdown: [
+            { nome: 'Visualizar', chave: 'visualizar' },
             { nome: 'Editar', chave: 'editar' },
             { nome: 'Deletar', chave: 'deletar' },
         ]
@@ -64,6 +66,9 @@ const PageListaExtraSisu = () => {
                 break;
             case 'editar':
                 editarRegistro(valor);
+                break;
+            case 'visualizar':
+                visualizarRegistro(valor);
                 break;
             case 'deletar':
                 deletarRegistro(valor);
@@ -105,6 +110,10 @@ const PageListaExtraSisu = () => {
     
     const editarRegistro = (item: any) => {
         router.push('/gestao-extra-sisu/editais/' + item.id);
+    };
+
+    const visualizarRegistro = (item: any) => {
+        router.push('/gestao-extra-sisu/editais/' + item.id + '/visualizar');
     };
 
     const deletarRegistro = async (item: any) => {
