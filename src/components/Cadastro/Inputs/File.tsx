@@ -10,6 +10,7 @@ interface FileProps {
   label: string;
   required: boolean;
   disabled: boolean;
+  value?: any;
   dir?: string;
   localMode?: boolean; // Se true, não faz upload, apenas retorna o File
   accept?: string; // Tipos de arquivo aceitos (ex: ".pdf,.csv")
@@ -22,6 +23,7 @@ export default function File({
   label,
   required,
   disabled,
+  value,
   dir,
   localMode = false,
   accept = ".csv",
@@ -82,6 +84,26 @@ export default function File({
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
+      {typeof value === "string" && value.trim() !== "" && (
+        <div className="mt-1 mb-2">
+          <a
+            href={value}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-extra-150 underline"
+          >
+            Visualizar arquivo atual
+          </a>
+          <div className="mt-3 border rounded-md overflow-hidden">
+            <iframe
+              src={value}
+              title="Preview do edital"
+              className="w-full h-80"
+              style={{ border: "none" }}
+            />
+          </div>
+        </div>
+      )}
       <input
         type="file"
         id={name}
