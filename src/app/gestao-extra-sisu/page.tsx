@@ -88,6 +88,17 @@ export default function GestaoExtraSisuHome() {
       disponivel: true,
       roles: ["administrador", "gestor"],
     },
+      {
+      id: "isencao",
+      titulo: "Isenção",
+      descricao: "Obtenha isenção de pagamento de inscrição",
+      icone: <Person className="w-8 h-8" />,
+      rota: "/gestao-extra-sisu/isencao",
+      cor: "bg-purple-500",
+      corHover: "hover:bg-purple-600",
+      disponivel: true,
+      roles: ["administrador", "gestor"],
+    },
   ];
 
   const todasAcoesRapidas = [
