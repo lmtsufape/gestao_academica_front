@@ -36,7 +36,6 @@ const estrutura: any = {
         acoes_dropdown: [
             { nome: 'Editar', chave: 'editar' },
             { nome: 'Deletar', chave: 'deletar' },
-            { nome: 'Visualizar', chave: 'visualizar', icon: 'Eye' },
         ]
     }
 }
@@ -68,9 +67,6 @@ const PageListaExtraSisu = () => {
                 break;
             case 'deletar':
                 deletarRegistro(valor);
-                break;
-            case 'visualizar': 
-                visualizarEdital(valor);
                 break;
             default:
                 break;
@@ -105,10 +101,6 @@ const PageListaExtraSisu = () => {
 
     const adicionarRegistro = () => {
         router.push('/gestao-extra-sisu/editais/criar');
-    };
-
-    const visualizarEdital = (item: any) => {
-        router.push('/gestao-extra-sisu/landingPage/' + item.id);
     };
     
     const editarRegistro = (item: any) => {
