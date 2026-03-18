@@ -3,13 +3,11 @@
 import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Assignment,
   Description,
-  Visibility,
   Add,
   Speed,
   Info,
-  Edit,
+  ListAlt,
   Person,
   CheckCircle,
 } from "@mui/icons-material";
@@ -58,13 +56,13 @@ export default function GestaoExtraSisuHome() {
     {
       id: "inscricoes",
       titulo: "Inscrições",
-      descricao: "Gerencie as inscrições dos candidatos",
-      icone: <Assignment className="w-8 h-8" />,
-      rota: "/gestao-extra-sisu/inscricoes",
+      descricao: "Acompanhe inscrições e seus status",
+      icone: <ListAlt className="w-8 h-8" />,
+      rota: "/gestao-extra-sisu/minhas-inscricoes",
       cor: "bg-green-500",
       corHover: "hover:bg-green-600",
       disponivel: true,
-      roles: ["administrador", "gestor"],
+      roles: ["administrador", "gestor", "tecnico", "professor", "profissional", "aluno", "visitante"],
     },
     {
       id: "candidatos",
@@ -74,7 +72,7 @@ export default function GestaoExtraSisuHome() {
       rota: "/gestao-extra-sisu/candidatos",
       cor: "bg-purple-500",
       corHover: "hover:bg-purple-600",
-      disponivel: true,
+      disponivel: false,
       roles: ["administrador", "gestor"],
     },
     {
@@ -85,7 +83,7 @@ export default function GestaoExtraSisuHome() {
       rota: "/gestao-extra-sisu/resultado",
       cor: "bg-orange-500",
       corHover: "hover:bg-orange-600",
-      disponivel: true,
+      disponivel: false,
       roles: ["administrador", "gestor"],
     },
       {
@@ -104,8 +102,8 @@ export default function GestaoExtraSisuHome() {
   const todasAcoesRapidas = [
     {
       id: "novo-tipo-edital-extra-sisu",
-      titulo: "Novo Tipo de Edital Extra Sisu",
-      descricao: "Criar um novo tipo de edital Extra Sisu",
+      titulo: "Novo Edital Extra Sisu",
+      descricao: "Cadastrar um novo edital do Extra Sisu",
       icone: <Add className="w-8 h-8" />,
       rota: "/gestao-extra-sisu/editais/criar",
       cor: "bg-teal-500",
@@ -212,9 +210,8 @@ export default function GestaoExtraSisuHome() {
             </h3>
           </div>
           <p className="text-primary-700 text-sm leading-relaxed">
-            O módulo Extra Sisu permite gerenciar ofertas complementares fora do
-            SISU. Aqui você pode criar editais, gerenciar inscrições, avaliar
-            candidatos e publicar resultados de forma transparente e organizada.
+            O módulo Extra Sisu concentra o acompanhamento dos editais complementares,
+            das etapas administrativas e do status das inscrições vinculadas ao processo.
           </p>
         </div>
       </div>

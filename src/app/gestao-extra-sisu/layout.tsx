@@ -1,6 +1,12 @@
 import React from "react";
 import ClientWrapper from "@/components/AuthProvider/ClientWrapper";
-import { Article, PendingActions, Description, AccountCircleOutlined, Home, List, Folder, Timeline, Assignment } from "@mui/icons-material";
+import {
+  PendingActions,
+  Description,
+  AccountCircleOutlined,
+  Home,
+  ListAlt,
+} from "@mui/icons-material";
 import { InternalLayoutConfig } from "@/types/InternalLayoutConf";
 
 export default function EditaisLayout({ children }: { children: React.ReactNode }) {
@@ -13,7 +19,7 @@ export default function EditaisLayout({ children }: { children: React.ReactNode 
         alt: "Logo Auth",
         position: "left",
       },
-      title: "Gestão de Editais",
+      title: "Gestão Extra Sisu",
       userActions: [
         {
           label: "Minha conta",
@@ -46,7 +52,13 @@ export default function EditaisLayout({ children }: { children: React.ReactNode 
           route: "/gestao-extra-sisu/editais",
           icon: <Description fontSize="small" className="text-white" />,
           roles: ["administrador", "gestor", "tecnico"],
-        }, 
+        },
+        {
+          label: "Minhas Inscricoes",
+          route: "/gestao-extra-sisu/minhas-inscricoes",
+          icon: <ListAlt fontSize="small" className="text-white" />,
+          roles: ["administrador", "gestor", "tecnico", "professor", "profissional", "aluno", "visitante"],
+        },
       ],
     },
   };
