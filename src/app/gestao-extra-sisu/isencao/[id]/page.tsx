@@ -16,13 +16,13 @@ export default function IsencaoPage() {
   useEffect(() => {
     async function carregarIdUsuario() {
       try {
-        // Busca apenas o ID e dados iniciais do módulo Auth
+        // Busca dados do módulo Auth
         const response = await api.get("/auth/me"); 
         
         if (response.data) {
           setUsuario(prev => ({
             ...prev,
-            id: response.data.id // Garante que o ID seja persistido do Auth
+            id: response.data.id 
           }));
         }
       } catch (error) {
@@ -36,10 +36,10 @@ export default function IsencaoPage() {
   }, []);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Simulação de upload. No mundo real, você enviaria para um S3/Firebase e pegaria a URL.
+    // upload
     if (e.target.files) {
       const file = e.target.files[0];
-      setDocumentos([file.name]); // Armazenando o nome/referência para o backend
+      setDocumentos([file.name]); 
     }
   };
 
@@ -51,10 +51,10 @@ export default function IsencaoPage() {
 
     try {
       const payload = {
-        usuarioId: usuario.id, // ID vindo do Auth (não editável)
+        usuarioId: usuario.id, // ID  do Auth
         editalId: Number(editalId),
         modalidadeId: Number(modalidadeId),
-        documentoUrl: documentos // Lista de URLs/nomes de arquivos
+        documentoUrl: documentos 
       };
 
       await api.post("/isencoes", payload);
@@ -127,7 +127,7 @@ export default function IsencaoPage() {
 
       <button 
         onClick={handleSubmit}
-        disabled={!usuario.id || !modalidadeId || documentos.length === 0}
+        disabled={!modalidadeId || documentos.length === 0}
         className="mt-8 w-full md:w-auto bg-blue-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-blue-700 transition-colors disabled:bg-gray-400"
       >
         Confirmar e Enviar Solicitação

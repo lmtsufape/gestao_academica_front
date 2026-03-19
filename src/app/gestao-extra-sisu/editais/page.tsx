@@ -35,10 +35,15 @@ const estrutura: any = {
             { nome: "Ações", chave: "acoes", tipo: "button", sort: false, pesquisar: false },
         ],
         acoes_dropdown: [
+            {   nome: 'LandingPage', 
+                chave: 'landingPage', 
+                icon: 'Monitor',
+                cor: 'text-blue-600'
+            },
             { nome: 'Visualizar', chave: 'visualizar' },
             { nome: 'Editar', chave: 'editar' },
             { nome: 'Deletar', chave: 'deletar' },
-            { nome: 'Visualizar', chave: 'visualizar', icon: 'Eye' },
+            
         ]
     }
 }
@@ -57,6 +62,7 @@ const PageListaExtraSisu = () => {
         return dataISO;
     };
 
+
     const chamarFuncao = (nomeFuncao = "", valor: any = null) => {
         switch (nomeFuncao) {
             case 'pesquisar':
@@ -74,8 +80,8 @@ const PageListaExtraSisu = () => {
             case 'deletar':
                 deletarRegistro(valor);
                 break;
-            case 'visualizar': 
-                visualizarEdital(valor);
+            case 'landingPage': 
+                LandingPage(valor);
                 break;
             default:
                 break;
@@ -111,18 +117,13 @@ const PageListaExtraSisu = () => {
     const adicionarRegistro = () => {
         router.push('/gestao-extra-sisu/editais/criar');
     };
+
     
     const editarRegistro = (item: any) => {
         router.push('/gestao-extra-sisu/editais/' + item.id);
     };
 
-    const visualizarEdital = (item: any) => {
-        router.push('/gestao-extra-sisu/landingPage/' + item.id);
-    const visualizarRegistro = (item: any) => {
-        router.push('/gestao-extra-sisu/editais/' + item.id + '/visualizar');
-    };
-
-    const deletarRegistro = async (item: any) => {
+        const deletarRegistro = async (item: any) => {
         try {
             const body = {
                 metodo: 'delete',
@@ -137,6 +138,16 @@ const PageListaExtraSisu = () => {
                 console.error('Erro ao deletar registro:', error);
             }
     };
+
+    const LandingPage = (item: any) => {
+    router.push(`/gestao-extra-sisu/landingPage/${item.id}`);
+};
+        
+
+    const visualizarRegistro = (item: any) => {
+        router.push('/gestao-extra-sisu/editais/' + item.id + '/visualizar');
+    };
+
 
     useEffect(() => {
         chamarFuncao('pesquisar', null);
@@ -154,6 +165,7 @@ const PageListaExtraSisu = () => {
             </div>
         </main>
     );
+    
 };
 
 export default withAuthorization(PageListaExtraSisu);
