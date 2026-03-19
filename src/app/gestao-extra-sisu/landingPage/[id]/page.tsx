@@ -63,7 +63,7 @@ const PageEvento = () => {
 
         <div className="mt-8 flex flex-col md:flex-row gap-8 items-start">
           
-          /* Banner*/
+          {/* Banner*/}
           <div className="w-full md:w-3/5 h-64 rounded-lg overflow-hidden flex shadow-sm border border-gray-100">
             <div className="bg-[#0a1618] flex-1"></div>
             <div className="bg-[#0e2a30] flex-1"></div>
@@ -73,7 +73,7 @@ const PageEvento = () => {
             <div className="bg-[#2eb9d6] flex-1"></div>
           </div>
 
-          /* Dados */
+          {/* Dados */}
           <div className="w-full md:w-2/5 space-y-5">
             <h2 className="text-[#003d3d] text-2xl font-bold leading-tight uppercase">
               {edital?.titulo || "Título não disponível"}
@@ -89,12 +89,24 @@ const PageEvento = () => {
                   </span>
                 </div>
               </div>
+              <div>
               <button 
                 onClick={() => router.push(`/gestao-extra-sisu/isencao/${edital.id}`)}
                 className="font-semibold text-orange-600 text-sm"
                 >
                 Solicitar Isenção
              </button>
+             </div>
+
+
+              <div>
+             <button 
+                onClick={() => router.push(`/gestao-extra-sisu/isencao/${edital.id}`)}
+                className="font-semibold text-orange-600 text-sm"
+                >
+                Realizar Inscrição
+             </button>
+             </div>
               
               <div className="flex items-center gap-3">
                 <FileText size={20} className="text-[#003d3d]" />
@@ -117,7 +129,7 @@ const PageEvento = () => {
           </div>
         </div>
 
-        /* Descrição */
+        {/* Descrição */}
         <section className="mt-12 border-t border-gray-100 pt-8">
           <h3 className="text-[#003d3d] text-xl font-bold mb-4">Sobre o processo</h3>
           <div className="bg-gray-50 p-6 rounded-xl border border-gray-100">
