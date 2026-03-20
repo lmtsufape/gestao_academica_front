@@ -135,6 +135,7 @@ const cadastroEdital = () => {
     const salvarRegistro = async (item: any) => {
         try {
             const dadosParaEnviar = { ...item };
+            console.log("DEBUG: Dados antes do envio:", dadosParaEnviar);
 
             //converte dadas para o formato esperado pela API ( date para local date time )
             if (dadosParaEnviar.dataPublicacao) {
