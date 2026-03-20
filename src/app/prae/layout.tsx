@@ -90,10 +90,15 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
               icon: <VolunteerActivism fontSize="small" className="text-white" />,
             },
             {
-              label: "Benefícios",
+              label: "Beneficiários",
               route: "/prae/beneficios/beneficios",
               icon: <VolunteerActivism fontSize="small" className="text-white" />,
             },
+            {
+              label: "Benefícios Inativos",
+              route: "/prae/beneficios/beneficios-inativos",
+              icon: <VolunteerActivism fontSize="small" className="text-white" />,
+            }
           ],
         },
         {
@@ -104,13 +109,13 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           subItems: [
             {
               label: "Folha de pagamento",
-              route: "/prae/pagamentos/folha-de-pagamento",
+              route: "/prae/pagamentos/folha-pagamento",
               icon: <PendingActions fontSize="small" className="text-white" />,
               roles: isPraeAccess ? ["gestor"] : [""],
             },
             {
               label: "Pagamentos Realizados",
-              route: "/prae/pagamentos/pagamentos-realizados",
+              route: "/prae/pagamentos/beneficiarios-pagos",
               icon: <DoneAll fontSize="small" className="text-white" />,
               roles: isPraeAccess ? ["gestor"] : [""],
             },
@@ -122,9 +127,8 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
             },
              {
               label: "Relatório Financeiro",
-              route: "/prae/pagamentos/relatorio-financeiro",
+              route: "/relatorio-financeiro",
               icon: <Assessment fontSize="small" className="text-white" />,
-              roles: isPraeAccess ? ["gestor"] : [""],
             }, 
           ],
         },
@@ -144,7 +148,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
               label: "Gerenciar Cronograma",
               route: "/prae/agendamentos/cronograma",
               icon: <Schedule fontSize="small" className="text-white" />, // Ícone de cronograma
-              roles: isPraeAccess ? ["gestor", "tecnico", "professor"] : [""],
+              roles: isPraeAccess ? ["tecnico", "professor"] : [""],
             },
             {
               label: "Calendário de Agendamentos",

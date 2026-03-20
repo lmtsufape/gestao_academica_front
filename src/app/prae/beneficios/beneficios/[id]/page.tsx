@@ -96,11 +96,11 @@ const cadastro = () => {
   const estrutura: any = {
     uri: "beneficio",
     cabecalho: {
-      titulo: isEditMode ? "Editar Benefício" : "Registrar Benefício",
+      titulo: isEditMode ? "Editar Beneficiário" : "Registrar Beneficiário",
       migalha: [
         { nome: "Home", link: "/home" },
         { nome: "Prae", link: "/prae" },
-        { nome: "Benefícios", link: "/prae/beneficio/beneficios" },
+        { nome: "Beneficiários", link: "/prae/beneficio/beneficios" },
         {
           nome: isEditMode ? "Editar" : "Criar",
           link: `/prae/beneficio/beneficios/${isEditMode ? id : "criar"}`,
@@ -565,10 +565,6 @@ const cadastro = () => {
               : "Sem texto de status"
           );
         }
-        toast.error(
-          `Erro na requisição (HTTP ${response?.status || "desconhecido"})`,
-          { position: "top-left" }
-        );
         return;
       }
       if (response.data?.errors) {
@@ -584,7 +580,7 @@ const cadastro = () => {
         toast(response.data.error.message, { position: "top-left" });
       } else {
         Swal.fire({
-          title: "Benefício salvo com sucesso!",
+          title: "Beneficiário salvo com sucesso!",
           icon: "success",
           confirmButtonText: "OK",
           confirmButtonColor: "#972E3F",

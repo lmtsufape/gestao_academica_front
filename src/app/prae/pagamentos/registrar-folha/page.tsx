@@ -42,7 +42,7 @@ const PageConfirmarPagamento = () => {
   const estrutura: any = {
     uri: "pagamento",
     cabecalho: {
-      titulo: "Confirmar Pagamentos",
+      titulo: "Registrar Folha de Pagamento",
       migalha: [
         { nome: "Home", link: "/home" },
         { nome: "Prae", link: "/prae" },
@@ -183,7 +183,7 @@ const PageConfirmarPagamento = () => {
 
         // Limpar sessionStorage e voltar para a página anterior
         sessionStorage.removeItem("pagamentosSelecionados");
-        router.push("/prae/pagamentos/pagamentos-realizados");
+        router.push("/prae/pagamentos/beneficiarios-pagos");
       }
 
      
@@ -250,7 +250,7 @@ const PageConfirmarPagamento = () => {
                       <button
                         onClick={() => removerPagamento(item.id)}
                         className="px-3 py-1 bg-extra-150 text-white rounded hover:bg-extra-50 transition duration-200 font-semibold text-sm"
-                        title="Remover pagamento"
+                        title="Remover beneficiário"
                       >
                         Remover
                       </button>

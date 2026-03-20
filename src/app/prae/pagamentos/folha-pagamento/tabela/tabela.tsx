@@ -254,7 +254,7 @@ const Tabela = ({
                 >
                   {itensSelecionados.size === linhas.length
                     ? "Desmarcar todos"
-                    : "Selecionar todos os pagamentos"}
+                    : "Selecionar todos os beneficiários"}
                 </button>
               )}
 

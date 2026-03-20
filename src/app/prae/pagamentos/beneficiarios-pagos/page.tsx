@@ -14,7 +14,7 @@ const estrutura: any = {
     uri: "/prae/pagamento",
 
     cabecalho: {
-        titulo: "Pagamentos Realizados",
+        titulo: "Beneficiários Pagos",
         migalha: [
             { nome: 'Home', link: '/home' },
             { nome: 'Prae', link: '/prae' },
@@ -78,7 +78,7 @@ const PageLista = () => {
             let body = {
                 metodo: 'get',
                 uri: estrutura.uri,
-                params: params != null ? params : { size: 10, page: 0 },
+                params: params != null ? params : { size: 10, page: 0, sort: 'data,desc' },
                 data: {}
             };
 
