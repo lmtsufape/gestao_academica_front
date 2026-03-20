@@ -60,7 +60,7 @@ export default function GestaoExtraSisuHome() {
       titulo: "Inscrições",
       descricao: "Gerencie as inscrições dos candidatos",
       icone: <Assignment className="w-8 h-8" />,
-      rota: "/gestao-extra-sisu/inscricoes",
+      rota: "/gestao-extra-sisu/inscricao",
       cor: "bg-green-500",
       corHover: "hover:bg-green-600",
       disponivel: true,
