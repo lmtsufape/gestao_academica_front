@@ -327,6 +327,16 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                                 className="px-4 py-4 whitespace-nowrap text-center w-40"
                               >
                                 <div className="flex items-center justify-center gap-2">
+                                  {/* Botão Editar - Só aparece para alunos */}
+                                  {estrutura.tabela.botoes?.some((botao: any) => botao.nome === 'Agendar') && (
+                                    <button
+                                      className="cursor-pointer font-bold inline-block px-3 py-1 bg-gray-100 text-extra-150 rounded hover:bg-gray-200 text-sm"
+                                      onClick={() => chamarFuncao('editar', item)}
+                                    >
+                                      Editar
+                                    </button>
+                                  )}
+                                  {/* Botão Cancelar (original) */}
                                   <button
                                     className="py-1.5 px-3 text-xs text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors duration-150"
                                     onClick={() => chamarFuncao('deletar', item)}
@@ -583,6 +593,16 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                           key={generateUniqueKey(cellKey, 'actions')}
                           className="mt-4 pt-4 border-t border-gray-200 flex flex-wrap gap-2 justify-center"
                         >
+                          {/* Botão Editar - Só aparece para alunos */}
+                          {estrutura.tabela.botoes?.some((botao: any) => botao.nome === 'Agendar') && (
+                            <button
+                              className="cursor-pointer font-bold inline-block px-3 py-1 bg-gray-100 text-extra-150 rounded hover:bg-gray-200 text-sm"
+                              onClick={() => chamarFuncao('editar', item)}
+                            >
+                              Editar
+                            </button>
+                          )}
+                          {/* Botão Cancelar (original) */}
                           <button
                             className="px-4 py-2 text-sm text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors duration-150"
                             onClick={() => chamarFuncao('deletar', item)}

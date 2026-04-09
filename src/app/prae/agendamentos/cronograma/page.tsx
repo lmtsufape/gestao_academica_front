@@ -35,13 +35,6 @@ const estrutura: any = {
         pesquisar: true,
       },
       {
-        nome: "Modalidade",
-        chave: "modalidade",
-        tipo: "texto",
-        sort: false,
-        pesquisar: true,
-      },
-      {
         nome: "Dia de Atendimento",
         chave: "data",
         tipo: "texto",

@@ -153,7 +153,7 @@ const PageLista = () => {
   try {
     const body = {
       metodo: 'post',
-      uri: `/prae/agendamento/agendar`,
+      uri: `/prae/agendamento`,
       params: {},
       data: {
         vagaId: slot.id,
