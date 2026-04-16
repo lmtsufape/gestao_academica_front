@@ -10,11 +10,10 @@ const estrutura: any = {
     uri: "",
 
     cabecalho: {
-        titulo: "Editais Extra Sisu",
+        titulo: "Inscrições",
         migalha: [
             { nome: 'Início', link: '/home' },
             { nome: 'Extra Sisu', link: '/gestao-extra-sisu' },
-            { nome: 'Editais', link: '/gestao-extra-sisu/editais' },
         ]
     },
 
@@ -35,15 +34,8 @@ const estrutura: any = {
             { nome: "Ações", chave: "acoes", tipo: "button", sort: false, pesquisar: false },
         ],
         acoes_dropdown: [
-            {   nome: 'LandingPage', 
-                chave: 'landingPage', 
-                icon: 'Monitor',
-                cor: 'text-blue-600'
-            },
-            { nome: 'Visualizar', chave: 'visualizar' },
             { nome: 'Editar', chave: 'editar' },
             { nome: 'Deletar', chave: 'deletar' },
-            
         ]
     }
 }
@@ -62,7 +54,6 @@ const PageListaExtraSisu = () => {
         return dataISO;
     };
 
-
     const chamarFuncao = (nomeFuncao = "", valor: any = null) => {
         switch (nomeFuncao) {
             case 'pesquisar':
@@ -74,14 +65,8 @@ const PageListaExtraSisu = () => {
             case 'editar':
                 editarRegistro(valor);
                 break;
-            case 'visualizar':
-                visualizarRegistro(valor);
-                break;
             case 'deletar':
                 deletarRegistro(valor);
-                break;
-            case 'landingPage': 
-                LandingPage(valor);
                 break;
             default:
                 break;
@@ -92,7 +77,7 @@ const PageListaExtraSisu = () => {
         try {
             let body = {
                 metodo: 'get',
-                uri: '/extra-sisu/editais',
+                uri: '/extra-sisu/inscricoes',
                 params: params != null ? params : { size: 10, page: 0 },
                 data: {}
             }
@@ -115,19 +100,18 @@ const PageListaExtraSisu = () => {
     };
 
     const adicionarRegistro = () => {
-        router.push('/gestao-extra-sisu/editais/criar');
+        router.push('/gestao-extra-sisu/inscricao/criar');
     };
-
     
     const editarRegistro = (item: any) => {
-        router.push('/gestao-extra-sisu/editais/' + item.id);
+        router.push('/gestao-extra-sisu/inscricao/' + item.id);
     };
 
-        const deletarRegistro = async (item: any) => {
+    const deletarRegistro = async (item: any) => {
         try {
             const body = {
                 metodo: 'delete',
-                uri: '/extra-sisu/editais/' + item.id,
+                uri: '/extra-sisu/inscricoes/' + item.id,
                 params: {},
             };
             const response = await generica(body);
@@ -138,16 +122,6 @@ const PageListaExtraSisu = () => {
                 console.error('Erro ao deletar registro:', error);
             }
     };
-
-    const LandingPage = (item: any) => {
-    router.push(`/gestao-extra-sisu/landingPage/${item.id}`);
-};
-        
-
-    const visualizarRegistro = (item: any) => {
-        router.push('/gestao-extra-sisu/editais/' + item.id + '/visualizar');
-    };
-
 
     useEffect(() => {
         chamarFuncao('pesquisar', null);
@@ -165,7 +139,6 @@ const PageListaExtraSisu = () => {
             </div>
         </main>
     );
-    
 };
 
 export default withAuthorization(PageListaExtraSisu);
