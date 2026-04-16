@@ -38,7 +38,7 @@ const CadastroTipoAtendimento = () => {
 
     const novosHorarios = [];
     const horaInicio = 8; // 08:00
-    const horaFim = 16;   // 16:00
+    const horaFim = 22;   // 16:00
 
     for (let minutosTotais = horaInicio * 60; minutosTotais <= horaFim * 60; minutosTotais += intervaloMinutos) {
       const h = Math.floor(minutosTotais / 60);

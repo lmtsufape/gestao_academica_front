@@ -3,11 +3,9 @@ import withAuthorization from '@/components/AuthProvider/withAuthorization';
 import Cabecalho from '@/components/Layout/Interno/Cabecalho';
 import Tabela from '@/components/Tabela/Estrutura';
 import { generica } from '@/utils/api';
-import { NoMeals } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import Swal from 'sweetalert2';
 
 const estrutura: any = {
 
@@ -34,9 +32,9 @@ const estrutura: any = {
             { nome: "Nome do Estudante", chave: "beneficio.estudantes.aluno.nome", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
             { nome: "CPF", chave: "beneficio.estudantes.aluno.cpf", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
             { nome: "Tipo Pagamento", chave: "beneficio.tipoBeneficio.tipo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-            { nome: "Valor Pago", chave: "valor", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-            { nome: "Data do Pagamento ", chave: "data", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-            { nome: "Mês de Referência", chave: "dataReferencia", tipo: "texto", selectOptions: null, sort: false, pesquisar: false },
+            { nome: "Valor Pago", chave: "valor", tipo: "valor", selectOptions: null, sort: false, pesquisar: true },
+            { nome: "Data do Pagamento ", chave: "data", tipo: "data", selectOptions: null, sort: true, pesquisar: false },
+            { nome: "Mês de Referência", chave: "dataReferencia", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
             { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
         ],
         acoes_dropdown: [

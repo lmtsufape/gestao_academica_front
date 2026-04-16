@@ -80,7 +80,7 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
             >
               {item.nome}
             </label>
-            {(item.tipo === 'texto' || item.tipo === 'json') &&
+            {(item.tipo === 'texto' || item.tipo === 'monetario' || item.tipo === 'json') &&
               !(item.selectOptions && item.selectOptions.length > 0) && (
                 <input
                   type="text"

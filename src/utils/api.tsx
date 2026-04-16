@@ -10,6 +10,7 @@ const PUBLIC_ROUTES = [
   '/conta/criar-conta',
   '/conta/recuperar-senha',
   '/conta/redefinir-senha',
+  '/relatorio-financeiro',
 ];
 
 axios.defaults.withCredentials = true;
