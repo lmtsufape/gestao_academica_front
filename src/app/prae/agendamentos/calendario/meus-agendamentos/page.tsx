@@ -387,37 +387,48 @@ const PageLista = () => {
 
     // 1. CONFIRMAÇÃO INICIAL
     const confirmacaoInicial = await Swal.fire({
-      title: "Confirmar cancelamento?",
+      title: "Cancelar agendamento",
       html: `
-      <div style="text-align:left; font-size:14px;">
-        <p style="margin-bottom:10px; color:#6b7280;">
-          Você está prestes a cancelar este atendimento:
-        </p>
+    <div style="font-size:14px; color:#374151;">
+      
+      <p style="margin-bottom:12px;">
+        Tem certeza que deseja cancelar este atendimento?
+      </p>
 
-        <div style="
-          background:#eff6ff;
-          padding:14px;
-          border-radius:10px;
-          border:1px solid #dbeafe;
-          margin-bottom:12px;
-        ">
-          <p style="margin:0; font-weight:600; color:#1e3a8a;">
-            ${item.tipoAtendimento}
-          </p>
-          <p style="margin:4px 0 0 0; color:#2563eb; font-size:13px;">
-            ${formatarDataHoraBR(item.data, item.vaga.horaInicio)}
-          </p>
+      <div style="
+        background:#f8fafc;
+        border:1px solid #e5e7eb;
+        border-radius:12px;
+        padding:14px;
+        margin-bottom:14px;
+      ">
+        <div style="font-weight:600; color:#111827; margin-bottom:4px;">
+          ${item.tipoAtendimento}
         </div>
-
-        <p style="margin:0; font-size:13px; color:#ef4444; font-weight:500;">
-          ⚠️ Esta ação não pode ser desfeita
-        </p>
+        <div style="font-size:13px; color:#6b7280;">
+          ${formatarDataHoraBR(item.data, item.vaga.horaInicio)}
+        </div>
       </div>
-    `,
-      icon: "question",
+
+      <div style="
+        background:#fef2f2;
+        border:1px solid #fecaca;
+        border-radius:8px;
+        padding:10px;
+        font-size:13px;
+        color:#b91c1c;
+      ">
+        Essa ação não pode ser desfeita.
+      </div>
+
+    </div>
+  `,
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Continuar",
-      cancelButtonText: "Manter agendamento",
+      confirmButtonText: "Cancelar agendamento",
+      cancelButtonText: "Voltar",
+      reverseButtons: true,
+      focusCancel: true,
       ...swalDesign,
     });
 
@@ -489,30 +500,64 @@ const PageLista = () => {
 
     // 4. CONFIRMAÇÃO FINAL
     const confirmacaoFinal = await Swal.fire({
-      title: "Confirmar cancelamento?",
+      title: "Confirmar cancelamento",
       html: `
-      <div style="text-align:left;">
-        <div style="background:#eff6ff; padding:12px; border-radius:10px; margin-bottom:10px;">
-          <p style="font-weight:600; color:#1e3a8a;">${item.tipoAtendimento}</p>
-          <p style="color:#2563eb; font-size:13px;">
-            ${formatarDataHoraBR(item.data, item.vaga.horaInicio)}
-          </p>
-        </div>
+    <div style="font-size:14px; color:#374151;">
 
-        <div style="background:#f9fafb; padding:12px; border-radius:10px;">
-          <p style="font-weight:500;">Motivo:</p>
-          <p style="font-size:13px; color:#4b5563;">${motivoFinal}</p>
-        </div>
+      <p style="margin-bottom:12px;">
+        Confira os dados antes de confirmar:
+      </p>
 
-        <p style="margin-top:10px; font-size:13px; color:#ef4444;">
-          ⚠️ Esta ação não pode ser desfeita
-        </p>
+      <div style="
+        background:#f8fafc;
+        border:1px solid #e5e7eb;
+        border-radius:12px;
+        padding:14px;
+        margin-bottom:12px;
+      ">
+        <div style="font-weight:600; color:#111827; margin-bottom:4px;">
+          ${item.tipoAtendimento}
+        </div>
+        <div style="font-size:13px; color:#6b7280;">
+          ${formatarDataHoraBR(item.data, item.vaga.horaInicio)}
+        </div>
       </div>
-    `,
+
+      <div style="
+        background:#f9fafb;
+        border:1px solid #e5e7eb;
+        border-radius:12px;
+        padding:12px;
+        margin-bottom:14px;
+      ">
+        <div style="font-weight:500; color:#374151; margin-bottom:4px;">
+          Motivo
+        </div>
+        <div style="font-size:13px; color:#6b7280;">
+          ${motivoFinal}
+        </div>
+      </div>
+
+      <div style="
+        background:#fef2f2;
+        border:1px solid #fecaca;
+        border-radius:8px;
+        padding:10px;
+        font-size:13px;
+        color:#b91c1c;
+      ">
+        Essa ação não pode ser desfeita.
+      </div>
+
+    </div>
+  `,
       icon: "warning",
+      iconColor: "#972E3F",
       showCancelButton: true,
       confirmButtonText: "Confirmar cancelamento",
       cancelButtonText: "Voltar",
+      reverseButtons: true,
+      focusCancel: true,
       ...swalDesign,
     });
 

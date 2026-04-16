@@ -193,7 +193,7 @@ const hoje = new Date();
 const valorPadraoInicio = `01/${hoje.getFullYear()}`;
 const mesFormatado = String(hoje.getMonth() + 1).padStart(2, "0");
 const valorPadraoFim = `${mesFormatado}/${hoje.getFullYear()}`;
-
+  
 const PageLista = () => {
   const [dadosRelatorio, setDadosRelatorio] = useState<RelatorioFinanceiroResponse | null>(null);
   const [filtros, setFiltros] = useState<FiltrosRelatorio>({
@@ -310,13 +310,13 @@ const PageLista = () => {
   const valorTotalPorTipo = relatorio.valorTotalPorTipoBeneficio ?? [];
   const beneficiadosPorCurso = relatorio.quantidadeBeneficiadosPorCurso ?? [];
 
-  // 🔵 GRAFICO 1 - RECURSO POR TIPO DE BENEFÍCIO
+  // GRAFICO 1 - RECURSO POR TIPO DE BENEFÍCIO
   const recursoPorTipo = valorTotalPorTipo.map((item) => ({
     tipo: item.descricao,   // aqui estava o erro
     valor: item.valorTotal
   }));
 
-  // 🔵 GRAFICO 2 - DISTRIBUIÇÃO POR CURSO
+  // GRAFICO 2 - DISTRIBUIÇÃO POR CURSO
   const totalBeneficiados = relatorio.quantidadePessoasAtendidas ?? 0;
 
   const percentualPorCurso = beneficiadosPorCurso.map((item) => ({
