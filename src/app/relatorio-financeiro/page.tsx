@@ -103,7 +103,7 @@ type PagamentoItem = {
 };
 
 type FiltrosRelatorio = {
-  periodoInicio: string;
+  mesReferencia: string;
   periodoFim: string;
   tipo: string;
 };
@@ -197,7 +197,7 @@ const valorPadraoFim = `${mesFormatado}/${hoje.getFullYear()}`;
 const PageLista = () => {
   const [dadosRelatorio, setDadosRelatorio] = useState<RelatorioFinanceiroResponse | null>(null);
   const [filtros, setFiltros] = useState<FiltrosRelatorio>({
-    periodoInicio: valorPadraoInicio,
+    mesReferencia: valorPadraoInicio,
     periodoFim: valorPadraoFim,
     tipo: "todos",
   });
@@ -413,30 +413,26 @@ const PageLista = () => {
   const buscarDados = async () => {
     setCarregando(true);
     try {
-      const params: any = {
-        size: 100,
-        page: 0,
-      };
+      
 
-      const dataInicioFinal = filtros.periodoInicio?.trim()
-        ? filtros.periodoInicio
+      const dataFinal = filtros.mesReferencia?.trim()
+        ? filtros.mesReferencia
         : valorPadraoInicio;
-      const dataFimFinal = filtros.periodoFim?.trim()
-        ? filtros.periodoFim
-        : valorPadraoFim;
 
       setFiltros((prev) => ({
         ...prev,
-        periodoInicio: dataInicioFinal,
-        periodoFim: dataFimFinal,
+        mesReferencia: dataFinal,
       }));
 
-      params.inicio = formatarDataParaAPI(dataInicioFinal);
-      params.fim = formatarDataParaAPI(dataFimFinal);
-
-      if (filtros.tipo !== "todos") {
-        params.tipoBeneficio = filtros.tipo;
-      }
+      const data = formatarDataParaAPI(dataFinal);
+      // params.fim = formatarDataParaAPI(dataFimFinal);
+      const params: any = {
+        size: 100,
+        page: 0,
+        "beneficio.tipoBeneficio.id": filtros.tipo !== "todos" ? filtros.tipo : "",
+      };
+      params.mesReferencia = data[0];
+      params.anoReferencia = data[1];
 
       // Buscar relatório financeiro
       const relatorioBody = {
@@ -498,11 +494,9 @@ const PageLista = () => {
     }
   };
 
-  const formatarDataParaAPI = (dataMMAAAA: string): string => {
-    if (!dataMMAAAA) return "";
-    const [mes, ano] = dataMMAAAA.split("/");
-    // Retorna no formato YYYY-MM-DD (primeiro dia do mês)
-    return `01-${mes.padStart(2, "0")}-${ano}`;
+  const formatarDataParaAPI = (dataMMAAAA: string): string[] => {
+    if (!dataMMAAAA) return ["", ""];
+    return dataMMAAAA.split("/");
   };
 
   const formatarMoeda = (valor: number) => {
@@ -521,10 +515,10 @@ const PageLista = () => {
 
   const handleAplicarFiltros = () => {
     // Validar formato das datas se preenchidas
-    if (filtros.periodoInicio || filtros.periodoFim) {
+    if (filtros.mesReferencia || filtros.periodoFim) {
       const formatoValido = /^\d{2}\/\d{4}$/;
 
-      if (filtros.periodoInicio && !formatoValido.test(filtros.periodoInicio)) {
+      if (filtros.mesReferencia && !formatoValido.test(filtros.mesReferencia)) {
         toast.error("Use o formato MM/AAAA para a data inicial", {
           position: "bottom-left",
         });
@@ -538,8 +532,8 @@ const PageLista = () => {
         return;
       }
 
-      if (filtros.periodoInicio && filtros.periodoFim) {
-        const [mesInicio, anoInicio] = filtros.periodoInicio
+      if (filtros.mesReferencia && filtros.periodoFim) {
+        const [mesInicio, anoInicio] = filtros.mesReferencia
           .split("/")
           .map(Number);
         const [mesFim, anoFim] = filtros.periodoFim.split("/").map(Number);
@@ -561,7 +555,7 @@ const PageLista = () => {
 
   const resetarFiltros = () => {
     setFiltros({
-      periodoInicio: "",
+      mesReferencia: "",
       periodoFim: "",
       tipo: "todos",
     });
@@ -571,7 +565,7 @@ const PageLista = () => {
   // Atualizar dados quando os filtros forem resetados
   useEffect(() => {
     if (
-      !filtros.periodoInicio &&
+      !filtros.mesReferencia &&
       !filtros.periodoFim &&
       filtros.tipo === "todos"
     ) {
@@ -605,39 +599,20 @@ const PageLista = () => {
             {/* Filtro de Período */}
             <div className="lg:col-span-5">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                <div className="flex items-center">Período</div>
+                <div className="flex items-center">Mês de Referência</div>
               </label>
               <div className="flex items-center space-x-3">
                 <div className="relative flex-1">
                   <input
                     type="text"
                     placeholder="MM/AAAA"
-                    value={filtros.periodoInicio}
+                    value={filtros.mesReferencia}
                     onChange={(e) =>
-                      handleFiltroChange("periodoInicio", e.target.value)
+                      handleFiltroChange("mesReferencia", e.target.value)
                     }
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                     maxLength={7}
                   />
-                  <div className="absolute right-3 top-3 text-gray-400 text-sm">
-                    Início
-                  </div>
-                </div>
-                <span className="text-gray-400">até</span>
-                <div className="relative flex-1">
-                  <input
-                    type="text"
-                    placeholder="MM/AAAA"
-                    value={filtros.periodoFim}
-                    onChange={(e) =>
-                      handleFiltroChange("periodoFim", e.target.value)
-                    }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                    maxLength={7}
-                  />
-                  <div className="absolute right-3 top-3 text-gray-400 text-sm">
-                    Fim
-                  </div>
                 </div>
               </div>
             </div>
@@ -658,7 +633,7 @@ const PageLista = () => {
                 >
                   <option value="todos">Todos os tipos de benefício</option>
                   {(tiposDisponiveis ?? []).map((tipo, index) => (
-                    <option key={index} value={tipo.tipo}>
+                    <option key={index} value={tipo.id}>
                       {tipo.tipo}
                     </option>
                   ))}
@@ -698,14 +673,14 @@ const PageLista = () => {
 
           {/* Indicador de Filtros Ativos */}
           <div
-            className={`mt-6 pt-6 border-t ${filtros.periodoInicio || filtros.periodoFim || filtros.tipo !== "todos" ? "" : "border-gray-100"}`}
+            className={`mt-6 pt-6 border-t ${filtros.mesReferencia || filtros.tipo !== "todos" ? "" : "border-gray-100"}`}
           >
             <div className="flex items-center">
               <span className="text-sm font-medium text-gray-600 mr-3">
                 Filtros ativos:
               </span>
               <div className="flex flex-wrap gap-2">
-                {!filtros.periodoInicio &&
+                {!filtros.mesReferencia &&
                 !filtros.periodoFim &&
                 filtros.tipo === "todos" ? (
                   <span className="px-3 py-1.5 bg-gray-100 text-gray-500 rounded-full text-sm font-medium">
@@ -714,10 +689,10 @@ const PageLista = () => {
                   </span>
                 ) : (
                   <>
-                    {filtros.periodoInicio && filtros.periodoFim && (
+                    {filtros.mesReferencia && (
                       <span className="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-medium flex items-center">
                         <CalendarMonth className="mr-1.5" />
-                        {filtros.periodoInicio} → {filtros.periodoFim}
+                        {filtros.mesReferencia}
                       </span>
                     )}
                     {filtros.tipo !== "todos" && (
