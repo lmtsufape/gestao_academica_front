@@ -8,6 +8,8 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import { generica } from "@/utils/api";
+import EditNoteIcon from "@mui/icons-material/EditNote";
+import LightbulbIcon from "@mui/icons-material/Lightbulb";
 
 interface TipoAtendimento {
   chave: number;
@@ -421,12 +423,39 @@ const cadastro = () => {
               : "Datas de Atendimento"}
           </label>
           {isEditMode && (
-            <p className="text-sm text-gray-600 mb-3">
-              <strong>Modo edição:</strong> Você pode adicionar ou remover datas
-              deste cronograma. A data original está marcada e você pode
-              selecionar datas adicionais.
-            </p>
-          )}
+  <div 
+    className="rounded-lg p-3 mb-4 shadow-sm"
+    style={{ 
+      background: 'linear-gradient(135deg, #972E3F08 0%, #972E3F15 100%)',
+      border: '1px solid #972E3F30',
+      borderLeft: `4px solid #972E3F`
+    }}
+  >
+    <div className="flex items-center gap-2">
+      <EditNoteIcon sx={{ color: '#AB3447', fontSize: '24px' }} />
+      <div>
+        <span className="font-bold" style={{ color: '#972E3F' }}>
+          MODO EDIÇÃO:
+        </span>
+        <span style={{ color: '#393C47' }} className="ml-2">
+          Adicione ou remova datas livremente. A data original está destacada
+          <span 
+            className="inline-block ml-1 px-2 py-0.5 rounded text-xs font-bold"
+            style={{ backgroundColor: '#972E3F20', color: '#972E3F' }}
+          >
+            ✓
+          </span>
+        </span>
+      </div>
+    </div>
+    <div className="flex items-start gap-2 mt-2 ml-7">
+      <LightbulbIcon sx={{ color: '#AB3447', fontSize: '16px', marginTop: '2px' }} />
+      <p className="text-xs" style={{ color: '#393C47' }}>
+        Dica: Clique nas datas para marcar/desmarcar dias adicionais
+      </p>
+    </div>
+  </div>
+)}
 
           <div className="mb-6 border rounded-lg p-4 bg-white shadow-sm">
             <Calendar
