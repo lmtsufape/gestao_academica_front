@@ -150,6 +150,19 @@ const PageLista = () => {
   if (!slot || !cronograma)
     return toast.error("Vaga não encontrada!");
 
+  const jaPossuiAgendamentoNoDia = cronograma.slots.some(s => s.userScheduled);
+
+  if (jaPossuiAgendamentoNoDia) {
+    return Swal.fire({
+      icon: "warning",
+      iconColor: "#972E3F",
+      title: "Atenção",
+      text: "Você já possui um agendamento para este dia.",
+      confirmButtonText: "OK",
+      confirmButtonColor: "#393C47",
+    });
+  }
+
   try {
     const body = {
       metodo: 'post',
