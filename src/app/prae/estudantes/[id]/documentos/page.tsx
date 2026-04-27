@@ -81,7 +81,7 @@ const EnvioDocumentos = () => {
 
       const body = {
         metodo: "post",
-        uri: "/upload/documento",
+        uri: "/prae/estudantes/documentos",
         params: {},
         data: formData,
       };

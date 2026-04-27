@@ -114,7 +114,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
               roles: isPraeAccess ? ["gestor"] : [""],
             },
             {
-              label: "Pagamentos Realizados",
+              label: "Beneficiários Pagos",
               route: "/prae/pagamentos/beneficiarios-pagos",
               icon: <DoneAll fontSize="small" className="text-white" />,
               roles: isPraeAccess ? ["gestor"] : [""],

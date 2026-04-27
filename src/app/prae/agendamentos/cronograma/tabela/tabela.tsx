@@ -325,7 +325,11 @@ const Tabela = ({ dados = null, estrutura = null, chamarFuncao = null }: any) =>
                                     title={acao.nome}
                                     onClick={() => chamarFuncao(acao.chave, item)}
                                   >
-                                    {acao.nome === 'Editar' && <Edit className="w-5 h-5" />}
+                                    {acao.nome === 'Editar' && (
+                                      <span className="cursor-pointer font-bold inline-block px-3 py-1 bg-gray-100 text-extra-150 rounded hover:bg-gray-200 text-sm">
+                                        Editar
+                                      </span>
+                                    )}
                                     {acao.nome === 'Visualizar' && <Visibility className="w-5 h-5" />}
                                     {acao.nome === 'Deletar' && <Delete className="w-5 h-5 text-red-700" />}
                                     {acao.nome === 'Selecionar' && (
