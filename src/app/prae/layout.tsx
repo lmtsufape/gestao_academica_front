@@ -160,13 +160,19 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
               label: "Meus Agendamentos",
               route: "/prae/agendamentos/calendario/meus-agendamentos",
               icon: <EventAvailable fontSize="small" className="text-white" />, // Ícone para eventos confirmados
-              roles: isPraeAccess ? ["gestor", "Tecnico", "Professor"] : ["aluno"],
-            },
+              roles: isPraeAccess ? ["Tecnico", "Professor"] : ["aluno"],
+            },/*
+            {
+              label: "Todos Agendamentos",
+              route: "/prae/agendamentos/calendario/todos-agendamentos",
+              icon: <EventAvailable fontSize="small" className="text-white" />, // Ícone para eventos confirmados
+              roles: isPraeAccess ? ["gestor"] : [],
+            },*/
             {
               label: "Meus Cancelamentos",
               route: "/prae/agendamentos/calendario/meus-cancelamentos",
               icon: <EventBusy fontSize="small" className="text-white" />, // Ícone para eventos cancelados
-              roles: isPraeAccess ? ["gestor", "Tecnico", "Professor"] : ["aluno"],
+              roles: isPraeAccess ? ["Tecnico", "Professor"] : ["aluno"],
             },
           ]
         }

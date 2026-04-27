@@ -29,7 +29,7 @@ const estrutura: any = {
         colunas: [ //colunas da tabela
             { nome: "Tipo de Benefício", chave: "beneficio.tipoBeneficio.tipo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome
             { nome: "Valor Pago", chave: "valor", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
-            { nome: "Data Pagamento ", chave: "data", tipo: "texto", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
+            { nome: "Data Pagamento ", chave: "data", tipo: "data", selectOptions: null, sort: false, pesquisar: true }, //nome(string),chave(string),tipo(text,select),selectOpcoes([{chave:string, valor:string}]),pesquisar(booleano)
 
         ],
         acoes_dropdown: []
@@ -40,6 +40,7 @@ const estrutura: any = {
 const PageLista = () => {
     const router = useRouter();
     const [dados, setDados] = useState<any>({ content: [] });
+    const [estudadeId, setEstudateId] = useState<number>(0);
 
     const chamarFuncao = (nomeFuncao = "", valor: any = null) => {
         switch (nomeFuncao) {
@@ -71,7 +72,7 @@ const PageLista = () => {
             const response = await generica(body);
 
             if (response?.data?.id) {
-                chamarFuncao('pesquisar', { id: response.data.id });
+                setEstudateId(response.data.id)
             } else {
                 toast.error("Não foi possível obter os dados do estudante.", { position: "bottom-left" });
             }
@@ -82,11 +83,14 @@ const PageLista = () => {
     };
 
     // Função para carregar os dados
-    const pesquisarRegistro = async (item: any, params = null) => {
+    const pesquisarRegistro = async (params = null) => {
+        if (!estudadeId) {
+            return
+        }
         try {
             let body = {
                 metodo: 'get',
-                uri: '/prae/pagamento/estudante/' + item.id, // ✅ AQUI ESTÁ CORRETO AGORA
+                uri: '/prae/pagamento/estudante/' + estudadeId, // ✅ AQUI ESTÁ CORRETO AGORA
                 params: params != null ? params : { size: 10, page: 0 },
                 data: {}
             };
@@ -154,7 +158,7 @@ const PageLista = () => {
                 } else if (response && response.data && response.data.error) {
                     toast.error(response.data.error.message, { position: "top-left" });
                 } else {
-                    pesquisarRegistro({ id: '' }); // Ou algum ID válido, se necessário
+                    pesquisarRegistro(); // Ou algum ID válido, se necessário
                     Swal.fire({
                         title: "Pagamento deletado com sucesso!",
                         icon: "success"
@@ -170,6 +174,10 @@ const PageLista = () => {
     useEffect(() => {
         buscarEstudanteAtual(); // ✅ isso já chama pesquisarRegistro internamente
     }, []);
+
+    useEffect(() => {
+        chamarFuncao('pesquisar');
+    }, [estudadeId]);
 
     return (
         <main className="flex flex-wrap justify-center mx-auto">
