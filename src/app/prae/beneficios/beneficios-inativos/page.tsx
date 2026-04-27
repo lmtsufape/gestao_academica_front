@@ -32,10 +32,10 @@ const estrutura: any = {
     ],
     colunas: [ 
       { nome: "Tipo", chave: "tipoBeneficio.tipo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Valor", chave: "tipoBeneficio.valorBeneficio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Valor", chave: "tipoBeneficio.valorBeneficio", tipo: "valor", selectOptions: null, sort: false, pesquisar: true },
       { nome: "Natureza", chave: "tipoBeneficio.naturezaBeneficio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Início do Benefício", chave: "inicioBeneficio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Final do Benefício", chave: "fimBeneficio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Início do Benefício", chave: "inicioBeneficio", tipo: "data", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Final do Benefício", chave: "fimBeneficio", tipo: "data", selectOptions: null, sort: false, pesquisar: true },
     ],
     acoes_dropdown: [ 
     ]
@@ -89,14 +89,10 @@ const PageLista = () => {
               tipoBeneficio: {
                 ...item.tipoBeneficio,
                 valorBeneficio: aplicarMascara(item.tipoBeneficio.valorBeneficio, 'valor')
-              },
-              inicioBeneficio: aplicarMascara(item.inicioBeneficio, 'dataIsoBr'),
-              fimBeneficio: aplicarMascara(item.fimBeneficio, 'dataIsoBr'),
-              
+              }
             };
           });
           response.data.content = dadosTratados;
-          console.log(response.data);
           setDados(response.data);
         }
       }

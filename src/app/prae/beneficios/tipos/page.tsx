@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
-import aplicarMascara from '@/utils/mascaras';
 
 
 
@@ -37,7 +36,7 @@ const estrutura: any = {
       { nome: "Tipo do Benefício", chave: "tipo", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "Descrição", chave: "descricao", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
       { nome: "Natureza do Benefício", chave: "naturezaBeneficio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
-      { nome: "Valor", chave: "valorBeneficio", tipo: "texto", selectOptions: null, sort: false, pesquisar: true },
+      { nome: "Valor", chave: "valorBeneficio", tipo: "valor", selectOptions: null, sort: false, pesquisar: true },
       { nome: "ações", chave: "acoes", tipo: "button", selectOptions: null, sort: false, pesquisar: false },
     ],
     acoes_dropdown: [ //botão de acoes de cada registro
@@ -99,7 +98,6 @@ const PageLista = () => {
 
           const dadosComMascara = content.map((item: any) => ({
             ...item,
-            valorBeneficio: aplicarMascara(item.valorBeneficio?.toString() || '0', 'valor'),
             naturezaBeneficio: naturezasBeneficio.find(n => n.id === item.naturezaBeneficio)?.nome || item.naturezaBeneficio,
           }));
           console.log(dadosComMascara);

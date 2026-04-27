@@ -10,7 +10,7 @@ import Swal from 'sweetalert2';
 
 const estrutura: any = {
 
-  uri: "agendamento/profissional", //caminho base
+  uri: "agendamento", //caminho base
 
   cabecalho: { //cabecalho da pagina
     titulo: "Todos os Agendamentos",

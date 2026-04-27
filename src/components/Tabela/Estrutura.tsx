@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Pagination from "./Itens/Paginacao";
 import { Delete, Edit, Visibility } from "@mui/icons-material";
+import aplicarMascara from "@/utils/mascaras";
 
 const Tabela = ({
   dados = null,
@@ -15,9 +16,8 @@ const Tabela = ({
 
   // Função auxiliar para gerar keys únicas
   const generateUniqueKey = (base: string, suffix?: string) => {
-    return `${base || "key"}_${
-      suffix || Math.random().toString(36).substr(2, 9)
-    }`;
+    return `${base || "key"}_${suffix || Math.random().toString(36).substr(2, 9)
+      }`;
   };
 
   // NORMALIZA os dados recebidos:
@@ -115,9 +115,8 @@ const Tabela = ({
     );
     return (
       <div
-        className={`${
-          isDesktop ? "flex gap-4 items-end" : "flex flex-col gap-4"
-        } w-full pt-2`}
+        className={`${isDesktop ? "flex gap-4 items-end" : "flex flex-col gap-4"
+          } w-full pt-2`}
       >
         {filters?.map((item: any) => (
           <div
@@ -132,10 +131,21 @@ const Tabela = ({
               {item.nome}
             </label>
 
-            {(item.tipo === "texto" || item.tipo === "json") &&
+            {(item.tipo === "texto" || item.tipo === "valor" || item.tipo === "json") &&
               !(item.selectOptions && item.selectOptions.length > 0) && (
                 <input
                   type="text"
+                  id={`filtro_${item.chave}`}
+                  className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-extra-50 focus:border-transparent w-full max-w-xs placeholder-gray-400 placeholder:truncate placeholder:overflow-hidden placeholder:whitespace-nowrap"
+                  placeholder={`Filtrar por ${abreviarTexto(item.nome)}`}
+                  onBlur={(e) => paramsColuna(item.chave, e.target.value)}
+                />
+              )}
+
+            {(item.tipo === "data") &&
+              !(item.selectOptions && item.selectOptions.length > 0) && (
+                <input
+                  type="date"
                   id={`filtro_${item.chave}`}
                   className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-extra-50 focus:border-transparent w-full max-w-xs placeholder-gray-400 placeholder:truncate placeholder:overflow-hidden placeholder:whitespace-nowrap"
                   placeholder={`Filtrar por ${abreviarTexto(item.nome)}`}
@@ -146,31 +156,31 @@ const Tabela = ({
             {(item.tipo === "booleano" ||
               item.tipo === "status" ||
               (item.selectOptions && item.selectOptions.length > 0)) && (
-              <select
-                id={`filtro_${item.chave}`}
-                className="min-w-[0px] px-3 py-2 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-extra-50 focus:border-transparent text-gray-500 truncate"
-                onChange={(e) => paramsColuna(item.chave, e.target.value)}
-              >
-                {!item.selectOptions?.some(
-                  (option: any) => option.valor === "Todos",
-                ) && (
-                  <option value="" className="truncate">
-                    {abreviarTexto(item.nome)}
-                  </option>
-                )}
-                {item.selectOptions.map(
-                  (option: { chave: any; valor: any }) => (
-                    <option
-                      key={generateUniqueKey(option.chave, "option")}
-                      value={option.chave}
-                      className="truncate"
-                    >
-                      {option.valor}
-                    </option>
-                  ),
-                )}
-              </select>
-            )}
+                <select
+                  id={`filtro_${item.chave}`}
+                  className="min-w-[0px] px-3 py-2 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-extra-50 focus:border-transparent text-gray-500 truncate"
+                  onChange={(e) => paramsColuna(item.chave, e.target.value)}
+                >
+                  {!item.selectOptions?.some(
+                    (option: any) => option.valor === "Todos",
+                  ) && (
+                      <option value="" className="truncate">
+                        {abreviarTexto(item.nome)}
+                      </option>
+                    )}
+                  {item.selectOptions.map(
+                    (option: { chave: any; valor: any }) => (
+                      <option
+                        key={generateUniqueKey(option.chave, "option")}
+                        value={option.chave}
+                        className="truncate"
+                      >
+                        {option.valor}
+                      </option>
+                    ),
+                  )}
+                </select>
+              )}
           </div>
         ))}
       </div>
@@ -227,9 +237,8 @@ const Tabela = ({
 
                 {/* Filtros - Sempre visíveis no desktop */}
                 <div
-                  className={`${
-                    isDesktop ? "block" : showFilters ? "block" : "hidden"
-                  }`}
+                  className={`${isDesktop ? "block" : showFilters ? "block" : "hidden"
+                    }`}
                 >
                   {renderFiltros()}
                 </div>
@@ -268,13 +277,12 @@ const Tabela = ({
                 {estrutura.tabela.colunas.map((item: any) => (
                   <th
                     key={generateUniqueKey("cabecalho", item.chave)}
-                    className={`px-6 py-3 text-xs font-bold text-gray-700 uppercase tracking-wider ${getAlinhamentoColuna()} ${
-                      isColunaAcoes(item.nome)
-                        ? "w-40"
-                        : item.nome.toUpperCase() === "STATUS"
-                          ? "w-32"
-                          : ""
-                    }`}
+                    className={`px-6 py-3 text-xs font-bold text-gray-700 uppercase tracking-wider ${getAlinhamentoColuna()} ${isColunaAcoes(item.nome)
+                      ? "w-40"
+                      : item.nome.toUpperCase() === "STATUS"
+                        ? "w-32"
+                        : ""
+                      }`}
                   >
                     <div
                       className={`flex items-center gap-2 ${getAlinhamentoConteudo()}`}
@@ -311,8 +319,8 @@ const Tabela = ({
                         hidden={!item.sort}
                       >
                         {bodyParams.sort != null &&
-                        bodyParams.sort.split(",")[0] === item.chave &&
-                        bodyParams.sort.split(",")[1] === "asc"
+                          bodyParams.sort.split(",")[0] === item.chave &&
+                          bodyParams.sort.split(",")[1] === "asc"
                           ? "▲"
                           : "▼"}
                       </button>
@@ -458,14 +466,13 @@ const Tabela = ({
                                   className={`px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center`}
                                 >
                                   <span
-                                    className={`${
-                                      selectOption.chave === true ||
+                                    className={`${selectOption.chave === true ||
                                       selectOption.chave === "APROVADA"
-                                        ? "text-green-600"
-                                        : selectOption.chave === "PENDENTE"
-                                          ? "text-yellow-600"
-                                          : "text-red-600"
-                                    }`}
+                                      ? "text-green-600"
+                                      : selectOption.chave === "PENDENTE"
+                                        ? "text-yellow-600"
+                                        : "text-red-600"
+                                      }`}
                                   >
                                     {selectOption.valor}
                                   </span>
@@ -474,6 +481,18 @@ const Tabela = ({
                             } else {
                               return null;
                             }
+                          } else if (item[chave] !== undefined && tipo === "data") {
+                            return (
+                              <td key={chave} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                                {aplicarMascara(item[chave], "dataisobr")}
+                              </td>
+                            );
+                          } else if (item[chave] !== undefined && tipo === "valor") {
+                            return (
+                              <td key={chave} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                                {aplicarMascara(item[chave], "valor")}
+                              </td>
+                            );
                           } else if (tipo === "json") {
                             const partes = chave.split("|");
                             let key = partes[0];
