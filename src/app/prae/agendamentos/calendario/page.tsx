@@ -187,7 +187,6 @@ const PageLista = () => {
 
       const response = await generica(body);
 
-      // 🔥 Só bloqueia fluxo — NÃO mostra erro aqui
       const hasError =
         response?.status >= 400 ||
         response?.data?.error ||
@@ -195,13 +194,12 @@ const PageLista = () => {
         response?.data?.message;
 
       if (hasError) {
-        return; // 🚨 evita cair no success
+        return; 
       }
 
       toast.success("Agendamento realizado com sucesso!");
       carregarCronogramas(Number(tipoFiltro));
     } catch (err) {
-      // 🔥 também não mostra erro aqui pra não duplicar
       console.error(err);
     }
   };
