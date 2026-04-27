@@ -1,13 +1,13 @@
 "use client";
-import withAuthorization from '@/components/AuthProvider/withAuthorization';
-import Calendar from '@/components/Calendar/calendar';
-import Cabecalho from '@/components/Layout/Interno/Cabecalho';
-import { useRole } from '@/context/roleContext';
-import { generica } from '@/utils/api';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
-import Swal from 'sweetalert2';
+import withAuthorization from "@/components/AuthProvider/withAuthorization";
+import Calendar from "@/components/Calendar/calendar";
+import Cabecalho from "@/components/Layout/Interno/Cabecalho";
+import { useRole } from "@/context/roleContext";
+import { generica } from "@/utils/api";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
 interface TipoAtendimento {
   id: number;
@@ -28,47 +28,52 @@ interface MonthCronograma {
   slots: DaySlot[];
   tipoAtendimentoId: number;
   tipoAtendimentoNome: string;
-   modalidade: "PRESENCIAL" | "REMOTO";
+  modalidade: "PRESENCIAL" | "REMOTO";
 }
 
 const transformCronogramas = (data: any[]): MonthCronograma[] => {
-  return data.map(item => ({
-    data: item.data ? item.data.split('-').reverse().join('/') : '',
+  return data.map((item) => ({
+    data: item.data ? item.data.split("-").reverse().join("/") : "",
     modalidade: item.modalidade || "PRESENCIAL",
     slots: (item.vagas || []).map((vaga: any) => {
-      const agendamento = (item.agendamentos || []).find((a: any) => a.vaga.id === vaga.id);
+      const agendamento = (item.agendamentos || []).find(
+        (a: any) => a.vaga.id === vaga.id,
+      );
       return {
         id: vaga.id,
         horario: vaga.horaInicio,
         userScheduled: !vaga.disponivel,
-        agendamentoId: agendamento ? agendamento.id : null
+        agendamentoId: agendamento ? agendamento.id : null,
       };
     }),
     tipoAtendimentoId: item.tipoAtendimento?.id,
-    tipoAtendimentoNome: item.tipoAtendimento?.nome
+    tipoAtendimentoNome: item.tipoAtendimento?.nome,
   }));
 };
-
 
 const estrutura = {
   uri: "agendamento",
   cabecalho: {
     titulo: "Calendário de Agendamentos",
     migalha: [
-      { nome: 'Home', link: '/home' },
-      { nome: 'Prae', link: '/prae' },
-      { nome: 'Agendamento', link: '/prae/agendamentos/calendario' },
-    ]
-  }
+      { nome: "Home", link: "/home" },
+      { nome: "Prae", link: "/prae" },
+      { nome: "Agendamento", link: "/prae/agendamentos/calendario" },
+    ],
+  },
 };
 
 const PageLista = () => {
   const router = useRouter();
   const { activeRole } = useRole();
-  const [tiposAtendimento, setTiposAtendimento] = useState<TipoAtendimento[]>([]);
+  const [tiposAtendimento, setTiposAtendimento] = useState<TipoAtendimento[]>(
+    [],
+  );
   const [cronogramas, setCronogramas] = useState<MonthCronograma[]>([]);
-  const [tipoFiltro, setTipoFiltro] = useState<number | ''>('');
-  const [filtroVagas, setFiltroVagas] = useState<'todas' | 'disponiveis' | 'agendadas'>('todas');
+  const [tipoFiltro, setTipoFiltro] = useState<number | "">("");
+  const [filtroVagas, setFiltroVagas] = useState<
+    "todas" | "disponiveis" | "agendadas"
+  >("todas");
   const [showModal, setShowModal] = useState(true);
 
   const isPrivileged = activeRole;
@@ -80,10 +85,10 @@ const PageLista = () => {
   const carregarTiposAtendimento = async () => {
     try {
       const body = {
-        metodo: 'get',
-        uri: '/prae/tipo-atendimento',
+        metodo: "get",
+        uri: "/prae/tipo-atendimento",
         params: { size: 100, page: 0 },
-        data: {}
+        data: {},
       };
       const response = await generica(body);
       if (response?.data?.content) {
@@ -100,10 +105,10 @@ const PageLista = () => {
   const carregarCronogramas = async (tipoId: number) => {
     try {
       const body = {
-        metodo: 'get',
+        metodo: "get",
         uri: `/prae/cronograma`,
         params: { tipoAtendimentoId: tipoId },
-        data: {}
+        data: {},
       };
       const response = await generica(body);
       if (response?.data?.content) {
@@ -111,7 +116,9 @@ const PageLista = () => {
         setCronogramas(transformado);
       } else {
         setCronogramas([]);
-        toast.warn("Nenhum cronograma encontrado para este tipo de atendimento.");
+        toast.warn(
+          "Nenhum cronograma encontrado para este tipo de atendimento.",
+        );
       }
     } catch (err) {
       toast.error("Erro ao carregar cronogramas.");
@@ -131,75 +138,85 @@ const PageLista = () => {
     // Caso contrário, o usuário poderá selecionar depois pelo filtro
   };
 
-  const cronogramasFiltrados = tipoFiltro !== ''
-    ? cronogramas.map(c => ({
-        ...c,
-        slots:
-          filtroVagas === 'todas'
-            ? c.slots
-            : filtroVagas === 'disponiveis'
-              ? c.slots.filter(s => !s.userScheduled)
-              : c.slots.filter(s => s.userScheduled)
-      }))
-    : [];
+  const cronogramasFiltrados =
+    tipoFiltro !== ""
+      ? cronogramas.map((c) => ({
+          ...c,
+          slots:
+            filtroVagas === "todas"
+              ? c.slots
+              : filtroVagas === "disponiveis"
+                ? c.slots.filter((s) => !s.userScheduled)
+                : c.slots.filter((s) => s.userScheduled),
+        }))
+      : [];
 
   const handleAgendar = async (data: string, horario: string) => {
-  const cronograma = cronogramas.find(c => c.data === data);
-  const slot = cronograma?.slots.find(s => s.horario === horario);
+    const cronograma = cronogramas.find((c) => c.data === data);
+    const slot = cronograma?.slots.find((s) => s.horario === horario);
 
-  if (!slot || !cronograma)
-    return toast.error("Vaga não encontrada!");
+    if (!slot || !cronograma) {
+      return toast.error("Vaga não encontrada!");
+    }
 
-  const jaPossuiAgendamentoNoDia = cronograma.slots.some(s => s.userScheduled);
+    const jaPossuiAgendamentoNoDia = cronograma.slots.some(
+      (s) => s.userScheduled,
+    );
 
-  if (jaPossuiAgendamentoNoDia) {
-    return Swal.fire({
-      icon: "warning",
-      iconColor: "#972E3F",
-      title: "Atenção",
-      text: "Você já possui um agendamento para este dia.",
-      confirmButtonText: "OK",
-      confirmButtonColor: "#393C47",
-    });
-  }
+    if (jaPossuiAgendamentoNoDia) {
+      return Swal.fire({
+        icon: "warning",
+        iconColor: "#972E3F",
+        title: "Atenção",
+        text: "Você já possui um agendamento para este dia.",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#393C47",
+      });
+    }
 
-  try {
-    const body = {
-      metodo: 'post',
-      uri: `/prae/agendamento`,
-      params: {},
-      data: {
-        vagaId: slot.id,
-        modalidade: cronograma.modalidade 
+    try {
+      const body = {
+        metodo: "post",
+        uri: `/prae/agendamento`,
+        params: {},
+        data: {
+          vagaId: slot.id,
+          modalidade: cronograma.modalidade,
+        },
+      };
+
+      const response = await generica(body);
+
+      // 🔥 Só bloqueia fluxo — NÃO mostra erro aqui
+      const hasError =
+        response?.status >= 400 ||
+        response?.data?.error ||
+        response?.data?.errors ||
+        response?.data?.message;
+
+      if (hasError) {
+        return; // 🚨 evita cair no success
       }
-    };
 
-    const response = await generica(body);
-
-    if (!response?.data?.errors && !response?.data?.error) {
       toast.success("Agendamento realizado com sucesso!");
       carregarCronogramas(Number(tipoFiltro));
-    } else {
-      toast.error(response?.data?.error?.message || "Erro ao agendar.");
+    } catch (err) {
+      // 🔥 também não mostra erro aqui pra não duplicar
+      console.error(err);
     }
-  } catch (err) {
-    toast.error("Erro ao agendar.");
-    console.error(err);
-  }
-};
-
+  };
 
   const handleCancelar = async (data: string, horario: string) => {
-    const cronograma = cronogramas.find(c => c.data === data);
-    const slot = cronograma?.slots.find(s => s.horario === horario);
+    const cronograma = cronogramas.find((c) => c.data === data);
+    const slot = cronograma?.slots.find((s) => s.horario === horario);
     if (!slot) return toast.error("Vaga não encontrada!");
 
     try {
       const body = {
-        metodo: 'post',
+        metodo: "post",
         uri: `/prae/agendamento/${slot.id}/cancelar`,
         params: {},
-        data: {}
+        data: {},
       };
       const response = await generica(body);
       if (!response?.data?.errors && !response?.data?.error) {
@@ -227,12 +244,24 @@ const PageLista = () => {
                 onClick={handleCloseModal}
                 className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 transition-colors"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
-              
-              <h2 className="text-xl font-semibold mb-4 text-center">Selecione o tipo de atendimento</h2>
+
+              <h2 className="text-xl font-semibold mb-4 text-center">
+                Selecione o tipo de atendimento
+              </h2>
               <select
                 className="w-full border px-3 py-2 rounded mb-4"
                 onChange={(e) => {
@@ -241,9 +270,13 @@ const PageLista = () => {
                 }}
                 defaultValue=""
               >
-                <option value="" disabled>Escolha uma opção</option>
+                <option value="" disabled>
+                  Escolha uma opção
+                </option>
                 {tiposAtendimento.map((t) => (
-                  <option key={t.id} value={t.id}>{t.nome}</option>
+                  <option key={t.id} value={t.id}>
+                    {t.nome}
+                  </option>
                 ))}
               </select>
               <p className="text-sm text-gray-500 text-center">
@@ -257,13 +290,15 @@ const PageLista = () => {
         {!showModal && (
           <div className="mb-4 flex flex-wrap items-center gap-4">
             <div>
-              <label className="block text-gray-700 text-sm font-medium mb-1">Tipo de atendimento:</label>
+              <label className="block text-gray-700 text-sm font-medium mb-1">
+                Tipo de atendimento:
+              </label>
               <select
                 value={tipoFiltro}
-                onChange={e => {
-                  const id = e.target.value ? Number(e.target.value) : '';
+                onChange={(e) => {
+                  const id = e.target.value ? Number(e.target.value) : "";
                   setTipoFiltro(id);
-                  if (id !== '') {
+                  if (id !== "") {
                     carregarCronogramas(id);
                   } else {
                     setCronogramas([]);
@@ -273,16 +308,20 @@ const PageLista = () => {
               >
                 <option value="">Selecione um tipo</option>
                 {tiposAtendimento.map((t) => (
-                  <option key={t.id} value={t.id}>{t.nome}</option>
+                  <option key={t.id} value={t.id}>
+                    {t.nome}
+                  </option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label className="block text-gray-700 text-sm font-medium mb-1">Filtrar vagas:</label>
+              <label className="block text-gray-700 text-sm font-medium mb-1">
+                Filtrar vagas:
+              </label>
               <select
                 value={filtroVagas}
-                onChange={e => setFiltroVagas(e.target.value as any)}
+                onChange={(e) => setFiltroVagas(e.target.value as any)}
                 className="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-gray-700 transition-colors"
               >
                 <option value="todas">Todas</option>
@@ -294,7 +333,7 @@ const PageLista = () => {
         )}
 
         {/* CALENDÁRIO - Aparece quando há um tipo selecionado */}
-        {tipoFiltro !== '' && (
+        {tipoFiltro !== "" && (
           <Calendar
             userRole={isPrivileged}
             cronogramas={cronogramasFiltrados}
@@ -304,15 +343,28 @@ const PageLista = () => {
         )}
 
         {/* MENSAGEM QUANDO NÃO HÁ TIPO SELECIONADO E O MODAL ESTÁ FECHADO */}
-        {!showModal && tipoFiltro === '' && (
+        {!showModal && tipoFiltro === "" && (
           <div className="text-center py-8">
             <div className="bg-gray-50 rounded-lg p-6 max-w-md mx-auto">
-              <svg className="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              <svg
+                className="w-12 h-12 text-gray-400 mx-auto mb-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
               </svg>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Selecione um tipo de atendimento</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                Selecione um tipo de atendimento
+              </h3>
               <p className="text-gray-500">
-                Escolha um tipo de atendimento no filtro acima para visualizar o calendário de agendamentos disponíveis.
+                Escolha um tipo de atendimento no filtro acima para visualizar o
+                calendário de agendamentos disponíveis.
               </p>
             </div>
           </div>
