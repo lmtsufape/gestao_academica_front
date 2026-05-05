@@ -32,12 +32,14 @@ export default function PraeHome() {
   const [isProfessor, setisProfessor] = useState<boolean>(false);
   const [isTecnico, setisTecnico] = useState<boolean>(false);
   const [isPraeAccess, setisPraeAccess] = useState<boolean>(false);
+  const [isEstudante, setisEstudante] = useState<boolean>(false);
   const [isProfissional, setisProfissional] = useState<boolean>(false);
   const [isGestor, setisGestor] = useState<boolean>(false);
 
   useEffect(() => {
     if (!auth.isLoading) {
       setisAluno(auth.isAluno());
+      setisEstudante(auth.isEstudante());
       setisProfissional(auth.isProfissional());
       setisProfessor(auth.isProfessor());
       setisTecnico(auth.isTecnico());
@@ -48,6 +50,10 @@ export default function PraeHome() {
 
   useEffect(() => {
     if (isAluno) {
+      if (!isEstudante) {
+        criarEstudante();
+        return;
+      }
       buscarEstudanteAtual();
       console.log("DEBUG: Verificando estudante atual");
     }
@@ -96,7 +102,7 @@ export default function PraeHome() {
 
   const criarEstudante = async () => {
     Swal.fire({
-      title: "Para usar o módulo da Prae conclua seu cadastro!",
+      title: "Para usar o módulo da PRAE conclua seu cadastro!",
       icon: "warning",
       customClass: {
         popup: "my-swal-popup",
@@ -104,14 +110,14 @@ export default function PraeHome() {
         htmlContainer: "my-swal-html",
       },
     }).then((result) => {
-      if (result.isConfirmed) {
+      if (result) {
         router.push("/prae/estudantes/criar");
       }
     });
   };
   const criarProfissional = async () => {
     Swal.fire({
-      title: "Para usar o módulo da Prae conclua seu cadastro!",
+      title: "Para usar o módulo da PRAE conclua seu cadastro!",
       icon: "warning",
       customClass: {
         popup: "my-swal-popup",
