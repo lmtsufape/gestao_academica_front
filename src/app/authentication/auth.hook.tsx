@@ -12,6 +12,7 @@ export const ROLE_PROFISSIONAL = 'profissional';
 export const ROLE_ALUNO = 'aluno';
 export const ROLE_VISITANTE = 'visitante';
 export const ROLE_PRAE_ACCESS = 'prae_access';
+export const ROLE_ESTUDANTE = 'estudante';
 
 
 export function useAuthService() {
@@ -28,6 +29,7 @@ export function useAuthService() {
   const isProfissional = useCallback(() => roles.includes(ROLE_PROFISSIONAL), [roles]);
   const isAluno = useCallback(() => roles.includes(ROLE_ALUNO), [roles]);
   const isVisitante = useCallback(() => roles.includes(ROLE_VISITANTE), [roles]);
+  const isEstudante = useCallback(() => roles.includes(ROLE_ESTUDANTE), [roles]);
   const isPraeAccess = useCallback(() => roles.includes(ROLE_PRAE_ACCESS), [roles]);
   console.log("DEBUG: AuthService session:", session?.roles);
   return useMemo(
@@ -47,8 +49,9 @@ export function useAuthService() {
       isAluno,
       isVisitante,
       isPraeAccess,
+      isEstudante,
     }),
-    [session, isAuthenticated, isLoading, login, logout, roles, isAdmin, isGestor, isTecnico, isProfessor, isProfissional, isAluno, isVisitante, isPraeAccess]
+    [session, isAuthenticated, isLoading, login, logout, roles, isAdmin, isGestor, isTecnico, isProfessor, isProfissional, isAluno, isVisitante, isPraeAccess, isEstudante]
   );
 }
 
@@ -69,6 +72,8 @@ export const AuthUtils = {
     PROFISSIONAL: ROLE_PROFISSIONAL,
     ALUNO: ROLE_ALUNO,
     VISITANTE: ROLE_VISITANTE,
+    PRAE_ACCESS: ROLE_PRAE_ACCESS,
+    ESTUDANTE: ROLE_ESTUDANTE,
   },
 };
 
@@ -83,6 +88,8 @@ export class AuthService {
   public static readonly ROLE_PROFISSIONAL = ROLE_PROFISSIONAL;
   public static readonly ROLE_ALUNO = ROLE_ALUNO;
   public static readonly ROLE_VISITANTE = ROLE_VISITANTE;
+  public static readonly ROLE_PRAE_ACCESS = ROLE_PRAE_ACCESS;
+  public static readonly ROLE_ESTUDANTE = ROLE_ESTUDANTE;
   public static redirectToLogin = AuthUtils.redirectToLogin;
 }
 

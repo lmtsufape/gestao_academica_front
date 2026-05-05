@@ -20,7 +20,7 @@ import { InternalLayoutConfig } from "@/types/InternalLayoutConf";
 export default function PraeLayout({ children }: { children: React.ReactNode }) {
   const auth = useAuthService();
   const isAluno = auth.isAluno();
-  const isPraeAccess = auth.isPraeAccess();
+  const isPraeAccess = auth.isPraeAccess() ||auth.isEstudante();
 
   const layoutConfig: InternalLayoutConfig = {
     header: {
@@ -69,7 +69,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           label: "Meu Cadastro",
           route: "/prae/estudantes/atual",
           icon: <School fontSize="small" className="text-white" />,
-          roles: ["aluno"],
+          roles: isPraeAccess ? ["aluno"] : [""],
         },
 
         {
@@ -105,7 +105,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           label: isAluno ? "Pagamentos" : "Gerenciar Pagamentos",
           route: "/prae/pagamentos",
           icon: <Payment fontSize="small" className="text-white" />,
-          roles: isPraeAccess ? ["gestor"] : ["aluno"],
+          roles: isPraeAccess ? ["gestor", "aluno"] : [""],
           subItems: [
             {
               label: "Folha de pagamento",
@@ -123,7 +123,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
               label: "Meus Recebimentos",
               route: "/prae/pagamentos/meus-recebimentos",
               icon: <AccountBalanceWallet fontSize="small" className="text-white" />,
-              roles: ["aluno"],
+              roles: isPraeAccess ? ["aluno"] : [""],
             },
              {
               label: "Relatório Financeiro",
@@ -136,7 +136,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
           label: isAluno ? "Agendamentos" : "Gerenciar Agendamentos",
           route: "/prae/agendamentos",
           icon: <EventNote fontSize="small" className="text-white" />,
-          roles: isPraeAccess ? ["gestor", "Tecnico", "Professor"] : ["aluno"],
+          roles: isPraeAccess ? ["gestor", "Tecnico", "Professor", "aluno"] : [""],
           subItems: [
             {
               label: "Tipo de Atendimento",
@@ -154,13 +154,13 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
               label: "Calendário de Agendamentos",
               route: "/prae/agendamentos/calendario",
               icon: <CalendarMonth fontSize="small" className="text-white" />, // Ícone de calendário
-              roles: isPraeAccess ? ["gestor"] : ["aluno"],
+              roles: isPraeAccess ? ["gestor", "aluno"] : ["aluno"],
             },
             {
               label: "Meus Agendamentos",
               route: "/prae/agendamentos/calendario/meus-agendamentos",
               icon: <EventAvailable fontSize="small" className="text-white" />, // Ícone para eventos confirmados
-              roles: isPraeAccess ? ["Tecnico", "Professor"] : ["aluno"],
+              roles: isPraeAccess ? ["Tecnico", "Professor", "aluno"] : ["aluno"],
             },/*
             {
               label: "Todos Agendamentos",
@@ -172,7 +172,7 @@ export default function PraeLayout({ children }: { children: React.ReactNode }) 
               label: "Meus Cancelamentos",
               route: "/prae/agendamentos/calendario/meus-cancelamentos",
               icon: <EventBusy fontSize="small" className="text-white" />, // Ícone para eventos cancelados
-              roles: isPraeAccess ? ["Tecnico", "Professor"] : ["aluno"],
+              roles: isPraeAccess ? ["Tecnico", "Professor", "aluno"] : ["aluno"],
             },
           ]
         }
