@@ -104,7 +104,7 @@ const PageLista = () => {
         {
           nome: "Valor",
           chave: "valorPagamento",
-          tipo: "texto",
+          tipo: "valor",
           pesquisar: true,
         },
         { nome: "Período", chave: "periodo", tipo: "texto", pesquisar: false },
